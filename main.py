@@ -28,6 +28,13 @@ fresh_news = filter_by_date(
 )
 
 # Оставляем только новости,
+# подходящие по тематике канала.
+topic_news = filter_by_topics(
+    fresh_news,
+    TOPICS,
+)
+
+# Оставляем только новости,
 # которые подходят по тематике канала.
 topic_news = filter_by_topics(
     fresh_news,
@@ -47,7 +54,7 @@ print()
 # из общего списка.
 # Показываем первые 5 новостей
 # вместе с датой публикации.
-for news_item in topic_news[:5]:
+for news_item in topic_news[:10]:
     print(news_item["title"])
     print(f"Дата: {news_item['published_at']}")
     print(news_item["url"])

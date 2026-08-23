@@ -32,6 +32,29 @@ def filter_by_date(news_items, lookback_days):
 def filter_by_topics(news_items, topics):
     """
     Оставляет только новости, в которых встречается
+    хотя бы одна тема из списка TOPICS.
+    """
+
+    filtered_news = []
+
+    for news_item in news_items:
+        # Ищем тему и в заголовке, и в описании.
+        text = (
+            f"{news_item['title']} "
+            f"{news_item['description']}"
+        ).lower()
+
+        # Если найдено хотя бы одно совпадение,
+        # новость проходит фильтр.
+        if any(topic.lower() in text for topic in topics):
+            filtered_news.append(news_item)
+
+    return filtered_news
+
+
+def filter_by_topics(news_items, topics):
+    """
+    Оставляет только новости, в которых встречается
     хотя бы одна из интересующих нас тематик.
     """
 
