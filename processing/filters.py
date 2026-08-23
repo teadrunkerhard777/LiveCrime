@@ -52,24 +52,82 @@ def filter_by_topics(news_items, topics):
     return filtered_news
 
 
-def filter_by_topics(news_items, topics):
+def filter_by_topics(news_items, topics, exclude_keywords):
     """
-    Оставляет только новости, в которых встречается
-    хотя бы одна из интересующих нас тематик.
+    Оставляет свежие криминальные новости по нужным темам
+    и отбрасывает только явные посторонние совпадения.
     """
 
     filtered_news = []
 
     for news_item in news_items:
-        # Объединяем заголовок и описание,
-        # чтобы искать тему сразу в обоих полях.
-        text = (
-            f"{news_item['title']} "
-            f"{news_item['description']}"
-        ).lower()
+        title = news_item["title"].lower()
+        description = news_item["description"].lower()
 
-        # Проверяем, есть ли хотя бы одна тема в тексте.
-        if any(topic.lower() in text for topic in topics):
+        full_text = f"{title} {description}"
+
+        # Проверяем наличие хотя бы одной нужной темы.
+        has_topic = any(
+            topic.lower() in full_text
+            for topic in topics
+        )
+
+        # Проверяем явные стоп-слова.
+        has_excluded_keyword = any(
+            keyword.lower() in full_text
+            for keyword in exclude_keywords
+        )
+
+        # Оставляем новость, если она подходит по теме
+        # и не относится к явно посторонней тематике.
+        if has_topic and not has_excluded_keyword:
             filtered_news.append(news_item)
 
     return filtered_news
+
+
+def calculate_score(news_item, score_rules):
+    """
+    Считает рейтинг интересности новости.
+
+    Чем больше подходящих ключевых слов встречается
+    в заголовке и описании, тем выше score.
+    """
+
+    title = news_item["title"].lower()
+    description = news_item["description"].lower()
+
+    full_text = f"{title} {description}"
+
+    score = 0
+
+    for keyword, points in score_rules.items():
+        # Если ключевое слово встречается в тексте,
+        # добавляем соответствующее количество баллов.
+        if keyword.lower() in full_text:
+            score += points
+
+        # Совпадение в заголовке считаем более важным.
+        if keyword.lower() in title:
+            score += 1
+
+    return score
+
+
+def sort_by_score(news_items, score_rules):
+    """
+    Добавляет каждой новости рейтинг
+    и сортирует список от наиболее интересных к менее интересным.
+    """
+
+    for news_item in news_items:
+        news_item["score"] = calculate_score(
+            news_item,
+            score_rules,
+        )
+
+    return sorted(
+        news_items,
+        key=lambda item: item["score"],
+        reverse=True,
+    )
