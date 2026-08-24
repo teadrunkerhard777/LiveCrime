@@ -187,20 +187,36 @@ def publish_selected_news(
         print(f"URL: {news_item['url']}")
 
         publication_succeeded = False
+        publication_uncertain = False
 
         if image_url:
             print("Пробуем отправить одно сообщение через sendPhoto.")
-            publication_succeeded = send_photo(
+            photo_result = send_photo(
                 image_url,
                 photo_caption,
+            )
+            publication_succeeded = bool(photo_result)
+            publication_uncertain = getattr(
+                photo_result,
+                "uncertain",
+                False,
             )
 
             if publication_succeeded:
                 print("Пост с изображением успешно отправлен в Telegram.")
+            elif publication_uncertain:
+                # При ReadTimeout Telegram мог уже создать сообщение.
+                # Не делаем fallback, чтобы не получить второй пост.
+                print(
+                    "[TELEGRAM] sendPhoto result uncertain, "
+                    "fallback disabled to prevent duplicate"
+                )
             else:
                 # Если Telegram не получил картинку, сохраняем текстовый путь.
+                attempts = getattr(photo_result, "attempts", 1)
                 print(
-                    "[TELEGRAM] sendPhoto failed, "
+                    f"[TELEGRAM] sendPhoto failed after {attempts} "
+                    "attempt(s), "
                     "fallback to sendMessage"
                 )
 
@@ -209,11 +225,22 @@ def publish_selected_news(
                 "[TELEGRAM] image_url not found, using sendMessage"
             )
 
-        if not publication_succeeded:
-            publication_succeeded = send_post(post)
+        if not publication_succeeded and not publication_uncertain:
+            post_result = send_post(post)
+            publication_succeeded = bool(post_result)
+            publication_uncertain = getattr(
+                post_result,
+                "uncertain",
+                False,
+            )
 
             if publication_succeeded:
                 print("Текстовый пост успешно отправлен в Telegram.")
+            elif publication_uncertain:
+                print(
+                    "[TELEGRAM] sendMessage result uncertain, "
+                    "automatic repeat disabled"
+                )
 
         if publication_succeeded:
             # Независимо от способа публикации добавляем одну запись истории.
@@ -221,7 +248,12 @@ def publish_selected_news(
             history_changed = True
 
         else:
-            if image_url:
+            if publication_uncertain:
+                print(
+                    "Результат отправки не подтверждён. "
+                    "История не изменена."
+                )
+            elif image_url:
                 print("Оба способа не сработали. История не изменена.")
             else:
                 print("Текстовый пост не отправлен. История не изменена.")

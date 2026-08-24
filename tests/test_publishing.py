@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from io import StringIO
 from unittest.mock import Mock, patch
 
+import requests
 from bs4 import BeautifulSoup
 
 from config import SOURCES, TOPIC_TAGS
@@ -18,6 +19,12 @@ from generation.post_generator import (
 from main import publish_selected_news
 from publishing.telegram import send_telegram_photo, send_telegram_post
 from storage.history import add_to_history
+
+
+TELEGRAM_ENV = {
+    "TELEGRAM_BOT_TOKEN": "test-token",
+    "TELEGRAM_CHAT_ID": "test-chat",
+}
 
 
 def make_news_item():
@@ -300,7 +307,8 @@ class PublishingFlowTests(unittest.TestCase):
         self.assertEqual(history_mock.call_count, 1)
         self.assertEqual(len(history), 1)
         self.assertIn(
-            "[TELEGRAM] sendPhoto failed, fallback to sendMessage",
+            "[TELEGRAM] sendPhoto failed after 1 attempt(s), "
+            "fallback to sendMessage",
             output.getvalue(),
         )
 
@@ -414,6 +422,204 @@ class PublishingFlowTests(unittest.TestCase):
             with self.assertRaises(AlreadyRunningError):
                 with single_instance_lock():
                     pass
+
+
+class TelegramRetryTests(unittest.TestCase):
+    @staticmethod
+    def successful_response():
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {"ok": True}
+        return response
+
+    @patch("publishing.telegram.time.sleep")
+    @patch("publishing.telegram.requests.post")
+    def test_connect_timeout_then_text_success_updates_history_once(
+        self,
+        post_mock,
+        sleep_mock,
+    ):
+        post_mock.side_effect = [
+            requests.ConnectTimeout(),
+            self.successful_response(),
+        ]
+        history = []
+        history_mock = Mock(wraps=add_to_history)
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            with redirect_stdout(StringIO()):
+                changed = publish_selected_news(
+                    [make_news_item()],
+                    history,
+                    dry_run=False,
+                    post_mode="single",
+                    send_post=send_telegram_post,
+                    add_history=history_mock,
+                )
+
+        self.assertTrue(changed)
+        self.assertEqual(post_mock.call_count, 2)
+        sleep_mock.assert_called_once_with(2)
+        self.assertEqual(history_mock.call_count, 1)
+        self.assertEqual(len(history), 1)
+
+    @patch("publishing.telegram.time.sleep")
+    @patch("publishing.telegram.requests.post")
+    def test_http_400_is_not_retried(self, post_mock, sleep_mock):
+        response = Mock()
+        response.status_code = 400
+        response.raise_for_status.side_effect = requests.HTTPError(
+            response=response
+        )
+        post_mock.return_value = response
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            with redirect_stdout(StringIO()):
+                result = send_telegram_post("Тест")
+
+        self.assertFalse(result)
+        self.assertEqual(result.attempts, 1)
+        self.assertEqual(post_mock.call_count, 1)
+        sleep_mock.assert_not_called()
+
+    @patch("publishing.telegram.time.sleep")
+    @patch("publishing.telegram.requests.post")
+    def test_photo_connect_timeout_then_success_skips_fallback(
+        self,
+        post_mock,
+        sleep_mock,
+    ):
+        post_mock.side_effect = [
+            requests.ConnectTimeout(),
+            self.successful_response(),
+        ]
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        send_post_mock = Mock()
+        history = []
+        history_mock = Mock(wraps=add_to_history)
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            with redirect_stdout(StringIO()):
+                changed = publish_selected_news(
+                    [news_item],
+                    history,
+                    dry_run=False,
+                    post_mode="single",
+                    send_post=send_post_mock,
+                    send_photo=send_telegram_photo,
+                    add_history=history_mock,
+                )
+
+        self.assertTrue(changed)
+        self.assertEqual(post_mock.call_count, 2)
+        sleep_mock.assert_called_once_with(2)
+        send_post_mock.assert_not_called()
+        self.assertEqual(history_mock.call_count, 1)
+        self.assertEqual(len(history), 1)
+
+    @patch("publishing.telegram.time.sleep")
+    @patch("publishing.telegram.requests.post")
+    def test_failed_photo_attempts_fall_back_to_successful_text(
+        self,
+        post_mock,
+        sleep_mock,
+    ):
+        post_mock.side_effect = [
+            requests.ConnectTimeout(),
+            requests.ConnectTimeout(),
+            self.successful_response(),
+        ]
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        history = []
+        history_mock = Mock(wraps=add_to_history)
+        output = StringIO()
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            with redirect_stdout(output):
+                changed = publish_selected_news(
+                    [news_item],
+                    history,
+                    dry_run=False,
+                    post_mode="single",
+                    send_post=send_telegram_post,
+                    send_photo=send_telegram_photo,
+                    add_history=history_mock,
+                )
+
+        self.assertTrue(changed)
+        self.assertEqual(post_mock.call_count, 3)
+        sleep_mock.assert_called_once_with(2)
+        self.assertEqual(history_mock.call_count, 1)
+        self.assertEqual(len(history), 1)
+        self.assertIn(
+            "sendPhoto failed after 2 attempt(s)",
+            output.getvalue(),
+        )
+
+    @patch("publishing.telegram.time.sleep")
+    @patch("publishing.telegram.requests.post")
+    def test_all_connect_timeout_attempts_leave_history_unchanged(
+        self,
+        post_mock,
+        sleep_mock,
+    ):
+        post_mock.side_effect = [requests.ConnectTimeout()] * 4
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        history_mock = Mock()
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            with redirect_stdout(StringIO()):
+                changed = publish_selected_news(
+                    [news_item],
+                    [],
+                    dry_run=False,
+                    post_mode="single",
+                    send_post=send_telegram_post,
+                    send_photo=send_telegram_photo,
+                    add_history=history_mock,
+                )
+
+        self.assertFalse(changed)
+        self.assertEqual(post_mock.call_count, 4)
+        self.assertEqual(sleep_mock.call_count, 2)
+        history_mock.assert_not_called()
+
+    @patch("publishing.telegram.time.sleep")
+    @patch("publishing.telegram.requests.post")
+    def test_read_timeout_is_not_retried_or_fallen_back(
+        self,
+        post_mock,
+        sleep_mock,
+    ):
+        post_mock.side_effect = requests.ReadTimeout()
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        send_post_mock = Mock()
+        history_mock = Mock()
+        output = StringIO()
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            with redirect_stdout(output):
+                changed = publish_selected_news(
+                    [news_item],
+                    [],
+                    dry_run=False,
+                    post_mode="single",
+                    send_post=send_post_mock,
+                    send_photo=send_telegram_photo,
+                    add_history=history_mock,
+                )
+
+        self.assertFalse(changed)
+        self.assertEqual(post_mock.call_count, 1)
+        sleep_mock.assert_not_called()
+        send_post_mock.assert_not_called()
+        history_mock.assert_not_called()
+        self.assertIn("ReadTimeout", output.getvalue())
+        self.assertIn("fallback disabled", output.getvalue())
 
 
 if __name__ == "__main__":

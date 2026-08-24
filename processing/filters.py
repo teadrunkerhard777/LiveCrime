@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta, timezone
 
 
@@ -6,6 +7,14 @@ from datetime import datetime, timedelta, timezone
 CONTEXT_REQUIRED_TOPICS = {
     "обвин",
 }
+
+
+def _topic_matches(full_text, topic):
+    """Ищет тематическую основу только с начала отдельного слова."""
+
+    # Левая граница не даёт "следств" совпасть внутри "последствия".
+    pattern = rf"(?<!\w){re.escape(topic.casefold())}"
+    return re.search(pattern, full_text) is not None
 
 
 def filter_by_date(news_items, lookback_days):
@@ -60,7 +69,7 @@ def filter_by_topics(
         matched_topics = [
             topic
             for topic in topics
-            if topic.casefold() in full_text
+            if _topic_matches(full_text, topic)
         ]
 
         # Проверяем явные стоп-слова.
