@@ -13,6 +13,13 @@ from processing.filters import (
     sort_by_score,
 )
 
+from storage.history import (
+    add_to_history,
+    is_published,
+    load_history,
+    save_history,
+)
+
 
 # Здесь будем собирать новости со всех источников.
 all_news = []
@@ -57,6 +64,23 @@ ranked_news = sort_by_score(
 # Убираем повторяющиеся новости.
 unique_news = remove_duplicates(ranked_news)
 
+# Загружаем историю уже обработанных новостей.
+history = load_history()
+
+# Здесь будут только те новости,
+# которых ещё нет в истории.
+new_news = []
+
+for news_item in unique_news:
+    if not is_published(news_item, history):
+        new_news.append(news_item)
+
+# Для теста сохраняем первые 10 новых новостей в историю.
+for news_item in new_news[:10]:
+    add_to_history(news_item, history)
+
+save_history(history)
+
 
 print(f"Всего собрано новостей: {len(all_news)}")
 print(
@@ -65,11 +89,12 @@ print(
 )
 print(f"Подходят по тематике: {len(topic_news)}")
 print(f"После удаления дублей: {len(unique_news)}")
+print(f"Новых новостей: {len(new_news)}")
 print()
 
 
 # Показываем первые 10 подходящих новостей.
-for news_item in unique_news[:10]:
+for news_item in new_news[:10]:
     print(f"[score: {news_item['score']}]")
     print(news_item["title"])
     print(f"Дата: {news_item['published_at']}")
