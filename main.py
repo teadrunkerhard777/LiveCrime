@@ -75,16 +75,21 @@ unique_news = remove_duplicates(ranked_news)
 history = load_history()
 
 
-# ====================НОВЫЕ=======================
+# В тестовом режиме история не ограничивает выборку.
+# Копия списка позволяет повторно проверять одни и те же новости,
+# даже если их URL уже сохранены в published.json.
+if DRY_RUN:
+    new_news = unique_news.copy()
 
+# В рабочем режиме история защищает канал от повторных публикаций.
+else:
+    new_news = []
 
-# Здесь будут только те новости,
-# которых ещё нет в истории.
-new_news = []
-
-for news_item in unique_news:
-    if not is_published(news_item, history):
-        new_news.append(news_item)
+    # Проверяем каждую новость по сохранённой истории
+    # и оставляем только ещё не опубликованные материалы.
+    for news_item in unique_news:
+        if not is_published(news_item, history):
+            new_news.append(news_item)
 
 
 # Ограничиваем количество новостей,
