@@ -6,6 +6,10 @@ from config import TOPIC_TAGS
 # Telegram sendMessage принимает до 4096 символов.
 # Оставляем небольшой запас на возможные будущие элементы шаблона.
 TELEGRAM_SAFE_LIMIT = 4000
+
+# Telegram photo caption ограничен 1024 символами после разбора HTML.
+# Лимит 1000 оставляет небольшой запас и учитывает разметку консервативно.
+TELEGRAM_PHOTO_CAPTION_SAFE_LIMIT = 1000
 TITLE_SAFE_LIMIT = 500
 
 RUSSIAN_MONTHS = {
@@ -26,6 +30,19 @@ RUSSIAN_MONTHS = {
 
 def generate_post(news_item):
     """Формирует безопасный Telegram-пост с минимальной HTML-разметкой."""
+
+    return _generate_post(news_item, TELEGRAM_SAFE_LIMIT)
+
+
+def generate_photo_caption(news_item):
+    """Формирует компактную подпись для одного Telegram photo-сообщения."""
+
+    # Отдельный короткий лимит нужен только для caption у sendPhoto.
+    return _generate_post(news_item, TELEGRAM_PHOTO_CAPTION_SAFE_LIMIT)
+
+
+def _generate_post(news_item, safe_limit):
+    """Собирает общий HTML-шаблон с заданным безопасным лимитом."""
 
     # Заголовок ограничиваем отдельно, чтобы он не вытеснил весь текст.
     raw_title = truncate_article_text(
@@ -60,7 +77,7 @@ def generate_post(news_item):
     # Рассчитываем место после готовых заголовка и метаданных.
     # Лимит учитывает экранированный HTML, включая &amp; и &lt;.
     fixed_length = len(header) + len(footer) + 4
-    article_limit = max(0, TELEGRAM_SAFE_LIMIT - fixed_length)
+    article_limit = max(0, safe_limit - fixed_length)
     article_text = truncate_article_text(raw_article_text, article_limit)
     escaped_article_text = escape(article_text)
 

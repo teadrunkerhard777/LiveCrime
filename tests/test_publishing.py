@@ -4,15 +4,19 @@ from datetime import datetime, timezone
 from io import StringIO
 from unittest.mock import Mock, patch
 
+from bs4 import BeautifulSoup
+
 from config import SOURCES, TOPIC_TAGS
 from core.run_lock import AlreadyRunningError, single_instance_lock
 from generation.post_generator import (
+    TELEGRAM_PHOTO_CAPTION_SAFE_LIMIT,
     TELEGRAM_SAFE_LIMIT,
+    generate_photo_caption,
     generate_post,
     generate_tags,
 )
 from main import publish_selected_news
-from publishing.telegram import send_telegram_post
+from publishing.telegram import send_telegram_photo, send_telegram_post
 from storage.history import add_to_history
 
 
@@ -61,6 +65,38 @@ class PostGeneratorTests(unittest.TestCase):
         self.assertIn("<b>Заголовок", post)
         self.assertIn("📰", post)
         self.assertIn("Читать источник", post)
+
+    def test_long_photo_caption_keeps_required_sections(self):
+        news_item = make_news_item()
+        news_item["article_text"] = "Очень длинное предложение. " * 1000
+
+        caption = generate_photo_caption(news_item)
+
+        self.assertLessEqual(
+            len(caption),
+            TELEGRAM_PHOTO_CAPTION_SAFE_LIMIT,
+        )
+        self.assertIn("<b>Заголовок", caption)
+        self.assertIn("24 августа 2026", caption)
+        self.assertIn("📰 Источник", caption)
+        self.assertIn("Читать источник", caption)
+        self.assertIn("#уголовноедело #обвинение", caption)
+        self.assertIn("…", caption)
+
+    def test_photo_caption_escapes_html_characters_and_quotes(self):
+        news_item = make_news_item()
+        news_item["title"] = 'Заголовок <тест> & "кавычки" и \'апостроф\''
+        news_item["article_text"] = 'Текст <данные> & "кавычки".'
+
+        caption = generate_photo_caption(news_item)
+        soup = BeautifulSoup(caption, "html.parser")
+
+        self.assertIn("&lt;тест&gt;", caption)
+        self.assertIn("&amp;", caption)
+        self.assertIn("&quot;кавычки&quot;", caption)
+        self.assertIn("&#x27;апостроф&#x27;", caption)
+        self.assertIsNotNone(soup.find("b"))
+        self.assertIsNotNone(soup.find("a"))
 
     def test_multiple_topics_keep_their_order(self):
         news_item = {"matched_topics": ["покушен", "суд"]}
@@ -128,6 +164,33 @@ class TelegramTests(unittest.TestCase):
         self.assertEqual(payload["parse_mode"], "HTML")
         self.assertEqual(post_mock.call_count, 1)
 
+    @patch("publishing.telegram.requests.post")
+    def test_photo_sender_uses_send_photo_with_url_and_caption(self, post_mock):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {"ok": True}
+        post_mock.return_value = response
+
+        env = {
+            "TELEGRAM_BOT_TOKEN": "test-token",
+            "TELEGRAM_CHAT_ID": "test-chat",
+        }
+
+        with patch.dict("os.environ", env, clear=False):
+            result = send_telegram_photo(
+                "https://img.example/photo.jpg",
+                "<b>Подпись</b>",
+            )
+
+        self.assertTrue(result)
+        self.assertTrue(
+            post_mock.call_args.args[0].endswith("/sendPhoto")
+        )
+        payload = post_mock.call_args.kwargs["json"]
+        self.assertEqual(payload["photo"], "https://img.example/photo.jpg")
+        self.assertEqual(payload["caption"], "<b>Подпись</b>")
+        self.assertEqual(payload["parse_mode"], "HTML")
+
 
 class PublishingFlowTests(unittest.TestCase):
     def test_success_sends_and_adds_history_once(self):
@@ -154,6 +217,100 @@ class PublishingFlowTests(unittest.TestCase):
         self.assertEqual(len(history), 1)
         self.assertIn("[TELEGRAM] Отправка 1/1", output.getvalue())
 
+    def test_successful_photo_does_not_send_text(self):
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        history = []
+        send_photo_mock = Mock(return_value=True)
+        send_post_mock = Mock()
+        history_mock = Mock(wraps=add_to_history)
+
+        with redirect_stdout(StringIO()):
+            changed = publish_selected_news(
+                [news_item],
+                history,
+                dry_run=False,
+                post_mode="single",
+                send_post=send_post_mock,
+                send_photo=send_photo_mock,
+                add_history=history_mock,
+            )
+
+        self.assertTrue(changed)
+        self.assertEqual(send_photo_mock.call_count, 1)
+        send_post_mock.assert_not_called()
+        self.assertEqual(history_mock.call_count, 1)
+        self.assertEqual(len(history), 1)
+
+    def test_failed_photo_falls_back_to_successful_text(self):
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        history = []
+        send_photo_mock = Mock(return_value=False)
+        send_post_mock = Mock(return_value=True)
+        history_mock = Mock(wraps=add_to_history)
+
+        with redirect_stdout(StringIO()):
+            changed = publish_selected_news(
+                [news_item],
+                history,
+                dry_run=False,
+                post_mode="single",
+                send_post=send_post_mock,
+                send_photo=send_photo_mock,
+                add_history=history_mock,
+            )
+
+        self.assertTrue(changed)
+        self.assertEqual(send_photo_mock.call_count, 1)
+        self.assertEqual(send_post_mock.call_count, 1)
+        self.assertEqual(history_mock.call_count, 1)
+        self.assertEqual(len(history), 1)
+
+    def test_failed_photo_and_text_do_not_change_history(self):
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+        send_photo_mock = Mock(return_value=False)
+        send_post_mock = Mock(return_value=False)
+        history_mock = Mock()
+
+        with redirect_stdout(StringIO()):
+            changed = publish_selected_news(
+                [news_item],
+                [],
+                dry_run=False,
+                post_mode="single",
+                send_post=send_post_mock,
+                send_photo=send_photo_mock,
+                add_history=history_mock,
+            )
+
+        self.assertFalse(changed)
+        self.assertEqual(send_photo_mock.call_count, 1)
+        self.assertEqual(send_post_mock.call_count, 1)
+        history_mock.assert_not_called()
+
+    def test_missing_image_uses_only_text_message(self):
+        send_photo_mock = Mock()
+        send_post_mock = Mock(return_value=True)
+        history_mock = Mock()
+
+        with redirect_stdout(StringIO()):
+            changed = publish_selected_news(
+                [make_news_item()],
+                [],
+                dry_run=False,
+                post_mode="single",
+                send_post=send_post_mock,
+                send_photo=send_photo_mock,
+                add_history=history_mock,
+            )
+
+        self.assertTrue(changed)
+        send_photo_mock.assert_not_called()
+        self.assertEqual(send_post_mock.call_count, 1)
+        self.assertEqual(history_mock.call_count, 1)
+
     def test_failed_send_does_not_add_history(self):
         send_mock = Mock(return_value=False)
         history_mock = Mock(wraps=add_to_history)
@@ -174,21 +331,31 @@ class PublishingFlowTests(unittest.TestCase):
 
     def test_dry_run_does_not_call_external_functions(self):
         send_mock = Mock()
+        send_photo_mock = Mock()
         history_mock = Mock()
 
-        with redirect_stdout(StringIO()):
+        news_item = make_news_item()
+        news_item["image_url"] = "https://img.example/photo.jpg"
+
+        output = StringIO()
+
+        with redirect_stdout(output):
             changed = publish_selected_news(
-                [make_news_item()],
+                [news_item],
                 [],
                 dry_run=True,
                 post_mode="single",
                 send_post=send_mock,
+                send_photo=send_photo_mock,
                 add_history=history_mock,
             )
 
         self.assertFalse(changed)
         send_mock.assert_not_called()
+        send_photo_mock.assert_not_called()
         history_mock.assert_not_called()
+        self.assertIn("[DRY RUN] Photo URL:", output.getvalue())
+        self.assertIn("[DRY RUN] Caption:", output.getvalue())
 
     def test_only_lenta_is_enabled(self):
         active_sources = [

@@ -17,6 +17,36 @@ def send_telegram_post(text):
     При любой ошибке возвращает False и не прерывает программу.
     """
 
+    return _send_telegram_request(
+        "sendMessage",
+        {
+            "text": text,
+            "parse_mode": "HTML",
+        },
+    )
+
+
+def send_telegram_photo(image_url, caption):
+    """Отправляет картинку по URL и caption как одно Telegram-сообщение."""
+
+    if not image_url:
+        print("Ошибка Telegram: URL изображения не указан.")
+        return False
+
+    # Telegram сам получает изображение: локальный файл не создаётся.
+    return _send_telegram_request(
+        "sendPhoto",
+        {
+            "photo": image_url,
+            "caption": caption,
+            "parse_mode": "HTML",
+        },
+    )
+
+
+def _send_telegram_request(method, payload):
+    """Выполняет общий запрос к Telegram Bot API."""
+
     # Токен и chat ID читаем только из окружения.
     # Секреты не должны храниться в исходном коде.
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
@@ -30,23 +60,17 @@ def send_telegram_post(text):
         )
         return False
 
-    api_url = (
-        f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    )
+    api_url = f"https://api.telegram.org/bot{bot_token}/{method}"
 
     # Telegram разберёт только минимальные теги <b> и <a>,
     # которые формирует и безопасно экранирует post_generator.py.
-    payload = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "HTML",
-    }
+    request_payload = {"chat_id": chat_id, **payload}
 
     try:
         # timeout не позволяет зависнуть при проблемах с сетью.
         response = requests.post(
             api_url,
-            json=payload,
+            json=request_payload,
             timeout=15,
         )
 

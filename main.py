@@ -22,14 +22,14 @@ from processing.filters import (
     filter_by_topics,
     sort_by_score,
 )
-from publishing.telegram import send_telegram_post
+from publishing.telegram import send_telegram_photo, send_telegram_post
 from storage.history import (
     add_to_history,
     is_published,
     load_history,
     save_history,
 )
-from generation.post_generator import generate_post
+from generation.post_generator import generate_photo_caption, generate_post
 
 from article.fetcher import (
     clean_article_text,
@@ -143,6 +143,7 @@ def publish_selected_news(
     dry_run,
     post_mode,
     send_post=send_telegram_post,
+    send_photo=send_telegram_photo,
     add_history=add_to_history,
 ):
     """Формирует и по одному разу обрабатывает выбранные посты."""
@@ -153,15 +154,24 @@ def publish_selected_news(
     # Это единственный цикл публикации и единственная точка отправки.
     for post_number, news_item in enumerate(selected_news, start=1):
         post = generate_post(news_item)
+        image_url = news_item.get("image_url")
+        photo_caption = generate_photo_caption(news_item)
         print("=" * 60)
 
         # В DRY_RUN Telegram API и история вообще не вызываются.
         if dry_run:
-            print("[DRY RUN] Пост не отправлен в Telegram")
             matched_topics = news_item.get("matched_topics", [])
             print(f"Темы: {', '.join(matched_topics)}")
-            print()
-            print(post)
+
+            if image_url:
+                print(f"[DRY RUN] Photo URL: {image_url}")
+                print("[DRY RUN] Caption:")
+                print(photo_caption)
+            else:
+                print("[DRY RUN] Photo URL: NOT FOUND")
+                print("[DRY RUN] Текстовый пост:")
+                print(post)
+
             print()
             continue
 
@@ -170,20 +180,42 @@ def publish_selected_news(
             print()
             continue
 
-        # Номер, заголовок и URL позволяют проверить один вызов на новость.
+        # Номер, заголовок и URL позволяют проверить одну публикацию новости.
         print(f"[TELEGRAM] Отправка {post_number}/{total_posts}")
         print(f"Заголовок: {news_item['title']}")
         print(f"URL: {news_item['url']}")
 
-        # На одной итерации выполняется ровно один вызов Telegram API.
-        if send_post(post):
-            print("Пост успешно отправлен в Telegram.")
+        publication_succeeded = False
 
-            # Историю обновляем ровно один раз и только после успеха.
+        if image_url:
+            print("Пробуем отправить одно сообщение через sendPhoto.")
+            publication_succeeded = send_photo(
+                image_url,
+                photo_caption,
+            )
+
+            if publication_succeeded:
+                print("Пост с изображением успешно отправлен в Telegram.")
+            else:
+                # Если Telegram не получил картинку, сохраняем текстовый путь.
+                print("sendPhoto не удался. Пробуем текстовый fallback.")
+
+        if not publication_succeeded:
+            publication_succeeded = send_post(post)
+
+            if publication_succeeded:
+                print("Текстовый пост успешно отправлен в Telegram.")
+
+        if publication_succeeded:
+            # Независимо от способа публикации добавляем одну запись истории.
             add_history(news_item, history)
             history_changed = True
+
         else:
-            print("Пост не отправлен. История для новости не изменена.")
+            if image_url:
+                print("Оба способа не сработали. История не изменена.")
+            else:
+                print("Текстовый пост не отправлен. История не изменена.")
 
         print()
 
