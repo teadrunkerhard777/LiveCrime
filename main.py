@@ -1,6 +1,7 @@
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
+    DRY_RUN,
     EXCLUDE_KEYWORDS,
     MAX_NEWS_PER_RUN,
     NEWS_LOOKBACK_DAYS,
@@ -90,17 +91,19 @@ for news_item in unique_news:
 # которые попадут в текущую подборку.
 selected_news = new_news[:MAX_NEWS_PER_RUN]
 
-if selected_news:
-    fetch_article_html(selected_news[0]["url"])
-
-    # Временно проверяем извлечение текста
+# Временно проверяем извлечение текста
 # только на первой выбранной новости.
 if selected_news:
     test_news = selected_news[0]
 
+    # Загружаем HTML по прямой ссылке на статью.
     html = fetch_article_html(test_news["url"])
+
+    # Собираем обычный текст из абзацев страницы.
     article_text = extract_article_text(html)
 
+    # Первых 3000 символов достаточно, чтобы увидеть,
+    # попали ли в результат меню, реклама или другой мусор.
     print("=" * 60)
     print("ТЕСТ ТЕКСТА СТАТЬИ")
     print()
@@ -127,7 +130,13 @@ for news_item in selected_news:
     print(post)
     print()
 
-    # Пока считаем выбранную новость обработанной.
-    add_to_history(news_item, history)
+# В обычном режиме считаем выбранные новости обработанными
+# и сохраняем обновлённую историю на диск.
+#
+# В DRY_RUN этот блок целиком пропускается. Благодаря этому
+# одни и те же новости можно проверять несколько раз подряд.
+if not DRY_RUN:
+    for news_item in selected_news:
+        add_to_history(news_item, history)
 
-save_history(history)
+    save_history(history)

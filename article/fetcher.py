@@ -7,6 +7,8 @@ def fetch_article_html(url):
     Загружает HTML страницы новости.
     """
 
+    # Многие сайты ожидают заголовок обычного браузера
+    # и без него могут вернуть ошибку или пустую страницу.
     headers = {
         "User-Agent": (
             "Mozilla/5.0 "
@@ -17,12 +19,14 @@ def fetch_article_html(url):
         )
     }
 
+    # timeout не позволяет программе ждать ответ бесконечно.
     response = requests.get(
         url,
         headers=headers,
         timeout=15,
     )
 
+    # Сразу сообщаем об HTTP-ошибках вроде 404 или 500.
     response.raise_for_status()
 
     return response.text
@@ -34,6 +38,7 @@ def extract_article_text(html):
     Пока используем общий вариант без привязки к конкретному сайту.
     """
 
+    # BeautifulSoup превращает HTML в удобное для поиска дерево.
     soup = BeautifulSoup(html, "html.parser")
 
     paragraphs = []
@@ -50,4 +55,5 @@ def extract_article_text(html):
         if len(text) >= 40:
             paragraphs.append(text)
 
+    # Возвращаем одну обычную строку с разделёнными абзацами.
     return "\n\n".join(paragraphs)
