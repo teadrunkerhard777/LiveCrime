@@ -4,10 +4,6 @@ name: LiveCrime Autoposter
 on:
   workflow_dispatch:
 
-  schedule:
-    # GitHub cron работает в UTC: запускаем LiveCrime каждые 3 часа.
-    - cron: "0 */3 * * *"
-
 # Workflow может записать обновлённую историю публикаций в репозиторий.
 permissions:
   contents: write

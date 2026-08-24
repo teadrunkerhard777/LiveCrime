@@ -57,11 +57,10 @@ class WorkflowTests(unittest.TestCase):
     def setUpClass(cls):
         cls.workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
 
-    def test_workflow_has_manual_and_three_hour_schedule(self):
+    def test_workflow_is_manual_and_has_no_schedule(self):
         self.assertIn("workflow_dispatch:", self.workflow)
-        self.assertIn("schedule:", self.workflow)
-        self.assertEqual(self.workflow.count("cron:"), 1)
-        self.assertIn('cron: "0 */3 * * *"', self.workflow)
+        self.assertNotIn("schedule:", self.workflow)
+        self.assertNotIn("cron:", self.workflow)
 
     def test_workflow_has_write_permission_and_concurrency(self):
         self.assertIn("contents: write", self.workflow)
