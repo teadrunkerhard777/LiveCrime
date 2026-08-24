@@ -44,10 +44,6 @@ TOPICS = [
 
 
 SOURCES = [
-
-    # Официальная RSS-лента Lenta.ru.
-    # Здесь пока берём широкую новостную ленту,
-    # а отбор преступлений делает наша программа.
     {
         "name": "Lenta.ru",
         "type": "rss",
@@ -55,12 +51,139 @@ SOURCES = [
         "url": "https://lenta.ru/rss/news",
     },
 
-    # Региональная лента происшествий Саратова.
     {
         "name": "SarBC: происшествия",
         "type": "rss",
         "role": "article_source",
         "url": "https://www.sarbc.ru/rss/data-utf/event.rss",
+    },
+
+    # Москва
+    {
+        "name": "АГН Москва: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://www.mskagency.ru/rss/incident.rss",
+    },
+
+    # Москва + Московская область
+    {
+        "name": "StolicaMedia: происшествия Москвы и области",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://stolicamedia.ru/export/new/newsByRubric_121_188.rss",
+    },
+
+    # Санкт-Петербург
+    {
+        "name": "PeterburgMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://peterburgmedia.ru/export/new/newsByRubric_88_198.rss",
+    },
+
+    # Краснодарский край
+    {
+        "name": "KrasnodarMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://krasnodarmedia.su/export/new/newsByRubric_25_79.rss",
+    },
+
+    # Сибирь: Иркутская область
+    {
+        "name": "IrkutskMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://irkutskmedia.ru/export/new/newsByRubric_14_51.rss",
+    },
+
+    # Сибирь: Красноярский край
+    {
+        "name": "KrasnoyarskMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://krasnoyarskmedia.ru/export/new/newsByRubric_26_16.rss",
+    },
+
+    # Сибирь: Омская область
+    {
+        "name": "OmskMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://omskmedia.su/export/new/newsByRubric_38_181.rss",
+    },
+
+    # Дальний Восток: Приморский край
+    {
+        "name": "PrimaMedia: происшествия Приморья",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://primamedia.ru/export/new/newsByRubric_43_19.rss",
+    },
+
+    # Дальний Восток: Хабаровский край
+    {
+        "name": "AmurMedia: происшествия Хабаровского края",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://amurmedia.ru/export/new/newsByRubric_77_27.rss",
+    },
+
+    # Дальний Восток: Сахалин
+    {
+        "name": "SakhalinMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://sakhalinmedia.ru/export/new/newsByRubric_64_40.rss",
+    },
+
+    # Дальний Восток: Якутия
+    {
+        "name": "YakutiaMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://yakutiamedia.ru/export/new/newsByRubric_55_71.rss",
+    },
+
+    # Дальний Восток: Амурская область
+    {
+        "name": "PriamurMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://priamurmedia.ru/export/new/newsByRubric_2_121.rss",
+    },
+
+    # Дальний Восток: Камчатка
+    {
+        "name": "KamchatkaMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://kamchatkamedia.ru/export/new/newsByRubric_18_118.rss",
+    },
+
+    # Дальний Восток: Еврейская автономная область
+    {
+        "name": "EAOMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://eaomedia.ru/export/new/newsByRubric_11_35.rss",
+    },
+
+    # Дальний Восток: Магаданская область
+    {
+        "name": "MagadanMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://magadanmedia.ru/export/new/newsByRubric_31_63.rss",
+    },
+
+    # Дальний Восток: Чукотка
+    {
+        "name": "ChukotkaMedia: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "url": "https://chukotkamedia.ru/export/new/newsByRubric_83_44.rss",
     },
 
     # HTML-источники используют отдельные адаптеры.
