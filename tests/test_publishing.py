@@ -4,9 +4,13 @@ from datetime import datetime, timezone
 from io import StringIO
 from unittest.mock import Mock, patch
 
-from config import SOURCES
+from config import SOURCES, TOPIC_TAGS
 from core.run_lock import AlreadyRunningError, single_instance_lock
-from generation.post_generator import TELEGRAM_SAFE_LIMIT, generate_post
+from generation.post_generator import (
+    TELEGRAM_SAFE_LIMIT,
+    generate_post,
+    generate_tags,
+)
 from main import publish_selected_news
 from publishing.telegram import send_telegram_post
 from storage.history import add_to_history
@@ -34,6 +38,7 @@ class PostGeneratorTests(unittest.TestCase):
         self.assertIn("24 августа 2026", post)
         self.assertIn("📰 Источник &amp; партнёры", post)
         self.assertIn("id=1&amp;part=2", post)
+        self.assertIn("#уголовноедело #обвинение", post)
         self.assertNotIn("Темы:", post)
 
     def test_long_article_stays_inside_telegram_limit(self):
@@ -44,7 +49,7 @@ class PostGeneratorTests(unittest.TestCase):
 
         self.assertLessEqual(len(post), TELEGRAM_SAFE_LIMIT)
         self.assertIn("…", post)
-        self.assertTrue(post.endswith("</a>"))
+        self.assertIn("</a>\n\n#уголовноедело #обвинение", post)
 
     def test_empty_text_keeps_complete_minimal_post(self):
         news_item = make_news_item()
@@ -56,6 +61,50 @@ class PostGeneratorTests(unittest.TestCase):
         self.assertIn("<b>Заголовок", post)
         self.assertIn("📰", post)
         self.assertIn("Читать источник", post)
+
+    def test_multiple_topics_keep_their_order(self):
+        news_item = {"matched_topics": ["покушен", "суд"]}
+
+        self.assertEqual(
+            generate_tags(news_item, TOPIC_TAGS),
+            "#покушение #суд",
+        )
+
+    def test_different_topics_do_not_repeat_same_tag(self):
+        news_item = {"matched_topics": ["розыск", "разыск"]}
+
+        self.assertEqual(
+            generate_tags(news_item, TOPIC_TAGS),
+            "#розыск",
+        )
+
+    def test_no_more_than_four_tags_are_generated(self):
+        news_item = {
+            "matched_topics": [
+                "убий",
+                "покушен",
+                "ограб",
+                "похищ",
+                "арест",
+            ]
+        }
+
+        tags = generate_tags(news_item, TOPIC_TAGS)
+
+        self.assertEqual(len(tags.split()), 4)
+        self.assertEqual(
+            tags,
+            "#убийство #покушение #ограбление #похищение",
+        )
+
+    def test_empty_topics_do_not_add_tag_block(self):
+        news_item = make_news_item()
+        news_item["matched_topics"] = []
+
+        post = generate_post(news_item)
+
+        self.assertEqual(generate_tags(news_item, TOPIC_TAGS), "")
+        self.assertTrue(post.endswith("</a>"))
 
 
 class TelegramTests(unittest.TestCase):

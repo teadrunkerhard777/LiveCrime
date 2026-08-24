@@ -1,5 +1,7 @@
 from html import escape
 
+from config import TOPIC_TAGS
+
 
 # Telegram sendMessage принимает до 4096 символов.
 # Оставляем небольшой запас на возможные будущие элементы шаблона.
@@ -42,6 +44,7 @@ def generate_post(news_item):
     source = escape(news_item.get("source", "Источник неизвестен"))
     url = escape(news_item.get("url", ""), quote=True)
     date_text = _format_date(news_item.get("published_at"))
+    tags_text = generate_tags(news_item, TOPIC_TAGS)
 
     header = f"🔴 <b>{title}</b>"
     footer = (
@@ -49,6 +52,10 @@ def generate_post(news_item):
         f"📰 {source}\n\n"
         f'🔗 <a href="{url}">Читать источник</a>'
     )
+
+    # Теги идут обычным текстом после ссылки и не входят в HTML-теги.
+    if tags_text:
+        footer = f"{footer}\n\n{tags_text}"
 
     # Рассчитываем место после готовых заголовка и метаданных.
     # Лимит учитывает экранированный HTML, включая &amp; и &lt;.
@@ -61,6 +68,30 @@ def generate_post(news_item):
         return f"{header}\n\n{escaped_article_text}\n\n{footer}"
 
     return f"{header}\n\n{footer}"
+
+
+def generate_tags(news_item, topic_tags, max_tags=4):
+    """Преобразует matched_topics в уникальную строку хэштегов."""
+
+    generated_tags = []
+    seen_tags = set()
+
+    # Порядок matched_topics отражает порядок тематик в config.py.
+    for topic in news_item.get("matched_topics", []):
+        tag = topic_tags.get(topic)
+
+        if not tag or tag in seen_tags:
+            continue
+
+        # Удаляем дубли по готовому тегу: розыск и разыск дадут один тег.
+        generated_tags.append(tag)
+        seen_tags.add(tag)
+
+        # Небольшой лимит не перегружает конец Telegram-поста.
+        if len(generated_tags) >= max_tags:
+            break
+
+    return " ".join(generated_tags)
 
 
 def truncate_article_text(text, max_escaped_length):
