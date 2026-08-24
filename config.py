@@ -1,3 +1,27 @@
+import os
+
+
+def _read_boolean_env(name, default):
+    """Читает булево значение из окружения с безопасным fallback."""
+
+    value = os.getenv(name)
+
+    # Без переменной окружения используем локальное значение по умолчанию.
+    if value is None:
+        return default
+
+    normalized_value = value.strip().casefold()
+
+    if normalized_value in {"1", "true", "yes", "on"}:
+        return True
+
+    if normalized_value in {"0", "false", "no", "off"}:
+        return False
+
+    # Неизвестное значение не должно случайно включать реальные публикации.
+    return default
+
+
 # За сколько последних дней будем брать новости.
 # Пока значение просто храним в конфигурации.
 # Сам фильтр по дате добавим отдельным этапом.
@@ -12,11 +36,11 @@ MAX_NEWS_PER_RUN = 1
 # Тестовый режим для безопасной разработки.
 #
 # При True программа полностью обрабатывает и показывает новости,
-# но не записывает выбранные материалы в storage/published.json.
-
-#DRY_RUN = True
-DRY_RUN = False
-MAX_NEWS_PER_RUN = 1
+# но не отправляет посты и не меняет storage/published.json.
+#
+# Локально безопасный режим включён всегда. GitHub Actions явно передаёт
+# LIVECRIME_DRY_RUN=false только для ручного рабочего запуска.
+DRY_RUN = _read_boolean_env("LIVECRIME_DRY_RUN", default=True)
 
 
 # Основной режим публикации:

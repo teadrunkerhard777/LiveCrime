@@ -1,0 +1,60 @@
+name: LiveCrime Autoposter
+
+# Публикацию запускаем только вручную из интерфейса GitHub Actions.
+on:
+  workflow_dispatch:
+
+# Workflow может записать обновлённую историю публикаций в репозиторий.
+permissions:
+  contents: write
+
+# Два запуска не должны одновременно читать и менять published.json.
+concurrency:
+  group: livecrime-autoposter
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run LiveCrime
+        env:
+          # Секреты хранятся только в настройках GitHub-репозитория.
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+          # Только этот ручной запуск включает реальную публикацию.
+          LIVECRIME_DRY_RUN: "false"
+        run: python main.py
+
+      - name: Commit publication history
+        # При ошибке main.py этот шаг по умолчанию не запускается.
+        if: ${{ success() }}
+        shell: bash
+        run: |
+          # Пустой коммит не создаём, если история не изменилась.
+          if git diff --quiet -- storage/published.json; then
+            echo "Publication history did not change."
+            exit 0
+          fi
+
+          # В коммит попадает только файл истории успешных публикаций.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add storage/published.json
+          git commit -m "Update LiveCrime publication history"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
