@@ -215,6 +215,33 @@ SOURCES = [
         "timezone": "Asia/Novosibirsk",
         "limit": 40,
     },
+    {
+        "name": "vtomske.ru: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "url": "https://vtomske.ru/tag/incident",
+        "adapter": "vtomske",
+        "timezone": "Asia/Tomsk",
+        "limit": 40,
+    },
+    {
+        "name": "Amic.ru: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "url": "https://www.amic.ru/news/incident",
+        "adapter": "amic",
+        "timezone": "Asia/Barnaul",
+        "limit": 40,
+    },
+    {
+        "name": "A42: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "url": "https://gazeta.a42.ru/lenta/news/kuzbass/proisshestviya",
+        "adapter": "a42",
+        "timezone": "Asia/Novokuznetsk",
+        "limit": 40,
+    },
 ]
 
 # Слова и выражения, при которых новость

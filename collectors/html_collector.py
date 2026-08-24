@@ -40,6 +40,28 @@ RUSSIAN_MONTHS = {
     "декабря": 12,
 }
 
+# Рубрики vtomske.ru и Amic содержат также федеральные новости.
+# Оставляем карточки, в заголовке которых явно указан нужный регион.
+VTOMSKE_LOCAL_MARKERS = (
+    "томск",
+    "томич",
+    "северск",
+    "стрежев",
+    "колпашев",
+    "асино",
+)
+AMIC_LOCAL_MARKERS = (
+    "алтай",
+    "барнаул",
+    "бийск",
+    "рубцовск",
+    "белокурих",
+    "заринск",
+    "новоалтайск",
+    "яров",
+    "славгород",
+)
+
 
 def collect_html(source):
     """
@@ -199,6 +221,177 @@ def collect_vnru(soup, source):
     return news_items
 
 
+def collect_vtomske(soup, source):
+    """Разбирает рубрику происшествий vtomske.ru."""
+
+    news_items = []
+    timezone_name = source.get("timezone", "Asia/Tomsk")
+
+    # Одна карточка ленты — это ссылка с классом lenta_material.
+    for card in soup.select("a.lenta_material[href]"):
+        title_node = card.select_one(".lenta_material_title")
+
+        if title_node is None:
+            continue
+
+        title = _clean_text(title_node.get_text(" ", strip=True))
+        article_url = urljoin(source["url"], card.get("href", ""))
+
+        # Рубрика включает часть федеральных происшествий.
+        # Для регионального источника берём только явно локальные заголовки.
+        if not _contains_local_marker(title, VTOMSKE_LOCAL_MARKERS):
+            continue
+
+        # Сохраняем только прямую ссылку /news/..., а не служебные страницы.
+        if not _is_direct_vtomske_article(article_url, source):
+            continue
+
+        published_at = None
+
+        # Сайт показывает полную дату только в шапке страницы.
+        # Применяем её лишь к карточке latest; для остальных дату не угадываем.
+        if "latest" in card.get("class", []):
+            date_node = soup.select_one(".header_today")
+            time_node = card.select_one(".lenta_material_info > div")
+            date_text = (
+                date_node.get_text(" ", strip=True).split(",", 1)[0]
+                if date_node is not None
+                else ""
+            )
+            time_text = (
+                time_node.get_text(" ", strip=True)
+                if time_node is not None
+                else ""
+            )
+            published_at = _parse_publication_date(
+                f"{date_text} в {time_text}",
+                timezone_name,
+            )
+
+        news_items.append(
+            _build_news_item(
+                title=title,
+                url=article_url,
+                published_at=published_at,
+                description="",
+                source=source,
+            )
+        )
+
+    return news_items
+
+
+def collect_amic(soup, source):
+    """Разбирает рубрику происшествий Amic.ru."""
+
+    news_items = []
+    timezone_name = source.get("timezone", "Asia/Barnaul")
+
+    # Карточки основной ленты отделены классом archive-news-item.
+    # Это исключает ссылки из комментариев, меню и боковых блоков.
+    for card in soup.select(".archive-news-item"):
+        title_link = card.select_one("h2.title a[href]")
+
+        if title_link is None:
+            continue
+
+        title = _clean_text(title_link.get_text(" ", strip=True))
+        article_url = urljoin(source["url"], title_link.get("href", ""))
+
+        # В рубрике встречаются новости со всей России.
+        # Не добавляем материал без явной привязки к Алтаю.
+        if not _contains_local_marker(title, AMIC_LOCAL_MARKERS):
+            continue
+
+        if not _is_direct_amic_article(article_url, source):
+            continue
+
+        date_node = card.select_one(".published_at")
+        date_text = _first_direct_text(date_node)
+
+        news_items.append(
+            _build_news_item(
+                title=title,
+                url=article_url,
+                published_at=_parse_publication_date(
+                    date_text,
+                    timezone_name,
+                ),
+                description="",
+                source=source,
+            )
+        )
+
+    return news_items
+
+
+def collect_a42(soup, source):
+    """Разбирает кузбасскую рубрику происшествий A42."""
+
+    news_items = []
+    timezone_name = source.get("timezone", "Asia/Novokuznetsk")
+
+    # Каждая карточка A42 лежит внутри прямой ссылки card__link.
+    for title_link in soup.select("a.card__link[href]"):
+        card = title_link.select_one("article.card")
+
+        if card is None:
+            continue
+
+        # Даже на тематической странице проверяем подпись категории.
+        # Так случайный рекламный или общий блок не попадёт в результат.
+        category_node = card.select_one(".card__category")
+        category = (
+            _clean_text(category_node.get_text(" ", strip=True)).casefold()
+            if category_node is not None
+            else ""
+        )
+
+        if category not in {"происшествия", "криминал"}:
+            continue
+
+        title_node = card.select_one(".card__title")
+
+        if title_node is None:
+            continue
+
+        title = _clean_text(title_node.get_text(" ", strip=True))
+        article_url = urljoin(source["url"], title_link.get("href", ""))
+
+        if not title or not _is_direct_a42_article(article_url, source):
+            continue
+
+        date_node = card.select_one(".card__date")
+        description_node = card.select_one(
+            ".card__description, .card__preview"
+        )
+        date_text = (
+            date_node.get_text(" ", strip=True)
+            if date_node is not None
+            else ""
+        )
+        description = (
+            _clean_text(description_node.get_text(" ", strip=True))
+            if description_node is not None
+            else ""
+        )
+
+        news_items.append(
+            _build_news_item(
+                title=title,
+                url=article_url,
+                published_at=_parse_publication_date(
+                    date_text,
+                    timezone_name,
+                ),
+                description=description,
+                source=source,
+            )
+        )
+
+    return news_items
+
+
 def _collect_ngs_news(soup, source, default_timezone):
     """Общая логика карточек платформы 116.ru / E1.ru."""
 
@@ -329,9 +522,10 @@ def _parse_publication_date(date_text, timezone_name, now=None):
     local_timezone = ZoneInfo(timezone_name)
     cleaned = _clean_text(date_text).casefold()
 
-    # Обрабатываем варианты "Сегодня, 12:30" и "Вчера, 21:15".
+    # Обрабатываем варианты "Сегодня, 12:30" и "Вчера в 21:15".
     relative_match = re.fullmatch(
-        r"(сегодня|вчера),?\s+(\d{1,2}):(\d{2})",
+        r"(сегодня|вчера|позавчера),?\s+(?:в\s+)?"
+        r"(\d{1,2}):(\d{2})",
         cleaned,
     )
 
@@ -341,7 +535,11 @@ def _parse_publication_date(date_text, timezone_name, now=None):
             if now is not None
             else datetime.now(local_timezone)
         )
-        day_offset = 1 if relative_match.group(1) == "вчера" else 0
+        day_offset = {
+            "сегодня": 0,
+            "вчера": 1,
+            "позавчера": 2,
+        }[relative_match.group(1)]
         local_date = (current_time - timedelta(days=day_offset)).date()
 
         return datetime(
@@ -352,6 +550,27 @@ def _parse_publication_date(date_text, timezone_name, now=None):
             int(relative_match.group(3)),
             tzinfo=local_timezone,
         )
+
+    # Amic показывает свежие даты как "2 часа назад".
+    ago_match = re.fullmatch(
+        r"(\d+)\s+(минут\w*|час\w*)\s+назад",
+        cleaned,
+    )
+
+    if ago_match:
+        current_time = (
+            now.astimezone(local_timezone)
+            if now is not None
+            else datetime.now(local_timezone)
+        )
+        amount = int(ago_match.group(1))
+        unit = ago_match.group(2)
+        delta = (
+            timedelta(minutes=amount)
+            if unit.startswith("минут")
+            else timedelta(hours=amount)
+        )
+        return (current_time - delta).replace(second=0, microsecond=0)
 
     # VN.ru использует короткую запись вида 24.08.2026.
     try:
@@ -368,7 +587,47 @@ def _parse_publication_date(date_text, timezone_name, now=None):
     )
 
     if russian_date_match is None:
-        return None
+        # A42 не повторяет текущий год: "20 августа в 15:50".
+        short_russian_date_match = re.fullmatch(
+            r"(\d{1,2})\s+([а-яё]+)(?:\s+в)?"
+            r"(?:\s+(\d{1,2}):(\d{2}))?",
+            cleaned,
+        )
+
+        if short_russian_date_match is None:
+            return None
+
+        month = RUSSIAN_MONTHS.get(short_russian_date_match.group(2))
+
+        if month is None:
+            return None
+
+        current_time = (
+            now.astimezone(local_timezone)
+            if now is not None
+            else datetime.now(local_timezone)
+        )
+
+        try:
+            parsed_date = datetime(
+                current_time.year,
+                month,
+                int(short_russian_date_match.group(1)),
+                int(short_russian_date_match.group(3) or 0),
+                int(short_russian_date_match.group(4) or 0),
+                tzinfo=local_timezone,
+            )
+        except ValueError:
+            return None
+
+        # В начале января декабрьская карточка относится к прошлому году.
+        if parsed_date > current_time + timedelta(days=7):
+            try:
+                parsed_date = parsed_date.replace(year=current_time.year - 1)
+            except ValueError:
+                return None
+
+        return parsed_date
 
     month = RUSSIAN_MONTHS.get(russian_date_match.group(2))
 
@@ -444,6 +703,66 @@ def _is_direct_vn_article(article_url, source):
     )
 
 
+def _is_direct_vtomske_article(article_url, source):
+    """Проверяет прямой URL новости vtomske.ru."""
+
+    return _is_direct_article_path(
+        article_url,
+        source,
+        r"/news/\d+-[^/]+/?",
+    )
+
+
+def _is_direct_amic_article(article_url, source):
+    """Проверяет прямой URL новости Amic.ru."""
+
+    return _is_direct_article_path(
+        article_url,
+        source,
+        r"/news/[^/]+-\d+/?",
+    )
+
+
+def _is_direct_a42_article(article_url, source):
+    """Проверяет прямой URL новости gazeta.a42.ru."""
+
+    return _is_direct_article_path(
+        article_url,
+        source,
+        r"/lenta/news/\d+-[^/]+/?",
+    )
+
+
+def _is_direct_article_path(article_url, source, path_pattern):
+    """Сверяет домен источника и ожидаемый путь статьи."""
+
+    article_parts = urlparse(article_url)
+    source_parts = urlparse(source["url"])
+
+    return (
+        _normalized_host(article_parts.netloc)
+        == _normalized_host(source_parts.netloc)
+        and re.fullmatch(path_pattern, article_parts.path) is not None
+    )
+
+
+def _contains_local_marker(title, markers):
+    """Проверяет явную региональную привязку заголовка."""
+
+    cleaned_title = title.casefold()
+    return any(marker in cleaned_title for marker in markers)
+
+
+def _first_direct_text(node):
+    """Берёт текст узла без вложенного счётчика комментариев."""
+
+    if node is None:
+        return ""
+
+    direct_text = node.find(string=True, recursive=False)
+    return _clean_text(direct_text or "")
+
+
 def _normalized_host(host):
     """Считает домены с www и без www одним сайтом."""
 
@@ -462,4 +781,7 @@ ADAPTERS = {
     "116ru": collect_116ru,
     "e1ru": collect_e1ru,
     "vnru": collect_vnru,
+    "vtomske": collect_vtomske,
+    "amic": collect_amic,
+    "a42": collect_a42,
 }
