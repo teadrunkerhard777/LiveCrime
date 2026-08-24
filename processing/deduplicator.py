@@ -1,13 +1,14 @@
 import re
+from difflib import SequenceMatcher
 
 
 def normalize_title(title):
     """
-    Приводит заголовок к более удобному виду
-    для сравнения дублей.
+    Приводит заголовок к единому виду
+    для корректного сравнения.
     """
 
-    # Переводим в нижний регистр.
+    # Переводим заголовок в нижний регистр.
     normalized = title.lower()
 
     # Убираем знаки препинания.
@@ -21,31 +22,57 @@ def normalize_title(title):
 
 def remove_duplicates(news_items):
     """
-    Удаляет точные дубли по URL и заголовку.
+    Удаляет:
+    1. точные дубли по URL;
+    2. точные дубли по заголовку;
+    3. очень похожие заголовки.
     """
 
     unique_news = []
-
     seen_urls = set()
-    seen_titles = set()
 
     for news_item in news_items:
         url = news_item["url"]
-        title = normalize_title(news_item["title"])
 
-        # Если такой URL уже встречался,
-        # пропускаем новость.
+        # Точный дубль URL.
         if url in seen_urls:
             continue
 
-        # Если такой заголовок уже встречался,
-        # тоже считаем новость дублем.
-        if title in seen_titles:
+        is_similar_duplicate = False
+
+        # Сравниваем заголовок с уже оставленными новостями.
+        for unique_item in unique_news:
+            if titles_are_similar(
+                news_item["title"],
+                unique_item["title"],
+            ):
+                is_similar_duplicate = True
+                break
+
+        if is_similar_duplicate:
             continue
 
         seen_urls.add(url)
-        seen_titles.add(title)
-
         unique_news.append(news_item)
 
     return unique_news
+
+
+def titles_are_similar(title_1, title_2, threshold=0.75):
+    """
+    Проверяет, насколько два заголовка похожи.
+
+    threshold=0.75 означает:
+    считаем заголовки похожими, если совпадение 75% и выше.
+    """
+
+    first = normalize_title(title_1)
+    second = normalize_title(title_2)
+
+    similarity = SequenceMatcher(
+        None,
+        first,
+        second,
+    ).ratio()
+
+    return similarity >= threshold
