@@ -34,10 +34,12 @@ def send_telegram_post(text):
         f"https://api.telegram.org/bot{bot_token}/sendMessage"
     )
 
-    # Пока отправляем обычный текст без HTML и Markdown-разметки.
+    # Telegram разберёт только минимальные теги <b> и <a>,
+    # которые формирует и безопасно экранирует post_generator.py.
     payload = {
         "chat_id": chat_id,
         "text": text,
+        "parse_mode": "HTML",
     }
 
     try:

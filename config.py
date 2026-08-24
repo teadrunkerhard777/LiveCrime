@@ -6,7 +6,7 @@ NEWS_LOOKBACK_DAYS = 3
 
 # Максимальное количество новостей,
 # которое будем обрабатывать за один запуск.
-MAX_NEWS_PER_RUN = 5
+MAX_NEWS_PER_RUN = 1
 
 
 # Тестовый режим для безопасной разработки.
@@ -78,6 +78,7 @@ SOURCES = [
         "name": "Lenta.ru",
         "type": "rss",
         "role": "article_source",
+        "enabled": True,
         "url": "https://lenta.ru/rss/news",
     },
 
@@ -85,6 +86,7 @@ SOURCES = [
         "name": "SarBC: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://www.sarbc.ru/rss/data-utf/event.rss",
     },
 
@@ -93,6 +95,7 @@ SOURCES = [
         "name": "АГН Москва: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://www.mskagency.ru/rss/incident.rss",
     },
 
@@ -101,6 +104,7 @@ SOURCES = [
         "name": "StolicaMedia: происшествия Москвы и области",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://stolicamedia.ru/export/new/newsByRubric_121_188.rss",
     },
 
@@ -109,6 +113,7 @@ SOURCES = [
         "name": "PeterburgMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://peterburgmedia.ru/export/new/newsByRubric_88_198.rss",
     },
 
@@ -117,6 +122,7 @@ SOURCES = [
         "name": "KrasnodarMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://krasnodarmedia.su/export/new/newsByRubric_25_79.rss",
     },
 
@@ -125,6 +131,7 @@ SOURCES = [
         "name": "IrkutskMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://irkutskmedia.ru/export/new/newsByRubric_14_51.rss",
     },
 
@@ -133,6 +140,7 @@ SOURCES = [
         "name": "KrasnoyarskMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://krasnoyarskmedia.ru/export/new/newsByRubric_26_16.rss",
     },
 
@@ -141,6 +149,7 @@ SOURCES = [
         "name": "OmskMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://omskmedia.su/export/new/newsByRubric_38_181.rss",
     },
 
@@ -149,6 +158,7 @@ SOURCES = [
         "name": "PrimaMedia: происшествия Приморья",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://primamedia.ru/export/new/newsByRubric_43_19.rss",
     },
 
@@ -157,6 +167,7 @@ SOURCES = [
         "name": "AmurMedia: происшествия Хабаровского края",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://amurmedia.ru/export/new/newsByRubric_77_27.rss",
     },
 
@@ -165,6 +176,7 @@ SOURCES = [
         "name": "SakhalinMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://sakhalinmedia.ru/export/new/newsByRubric_64_40.rss",
     },
 
@@ -173,6 +185,7 @@ SOURCES = [
         "name": "YakutiaMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://yakutiamedia.ru/export/new/newsByRubric_55_71.rss",
     },
 
@@ -181,6 +194,7 @@ SOURCES = [
         "name": "PriamurMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://priamurmedia.ru/export/new/newsByRubric_2_121.rss",
     },
 
@@ -189,6 +203,7 @@ SOURCES = [
         "name": "KamchatkaMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://kamchatkamedia.ru/export/new/newsByRubric_18_118.rss",
     },
 
@@ -197,6 +212,7 @@ SOURCES = [
         "name": "EAOMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://eaomedia.ru/export/new/newsByRubric_11_35.rss",
     },
 
@@ -205,6 +221,7 @@ SOURCES = [
         "name": "MagadanMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://magadanmedia.ru/export/new/newsByRubric_31_63.rss",
     },
 
@@ -213,6 +230,7 @@ SOURCES = [
         "name": "ChukotkaMedia: происшествия",
         "type": "rss",
         "role": "article_source",
+        "enabled": False,
         "url": "https://chukotkamedia.ru/export/new/newsByRubric_83_44.rss",
     },
 
@@ -222,6 +240,7 @@ SOURCES = [
         "name": "116.ru: происшествия",
         "type": "html",
         "role": "article_source",
+        "enabled": False,
         "url": "https://116.ru/text/incidents/",
         "adapter": "116ru",
         "timezone": "Europe/Moscow",
@@ -231,6 +250,7 @@ SOURCES = [
         "name": "E1.ru: происшествия",
         "type": "html",
         "role": "article_source",
+        "enabled": False,
         "url": "https://www.e1.ru/text/incidents/",
         "adapter": "e1ru",
         "timezone": "Asia/Yekaterinburg",
@@ -240,6 +260,7 @@ SOURCES = [
         "name": "VN.ru: происшествия",
         "type": "html",
         "role": "article_source",
+        "enabled": False,
         "url": "https://vn.ru/news/proisshestviya/",
         "adapter": "vnru",
         "timezone": "Asia/Novosibirsk",
@@ -249,6 +270,7 @@ SOURCES = [
         "name": "vtomske.ru: происшествия",
         "type": "html",
         "role": "article_source",
+        "enabled": False,
         "url": "https://vtomske.ru/tag/incident",
         "adapter": "vtomske",
         "timezone": "Asia/Tomsk",
@@ -258,6 +280,7 @@ SOURCES = [
         "name": "Amic.ru: происшествия",
         "type": "html",
         "role": "article_source",
+        "enabled": False,
         "url": "https://www.amic.ru/news/incident",
         "adapter": "amic",
         "timezone": "Asia/Barnaul",
@@ -267,6 +290,7 @@ SOURCES = [
         "name": "A42: происшествия",
         "type": "html",
         "role": "article_source",
+        "enabled": False,
         "url": "https://gazeta.a42.ru/lenta/news/kuzbass/proisshestviya",
         "adapter": "a42",
         "timezone": "Asia/Novokuznetsk",
