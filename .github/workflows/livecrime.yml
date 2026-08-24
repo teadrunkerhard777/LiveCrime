@@ -1,8 +1,12 @@
 name: LiveCrime Autoposter
 
-# Публикацию запускаем только вручную из интерфейса GitHub Actions.
+# Ручной запуск оставляем для проверок и внеплановой публикации.
 on:
   workflow_dispatch:
+
+  schedule:
+    # GitHub cron работает в UTC: запускаем LiveCrime каждые 3 часа.
+    - cron: "0 */3 * * *"
 
 # Workflow может записать обновлённую историю публикаций в репозиторий.
 permissions:
@@ -37,7 +41,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
-          # Только этот ручной запуск включает реальную публикацию.
+          # Запуск в GitHub включает публикацию при любом способе запуска.
           LIVECRIME_DRY_RUN: "false"
         run: python main.py
 
