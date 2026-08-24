@@ -4,6 +4,7 @@ charset-normalizer==3.5.1
 feedparser==6.0.14
 feedparser-sgmllib==2.1.0
 idna==3.19
+python-dotenv==1.2.3
 requests==2.34.2
 soupsieve==2.9.2
 typing_extensions==4.16.0

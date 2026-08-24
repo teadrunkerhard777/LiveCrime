@@ -9,6 +9,7 @@ from config import (
     EXCLUDE_KEYWORDS,
     MAX_NEWS_PER_RUN,
     NEWS_LOOKBACK_DAYS,
+    POST_MODE,
     SCORE_RULES,
     SOURCES,
     TOPICS,
@@ -18,6 +19,7 @@ from processing.filters import (
     filter_by_topics,
     sort_by_score,
 )
+from publishing.telegram import send_telegram_post
 from storage.history import (
     add_to_history,
     is_published,
@@ -155,21 +157,45 @@ print(f"Выбрано для публикации: {len(selected_news)}")
 print()
 
 
-# Показываем первые 10 подходящих новостей.
+# Отмечаем, нужно ли сохранить историю после всех отправок.
+# Файл записываем один раз, только если хотя бы один пост ушёл успешно.
+history_changed = False
+
+# В режиме single каждая новость формирует отдельный Telegram-пост.
 for news_item in selected_news:
     post = generate_post(news_item)
 
     print("=" * 60)
-    print(post)
+
+    # В DRY_RUN показываем готовый пост, но даже не вызываем
+    # функцию Telegram. История при этом тоже не меняется.
+    if DRY_RUN:
+        print("[DRY RUN] Пост не отправлен в Telegram")
+        print()
+        print(post)
+        print()
+        continue
+
+    # Сейчас поддерживается режим: одна новость — один пост.
+    if POST_MODE != "single":
+        print(f"Ошибка: режим POST_MODE={POST_MODE!r} не поддерживается.")
+        print()
+        continue
+
+    # Ошибка одного поста не должна останавливать следующие.
+    if send_telegram_post(post):
+        print("Пост успешно отправлен в Telegram.")
+
+        # Только подтверждённая Telegram публикация
+        # считается обработанной и попадает в историю.
+        add_to_history(news_item, history)
+        history_changed = True
+
+    else:
+        print("Пост не отправлен. История для этой новости не изменена.")
+
     print()
 
-# В обычном режиме считаем выбранные новости обработанными
-# и сохраняем обновлённую историю на диск.
-#
-# В DRY_RUN этот блок целиком пропускается. Благодаря этому
-# одни и те же новости можно проверять несколько раз подряд.
-if not DRY_RUN:
-    for news_item in selected_news:
-        add_to_history(news_item, history)
-
+# Сохраняем накопленные успешные публикации одним вызовом.
+if not DRY_RUN and history_changed:
     save_history(history)
