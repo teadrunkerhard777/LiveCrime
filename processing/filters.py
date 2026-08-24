@@ -29,29 +29,6 @@ def filter_by_date(news_items, lookback_days):
     return fresh_news
 
 
-def filter_by_topics(news_items, topics):
-    """
-    Оставляет только новости, в которых встречается
-    хотя бы одна тема из списка TOPICS.
-    """
-
-    filtered_news = []
-
-    for news_item in news_items:
-        # Ищем тему и в заголовке, и в описании.
-        text = (
-            f"{news_item['title']} "
-            f"{news_item['description']}"
-        ).lower()
-
-        # Если найдено хотя бы одно совпадение,
-        # новость проходит фильтр.
-        if any(topic.lower() in text for topic in topics):
-            filtered_news.append(news_item)
-
-    return filtered_news
-
-
 def filter_by_topics(news_items, topics, exclude_keywords):
     """
     Оставляет свежие криминальные новости по нужным темам
@@ -61,26 +38,31 @@ def filter_by_topics(news_items, topics, exclude_keywords):
     filtered_news = []
 
     for news_item in news_items:
-        title = news_item["title"].lower()
-        description = news_item["description"].lower()
+        title = news_item["title"].casefold()
+        description = news_item["description"].casefold()
 
         full_text = f"{title} {description}"
 
-        # Проверяем наличие хотя бы одной нужной темы.
-        has_topic = any(
-            topic.lower() in full_text
+        # Сохраняем все совпавшие основы, а не только первое совпадение.
+        # Это объясняет, почему конкретная новость прошла фильтр.
+        matched_topics = [
+            topic
             for topic in topics
-        )
+            if topic.casefold() in full_text
+        ]
 
         # Проверяем явные стоп-слова.
         has_excluded_keyword = any(
-            keyword.lower() in full_text
+            keyword.casefold() in full_text
             for keyword in exclude_keywords
         )
 
         # Оставляем новость, если она подходит по теме
         # и не относится к явно посторонней тематике.
-        if has_topic and not has_excluded_keyword:
+        if matched_topics and not has_excluded_keyword:
+            # Диагностика хранится прямо в news_item.
+            # Поэтому отдельный список не сможет рассинхронизироваться.
+            news_item["matched_topics"] = matched_topics
             filtered_news.append(news_item)
 
     return filtered_news

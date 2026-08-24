@@ -3,6 +3,7 @@ from bs4.exceptions import ParserRejectedMarkup
 from requests import RequestException
 
 from collectors.html_collector import collect_html
+from core.environment import configure_ssl
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
@@ -34,6 +35,11 @@ from article.fetcher import (
     extract_article_text,
     fetch_article_html,
 )
+
+
+# Один раз указываем стандартной библиотеке актуальный CA bundle.
+# Это выполняется до первого RSS или HTML-запроса.
+configure_ssl()
 
 
 # Здесь будем собирать новости со всех источников.
@@ -182,6 +188,11 @@ for news_item in selected_news:
     # функцию Telegram. История при этом тоже не меняется.
     if DRY_RUN:
         print("[DRY RUN] Пост не отправлен в Telegram")
+        matched_topics = news_item.get("matched_topics", [])
+
+        # Техническая диагностика нужна только разработчику.
+        # В переменную post и реальное Telegram-сообщение она не попадает.
+        print(f"Темы: {', '.join(matched_topics)}")
         print()
         print(post)
         print()
