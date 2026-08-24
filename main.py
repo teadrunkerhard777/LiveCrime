@@ -1,3 +1,7 @@
+from bs4 import FeatureNotFound
+from bs4.exceptions import ParserRejectedMarkup
+from requests import RequestException
+
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
@@ -97,34 +101,47 @@ else:
 # которые попадут в текущую подборку.
 selected_news = new_news[:MAX_NEWS_PER_RUN]
 
-# Временно проверяем извлечение текста
-# только на первой выбранной новости.
-if selected_news:
-    test_news = selected_news[0]
+# Загружаем основной текст для каждой выбранной новости.
+# Каждый результат сохраняется в тот же news_item, где лежат URL и заголовок.
+for news_item in selected_news:
+    # Если текст уже был успешно получен, второй HTTP-запрос не нужен.
+    if news_item.get("article_text"):
+        continue
 
-    # Текст сохраняем прямо в выбранной новости.
-    # Так заголовок, URL и статья не могут разойтись по разным спискам.
-    if "article_text" not in test_news:
-        # Загружаем HTML только по URL этого же объекта новости.
-        html = fetch_article_html(test_news["url"])
+    # Пустое значение заранее включает безопасный fallback
+    # на RSS description в генераторе поста.
+    news_item["article_text"] = ""
 
-        # Сначала извлекаем абзацы, затем убираем служебные вставки.
+    try:
+        # Все этапы используют URL именно текущего news_item.
+        html = fetch_article_html(news_item["url"])
         extracted_text = extract_article_text(html)
-        test_news["article_text"] = clean_article_text(extracted_text)
+        article_text = clean_article_text(extracted_text)
 
-    # Если article_text уже заполнен, повторный HTTP-запрос не нужен.
-    # Для диагностики читаем заголовок и текст из одного test_news.
-    article_text = test_news["article_text"]
+    # Ошибка одной страницы не должна останавливать остальные новости.
+    except (
+        RequestException,
+        FeatureNotFound,
+        ParserRejectedMarkup,
+    ) as error:
+        print("Предупреждение: не удалось обработать статью.")
+        print(f"Заголовок: {news_item['title']}")
+        print(f"URL: {news_item['url']}")
+        print(f"Причина: {error}")
+        print()
+        continue
 
-    # Первых 3000 символов достаточно, чтобы увидеть,
-    # попали ли в результат меню, реклама или другой мусор.
-    print("=" * 60)
-    print("ТЕСТ ТЕКСТА СТАТЬИ")
-    print()
-    print(f"Заголовок: {test_news['title']}")
-    print()
-    print(article_text[:3000])
-    print()
+    # Пустая страница тоже не считается успешным результатом.
+    if not article_text:
+        print("Предупреждение: текст статьи не найден.")
+        print(f"Заголовок: {news_item['title']}")
+        print(f"URL: {news_item['url']}")
+        print()
+        continue
+
+    # Сохраняем текст именно в текущую новость.
+    # Это исключает смешивание разных заголовков, URL и статей.
+    news_item["article_text"] = article_text
 
 print(f"Всего собрано новостей: {len(all_news)}")
 print(
