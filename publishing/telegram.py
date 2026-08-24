@@ -17,13 +17,18 @@ def send_telegram_post(text):
     При любой ошибке возвращает False и не прерывает программу.
     """
 
-    return _send_telegram_request(
+    success, error_reason = _send_telegram_request(
         "sendMessage",
         {
             "text": text,
             "parse_mode": "HTML",
         },
     )
+
+    if not success:
+        print(f"Ошибка Telegram: {error_reason}")
+
+    return success
 
 
 def send_telegram_photo(image_url, caption):
@@ -34,7 +39,7 @@ def send_telegram_photo(image_url, caption):
         return False
 
     # Telegram сам получает изображение: локальный файл не создаётся.
-    return _send_telegram_request(
+    success, error_reason = _send_telegram_request(
         "sendPhoto",
         {
             "photo": image_url,
@@ -43,9 +48,16 @@ def send_telegram_photo(image_url, caption):
         },
     )
 
+    if not success:
+        # URL безопасно показывать в Actions: токена в нём нет.
+        print(f"Причина: {error_reason}")
+        print(f"Image URL: {image_url}")
+
+    return success
+
 
 def _send_telegram_request(method, payload):
-    """Выполняет общий запрос к Telegram Bot API."""
+    """Возвращает пару: успех и безопасная причина ошибки."""
 
     # Токен и chat ID читаем только из окружения.
     # Секреты не должны храниться в исходном коде.
@@ -54,11 +66,10 @@ def _send_telegram_request(method, payload):
 
     # Без обязательных настроек запрос всё равно не сможет пройти.
     if not bot_token or not chat_id:
-        print(
-            "Ошибка Telegram: заполните TELEGRAM_BOT_TOKEN "
-            "и TELEGRAM_CHAT_ID в .env."
+        return (
+            False,
+            "не заданы TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID",
         )
-        return False
 
     api_url = f"https://api.telegram.org/bot{bot_token}/{method}"
 
@@ -83,32 +94,28 @@ def _send_telegram_request(method, payload):
             if error.response is not None
             else "неизвестен"
         )
-        print(
-            "Ошибка Telegram: сервер вернул HTTP-статус "
-            f"{status_code}."
+        return (
+            False,
+            f"сервер вернул HTTP-статус {status_code}",
         )
-        return False
 
     except requests.RequestException as error:
         # Не печатаем URL запроса, потому что внутри него находится токен.
-        print(
-            "Ошибка Telegram: не удалось выполнить запрос "
-            f"({type(error).__name__})."
+        return (
+            False,
+            f"сетевая ошибка {type(error).__name__}",
         )
-        return False
 
     try:
         # Telegram всегда возвращает JSON с логическим полем ok.
         response_data = response.json()
 
     except requests.exceptions.JSONDecodeError:
-        print("Ошибка Telegram: сервер вернул некорректный JSON.")
-        return False
+        return False, "сервер вернул некорректный JSON"
 
     # Защищаемся от неожиданного JSON-формата без поля ok.
     if not isinstance(response_data, dict):
-        print("Ошибка Telegram: неожиданный формат ответа.")
-        return False
+        return False, "сервер вернул неожиданный формат ответа"
 
     # Даже при HTTP 200 Telegram может сообщить об ошибке через ok=False.
     if response_data.get("ok") is not True:
@@ -116,7 +123,6 @@ def _send_telegram_request(method, payload):
             "description",
             "причина не указана",
         )
-        print(f"Ошибка Telegram: {description}.")
-        return False
+        return False, f"Telegram API: {description}"
 
-    return True
+    return True, None

@@ -191,6 +191,37 @@ class TelegramTests(unittest.TestCase):
         self.assertEqual(payload["caption"], "<b>Подпись</b>")
         self.assertEqual(payload["parse_mode"], "HTML")
 
+    @patch("publishing.telegram.requests.post")
+    def test_photo_sender_logs_safe_api_error_and_image_url(self, post_mock):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "ok": False,
+            "description": "Bad Request: failed to get HTTP URL content",
+        }
+        post_mock.return_value = response
+
+        env = {
+            "TELEGRAM_BOT_TOKEN": "secret-test-token",
+            "TELEGRAM_CHAT_ID": "test-chat",
+        }
+        output = StringIO()
+
+        with patch.dict("os.environ", env, clear=False):
+            with redirect_stdout(output):
+                result = send_telegram_photo(
+                    "https://img.example/broken.jpg",
+                    "<b>Подпись</b>",
+                )
+
+        self.assertFalse(result)
+        self.assertIn("Причина: Telegram API:", output.getvalue())
+        self.assertIn(
+            "Image URL: https://img.example/broken.jpg",
+            output.getvalue(),
+        )
+        self.assertNotIn("secret-test-token", output.getvalue())
+
 
 class PublishingFlowTests(unittest.TestCase):
     def test_success_sends_and_adds_history_once(self):
@@ -250,7 +281,9 @@ class PublishingFlowTests(unittest.TestCase):
         send_post_mock = Mock(return_value=True)
         history_mock = Mock(wraps=add_to_history)
 
-        with redirect_stdout(StringIO()):
+        output = StringIO()
+
+        with redirect_stdout(output):
             changed = publish_selected_news(
                 [news_item],
                 history,
@@ -266,6 +299,10 @@ class PublishingFlowTests(unittest.TestCase):
         self.assertEqual(send_post_mock.call_count, 1)
         self.assertEqual(history_mock.call_count, 1)
         self.assertEqual(len(history), 1)
+        self.assertIn(
+            "[TELEGRAM] sendPhoto failed, fallback to sendMessage",
+            output.getvalue(),
+        )
 
     def test_failed_photo_and_text_do_not_change_history(self):
         news_item = make_news_item()
@@ -295,7 +332,9 @@ class PublishingFlowTests(unittest.TestCase):
         send_post_mock = Mock(return_value=True)
         history_mock = Mock()
 
-        with redirect_stdout(StringIO()):
+        output = StringIO()
+
+        with redirect_stdout(output):
             changed = publish_selected_news(
                 [make_news_item()],
                 [],
@@ -310,6 +349,10 @@ class PublishingFlowTests(unittest.TestCase):
         send_photo_mock.assert_not_called()
         self.assertEqual(send_post_mock.call_count, 1)
         self.assertEqual(history_mock.call_count, 1)
+        self.assertIn(
+            "[TELEGRAM] image_url not found, using sendMessage",
+            output.getvalue(),
+        )
 
     def test_failed_send_does_not_add_history(self):
         send_mock = Mock(return_value=False)

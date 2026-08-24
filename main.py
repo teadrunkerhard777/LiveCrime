@@ -8,6 +8,7 @@ from core.run_lock import AlreadyRunningError, single_instance_lock
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
+    CRIME_CONTEXT_KEYWORDS,
     DRY_RUN,
     EXCLUDE_KEYWORDS,
     MAX_NEWS_PER_RUN,
@@ -198,7 +199,15 @@ def publish_selected_news(
                 print("Пост с изображением успешно отправлен в Telegram.")
             else:
                 # Если Telegram не получил картинку, сохраняем текстовый путь.
-                print("sendPhoto не удался. Пробуем текстовый fallback.")
+                print(
+                    "[TELEGRAM] sendPhoto failed, "
+                    "fallback to sendMessage"
+                )
+
+        else:
+            print(
+                "[TELEGRAM] image_url not found, using sendMessage"
+            )
 
         if not publication_succeeded:
             publication_succeeded = send_post(post)
@@ -234,6 +243,7 @@ def run():
         fresh_news,
         TOPICS,
         EXCLUDE_KEYWORDS,
+        CRIME_CONTEXT_KEYWORDS,
     )
     ranked_news = sort_by_score(topic_news, SCORE_RULES)
     unique_news = remove_duplicates(ranked_news)

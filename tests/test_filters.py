@@ -1,0 +1,77 @@
+import unittest
+
+from config import CRIME_CONTEXT_KEYWORDS, EXCLUDE_KEYWORDS, TOPICS
+from processing.filters import filter_by_topics
+
+
+def make_news_item(title, description=""):
+    """Создаёт минимальную новость для проверки тематического фильтра."""
+
+    return {
+        "title": title,
+        "description": description,
+    }
+
+
+class AccusationContextTests(unittest.TestCase):
+    def filter_item(self, title, description=""):
+        news_item = make_news_item(title, description)
+
+        return filter_by_topics(
+            [news_item],
+            TOPICS,
+            EXCLUDE_KEYWORDS,
+            CRIME_CONTEXT_KEYWORDS,
+        )
+
+    def test_country_accusation_is_rejected(self):
+        result = self.filter_item(
+            "Украину обвинили в экспериментах в духовной сфере"
+        )
+
+        self.assertEqual(result, [])
+
+    def test_political_accusation_is_rejected(self):
+        result = self.filter_item("Политик обвинил оппонента во лжи")
+
+        self.assertEqual(result, [])
+
+    def test_formal_murder_accusation_is_accepted(self):
+        result = self.filter_item(
+            "Мужчине предъявили обвинение в убийстве"
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["matched_topics"], ["убий", "обвин"])
+
+    def test_formal_accusation_phrase_supports_weak_topic(self):
+        result = self.filter_item("Мужчине предъявили обвинение")
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["matched_topics"], ["обвин"])
+
+    def test_fraud_accusation_is_accepted(self):
+        result = self.filter_item(
+            "Россиянина обвинили в мошенничестве"
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["matched_topics"],
+            ["мошеннич", "обвин"],
+        )
+
+    def test_accused_in_criminal_case_is_accepted(self):
+        result = self.filter_item(
+            "Обвиняемого по уголовному делу отправили под арест"
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0]["matched_topics"],
+            ["арест", "уголовн", "обвин"],
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

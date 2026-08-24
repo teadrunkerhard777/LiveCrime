@@ -1,6 +1,13 @@
 from datetime import datetime, timedelta, timezone
 
 
+# Эти основы неоднозначны и требуют дополнительного crime-контекста.
+# Например, "обвинили страну" само по себе не означает уголовное дело.
+CONTEXT_REQUIRED_TOPICS = {
+    "обвин",
+}
+
+
 def filter_by_date(news_items, lookback_days):
     """
     Оставляет только новости за последние N дней.
@@ -29,7 +36,12 @@ def filter_by_date(news_items, lookback_days):
     return fresh_news
 
 
-def filter_by_topics(news_items, topics, exclude_keywords):
+def filter_by_topics(
+    news_items,
+    topics,
+    exclude_keywords,
+    crime_context_keywords=(),
+):
     """
     Оставляет свежие криминальные новости по нужным темам
     и отбрасывает только явные посторонние совпадения.
@@ -57,9 +69,27 @@ def filter_by_topics(news_items, topics, exclude_keywords):
             for keyword in exclude_keywords
         )
 
+        # Большинство тем являются самостоятельными crime-сигналами.
+        has_strong_topic = any(
+            topic.casefold() not in CONTEXT_REQUIRED_TOPICS
+            for topic in matched_topics
+        )
+
+        # Неоднозначное "обвин" подтверждаем юридической конструкцией.
+        has_crime_context = any(
+            keyword.casefold() in full_text
+            for keyword in crime_context_keywords
+        )
+
+        has_supported_topic = has_strong_topic or has_crime_context
+
         # Оставляем новость, если она подходит по теме
-        # и не относится к явно посторонней тематике.
-        if matched_topics and not has_excluded_keyword:
+        # и неоднозначные основы подтверждены криминальным контекстом.
+        if (
+            matched_topics
+            and has_supported_topic
+            and not has_excluded_keyword
+        ):
             # Диагностика хранится прямо в news_item.
             # Поэтому отдельный список не сможет рассинхронизироваться.
             news_item["matched_topics"] = matched_topics
