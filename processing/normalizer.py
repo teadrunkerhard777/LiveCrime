@@ -1,4 +1,6 @@
 from email.utils import parsedate_to_datetime
+import re
+from html import unescape
 
 
 def normalize_date(date_string):
@@ -22,3 +24,24 @@ def normalize_date(date_string):
         # Если конкретный источник отдаст неожиданную дату,
         # программа не должна из-за этого падать.
         return None
+
+
+def clean_description(description):
+    """
+    Убирает HTML-разметку и служебные символы
+    из описания RSS.
+    """
+
+    if not description:
+        return ""
+
+    # Преобразуем HTML-сущности вроде &nbsp;
+    cleaned = unescape(description)
+
+    # Убираем HTML-теги.
+    cleaned = re.sub(r"<[^>]+>", " ", cleaned)
+
+    # Убираем лишние пробелы.
+    cleaned = " ".join(cleaned.split())
+
+    return cleaned

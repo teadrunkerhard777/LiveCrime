@@ -13,12 +13,17 @@ from processing.filters import (
     filter_by_topics,
     sort_by_score,
 )
-
 from storage.history import (
     add_to_history,
     is_published,
     load_history,
     save_history,
+)
+from generation.post_generator import generate_post
+
+from article.fetcher import (
+    extract_article_text,
+    fetch_article_html,
 )
 
 
@@ -85,6 +90,23 @@ for news_item in unique_news:
 # которые попадут в текущую подборку.
 selected_news = new_news[:MAX_NEWS_PER_RUN]
 
+if selected_news:
+    fetch_article_html(selected_news[0]["url"])
+
+    # Временно проверяем извлечение текста
+# только на первой выбранной новости.
+if selected_news:
+    test_news = selected_news[0]
+
+    html = fetch_article_html(test_news["url"])
+    article_text = extract_article_text(html)
+
+    print("=" * 60)
+    print("ТЕСТ ТЕКСТА СТАТЬИ")
+    print()
+    print(article_text[:3000])
+    print()
+
 print(f"Всего собрано новостей: {len(all_news)}")
 print(
     f"За последние {NEWS_LOOKBACK_DAYS} дня: "
@@ -99,14 +121,13 @@ print()
 
 # Показываем первые 10 подходящих новостей.
 for news_item in selected_news:
-    print(f"[score: {news_item['score']}]")
-    print(news_item["title"])
-    print(f"Дата: {news_item['published_at']}")
-    print(news_item["url"])
+    post = generate_post(news_item)
+
+    print("=" * 60)
+    print(post)
     print()
 
     # Пока считаем выбранную новость обработанной.
     add_to_history(news_item, history)
 
-# Сохраняем обновлённую историю после обработки подборки.
 save_history(history)

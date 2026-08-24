@@ -1,6 +1,6 @@
 import feedparser
-
 from processing.normalizer import normalize_date
+from processing.normalizer import clean_description, normalize_date
 
 
 def collect_rss(source):
@@ -31,7 +31,7 @@ def collect_rss(source):
             "title": entry.get("title", ""),
             "url": entry.get("link", ""),
             "published_at": normalize_date(entry.get("published", "")),
-            "description": entry.get("summary", ""),
+            "description": clean_description(entry.get("summary", "")),
             "source": source["name"],
         }
 
