@@ -13,7 +13,10 @@ MAX_NEWS_PER_RUN = 1
 #
 # При True программа полностью обрабатывает и показывает новости,
 # но не записывает выбранные материалы в storage/published.json.
-DRY_RUN = True
+
+#DRY_RUN = True
+DRY_RUN = False
+MAX_NEWS_PER_RUN = 1
 
 
 # Основной режим публикации:
