@@ -39,9 +39,8 @@ TOPICS = [
 
 # Список источников новостей.
 #
-# Пока используем только RSS.
-# В дальнейшем сюда же сможем добавить:
-# "html" и "api".
+# RSS и HTML приводятся collectors к одному формату news_item.
+# В дальнейшем сюда же можно добавить источники типа "api".
 
 
 SOURCES = [
@@ -62,6 +61,36 @@ SOURCES = [
         "type": "rss",
         "role": "article_source",
         "url": "https://www.sarbc.ru/rss/data-utf/event.rss",
+    },
+
+    # HTML-источники используют отдельные адаптеры.
+    # Полный текст статьи по-прежнему загружается позже через article/fetcher.py.
+    {
+        "name": "116.ru: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "url": "https://116.ru/text/incidents/",
+        "adapter": "116ru",
+        "timezone": "Europe/Moscow",
+        "limit": 40,
+    },
+    {
+        "name": "E1.ru: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "url": "https://www.e1.ru/text/incidents/",
+        "adapter": "e1ru",
+        "timezone": "Asia/Yekaterinburg",
+        "limit": 40,
+    },
+    {
+        "name": "VN.ru: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "url": "https://vn.ru/news/proisshestviya/",
+        "adapter": "vnru",
+        "timezone": "Asia/Novosibirsk",
+        "limit": 40,
     },
 ]
 

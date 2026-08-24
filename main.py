@@ -2,6 +2,7 @@ from bs4 import FeatureNotFound
 from bs4.exceptions import ParserRejectedMarkup
 from requests import RequestException
 
+from collectors.html_collector import collect_html
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
@@ -40,17 +41,27 @@ all_news = []
 
 # Проходим по каждому источнику из config.py.
 for source in SOURCES:
-    # Пока обрабатываем только RSS-источники.
+    # RSS и HTML используют разные collectors,
+    # но возвращают одинаковые словари news_item.
     if source["type"] == "rss":
         news_items = collect_rss(source)
 
-        print(f"Источник: {source['name']}")
-        print(f"Найдено новостей: {len(news_items)}")
-        print()
+    elif source["type"] == "html":
+        news_items = collect_html(source)
 
-        # Добавляем новости текущего источника
-        # в общий список.
-        all_news.extend(news_items)
+    else:
+        print(
+            f"Предупреждение: неизвестный тип источника "
+            f"{source['type']!r}."
+        )
+        continue
+
+    print(f"Источник: {source['name']}")
+    print(f"Найдено новостей: {len(news_items)}")
+    print()
+
+    # После этого места общий pipeline уже не различает RSS и HTML.
+    all_news.extend(news_items)
 
 
 # Оставляем только новости за последние N дней.
