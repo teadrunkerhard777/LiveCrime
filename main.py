@@ -2,6 +2,7 @@ from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
     EXCLUDE_KEYWORDS,
+    MAX_NEWS_PER_RUN,
     NEWS_LOOKBACK_DAYS,
     SCORE_RULES,
     SOURCES,
@@ -67,6 +68,10 @@ unique_news = remove_duplicates(ranked_news)
 # Загружаем историю уже обработанных новостей.
 history = load_history()
 
+
+# ====================НОВЫЕ=======================
+
+
 # Здесь будут только те новости,
 # которых ещё нет в истории.
 new_news = []
@@ -75,12 +80,10 @@ for news_item in unique_news:
     if not is_published(news_item, history):
         new_news.append(news_item)
 
-# Для теста сохраняем первые 10 новых новостей в историю.
-for news_item in new_news[:10]:
-    add_to_history(news_item, history)
 
-save_history(history)
-
+# Ограничиваем количество новостей,
+# которые попадут в текущую подборку.
+selected_news = new_news[:MAX_NEWS_PER_RUN]
 
 print(f"Всего собрано новостей: {len(all_news)}")
 print(
@@ -90,13 +93,20 @@ print(
 print(f"Подходят по тематике: {len(topic_news)}")
 print(f"После удаления дублей: {len(unique_news)}")
 print(f"Новых новостей: {len(new_news)}")
+print(f"Выбрано для публикации: {len(selected_news)}")
 print()
 
 
 # Показываем первые 10 подходящих новостей.
-for news_item in new_news[:10]:
+for news_item in selected_news:
     print(f"[score: {news_item['score']}]")
     print(news_item["title"])
     print(f"Дата: {news_item['published_at']}")
     print(news_item["url"])
     print()
+
+    # Пока считаем выбранную новость обработанной.
+    add_to_history(news_item, history)
+
+# Сохраняем обновлённую историю после обработки подборки.
+save_history(history)
