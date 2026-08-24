@@ -2,6 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 
 
+# Начала служебных абзацев, которые не относятся к телу статьи.
+# Список находится в одном месте, чтобы его было легко расширять.
+SERVICE_PARAGRAPH_PREFIXES = (
+    "фото:",
+    "видео:",
+    "ранее сообщалось",
+    "ранее стало известно",
+    "напомним",
+    "читайте также",
+    "реклама",
+)
+
+
 def fetch_article_html(url):
     """
     Загружает HTML страницы новости.
@@ -50,10 +63,43 @@ def extract_article_text(html):
             strip=True,
         )
 
-        # Совсем короткие строки обычно являются
-        # служебными элементами, поэтому их пропускаем.
-        if len(text) >= 40:
+        # Сохраняем любой непустой абзац.
+        # Короткая строка тоже может содержать важную информацию.
+        if text:
             paragraphs.append(text)
 
     # Возвращаем одну обычную строку с разделёнными абзацами.
     return "\n\n".join(paragraphs)
+
+
+def clean_article_text(article_text):
+    """
+    Удаляет служебные абзацы из извлечённого текста статьи.
+    """
+
+    clean_paragraphs = []
+
+    # extract_article_text разделяет абзацы пустой строкой.
+    for paragraph in article_text.split("\n\n"):
+        # Нормализуем пробелы, но не меняем содержимое абзаца.
+        paragraph = " ".join(paragraph.split())
+
+        if not paragraph:
+            continue
+
+        # Сравниваем без учёта регистра, чтобы правило работало
+        # и для "Фото:", и для "ФОТО:".
+        normalized_paragraph = paragraph.casefold()
+
+        # Подписи к фото, ссылки на прошлые материалы
+        # и похожие вставки не должны попадать в текст поста.
+        is_service_paragraph = normalized_paragraph.startswith(
+            SERVICE_PARAGRAPH_PREFIXES
+        )
+
+        if is_service_paragraph:
+            continue
+
+        clean_paragraphs.append(paragraph)
+
+    return "\n\n".join(clean_paragraphs)

@@ -23,6 +23,7 @@ from storage.history import (
 from generation.post_generator import generate_post
 
 from article.fetcher import (
+    clean_article_text,
     extract_article_text,
     fetch_article_html,
 )
@@ -101,16 +102,26 @@ selected_news = new_news[:MAX_NEWS_PER_RUN]
 if selected_news:
     test_news = selected_news[0]
 
-    # Загружаем HTML по прямой ссылке на статью.
-    html = fetch_article_html(test_news["url"])
+    # Текст сохраняем прямо в выбранной новости.
+    # Так заголовок, URL и статья не могут разойтись по разным спискам.
+    if "article_text" not in test_news:
+        # Загружаем HTML только по URL этого же объекта новости.
+        html = fetch_article_html(test_news["url"])
 
-    # Собираем обычный текст из абзацев страницы.
-    article_text = extract_article_text(html)
+        # Сначала извлекаем абзацы, затем убираем служебные вставки.
+        extracted_text = extract_article_text(html)
+        test_news["article_text"] = clean_article_text(extracted_text)
+
+    # Если article_text уже заполнен, повторный HTTP-запрос не нужен.
+    # Для диагностики читаем заголовок и текст из одного test_news.
+    article_text = test_news["article_text"]
 
     # Первых 3000 символов достаточно, чтобы увидеть,
     # попали ли в результат меню, реклама или другой мусор.
     print("=" * 60)
     print("ТЕСТ ТЕКСТА СТАТЬИ")
+    print()
+    print(f"Заголовок: {test_news['title']}")
     print()
     print(article_text[:3000])
     print()
