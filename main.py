@@ -33,6 +33,7 @@ from generation.post_generator import generate_post
 
 from article.fetcher import (
     clean_article_text,
+    extract_article_image_url,
     extract_article_text,
     fetch_article_html,
 )
@@ -81,21 +82,37 @@ def collect_enabled_news():
 
 
 def load_selected_article_text(selected_news):
-    """Загружает основной текст каждой выбранной новости."""
+    """Загружает текст и URL картинки каждой выбранной новости."""
 
     for news_item in selected_news:
-        # Повторный HTTP-запрос не нужен, если текст уже заполнен.
-        if news_item.get("article_text"):
+        # Повторный HTTP-запрос не нужен, если оба результата уже обработаны.
+        # Наличие image_url со значением None означает, что картинки не было.
+        if (
+            "article_text" in news_item
+            and "image_url" in news_item
+        ):
             continue
 
         # Пустое значение включает fallback на RSS description.
-        news_item["article_text"] = ""
+        news_item.setdefault("article_text", "")
+
+        # None явно показывает, что основная картинка пока не найдена.
+        news_item.setdefault("image_url", None)
 
         try:
-            # URL и результат принадлежат одному news_item.
+            # Страницу загружаем один раз для текста и картинки.
             html = fetch_article_html(news_item["url"])
-            extracted_text = extract_article_text(html)
-            article_text = clean_article_text(extracted_text)
+
+            if not news_item.get("article_text"):
+                extracted_text = extract_article_text(html)
+                article_text = clean_article_text(extracted_text)
+                news_item["article_text"] = article_text
+
+            if not news_item.get("image_url"):
+                news_item["image_url"] = extract_article_image_url(
+                    html,
+                    news_item["url"],
+                )
 
         # Ошибка одной страницы не останавливает остальные статьи.
         except (
@@ -110,15 +127,14 @@ def load_selected_article_text(selected_news):
             print()
             continue
 
-        if not article_text:
+        if not news_item["article_text"]:
             print("Предупреждение: текст статьи не найден.")
             print(f"Заголовок: {news_item['title']}")
             print(f"URL: {news_item['url']}")
             print()
             continue
 
-        # Текст сохраняется в конкретной новости без отдельного списка.
-        news_item["article_text"] = article_text
+        # Текст и картинка остаются привязаны к одному news_item.
 
 
 def publish_selected_news(

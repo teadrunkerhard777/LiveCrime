@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -70,6 +72,36 @@ def extract_article_text(html):
 
     # Возвращаем одну обычную строку с разделёнными абзацами.
     return "\n\n".join(paragraphs)
+
+
+def extract_article_image_url(html, page_url):
+    """Возвращает URL основной картинки статьи или None."""
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Open Graph обычно содержит основную картинку для соцсетей.
+    image_meta = soup.find(
+        "meta",
+        attrs={"property": "og:image"},
+    )
+
+    # Twitter Card используем только как запасной стандартный источник.
+    if image_meta is None:
+        image_meta = soup.find(
+            "meta",
+            attrs={"name": "twitter:image"},
+        )
+
+    if image_meta is None:
+        return None
+
+    image_url = image_meta.get("content", "").strip()
+
+    if not image_url:
+        return None
+
+    # urljoin сохраняет абсолютный URL и раскрывает относительный.
+    return urljoin(page_url, image_url)
 
 
 def clean_article_text(article_text):
