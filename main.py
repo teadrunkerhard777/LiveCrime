@@ -1,3 +1,4 @@
+from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
     EXCLUDE_KEYWORDS,
@@ -53,6 +54,9 @@ ranked_news = sort_by_score(
     SCORE_RULES,
 )
 
+# Убираем повторяющиеся новости.
+unique_news = remove_duplicates(ranked_news)
+
 
 print(f"Всего собрано новостей: {len(all_news)}")
 print(
@@ -60,11 +64,12 @@ print(
     f"{len(fresh_news)}"
 )
 print(f"Подходят по тематике: {len(topic_news)}")
+print(f"После удаления дублей: {len(unique_news)}")
 print()
 
 
 # Показываем первые 10 подходящих новостей.
-for news_item in ranked_news[:10]:
+for news_item in unique_news[:10]:
     print(f"[score: {news_item['score']}]")
     print(news_item["title"])
     print(f"Дата: {news_item['published_at']}")
