@@ -219,7 +219,7 @@ SOURCES = [
         "name": "KrasnodarMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://krasnodarmedia.su/export/new/newsByRubric_25_79.rss",
     },
 
@@ -228,7 +228,7 @@ SOURCES = [
         "name": "IrkutskMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://irkutskmedia.ru/export/new/newsByRubric_14_51.rss",
     },
 
@@ -237,7 +237,7 @@ SOURCES = [
         "name": "KrasnoyarskMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://krasnoyarskmedia.ru/export/new/newsByRubric_26_16.rss",
     },
 
@@ -246,7 +246,7 @@ SOURCES = [
         "name": "OmskMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://omskmedia.su/export/new/newsByRubric_38_181.rss",
     },
 
@@ -255,7 +255,7 @@ SOURCES = [
         "name": "PrimaMedia: происшествия Приморья",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://primamedia.ru/export/new/newsByRubric_43_19.rss",
     },
 
@@ -273,7 +273,7 @@ SOURCES = [
         "name": "SakhalinMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://sakhalinmedia.ru/export/new/newsByRubric_64_40.rss",
     },
 
