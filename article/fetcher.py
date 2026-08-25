@@ -32,9 +32,27 @@ PETERBURGMEDIA_STOP_MARKERS = (
 )
 
 
+# Footer VN.ru обычно находится вне article body, но эти маркеры дают
+# дополнительную страховку при будущих изменениях вёрстки сайта.
+VN_STOP_MARKERS = (
+    "© 2015 -",
+    "все новости новосибирской области",
+    "свидетельство о регистрации сми",
+    "роскомнадзор",
+    "учредитель",
+    "главный редактор",
+    "телефон редакции",
+    "электронный адрес редакции",
+    "по вопросам партнерства",
+    "рекомендательные технологии",
+    "политика конфиденциальности",
+)
+
+
 # Новые сайты можно подключать здесь, не добавляя условия в main.py.
 SOURCE_STOP_MARKERS = {
     "PeterburgMedia: происшествия": PETERBURGMEDIA_STOP_MARKERS,
+    "VN.ru: происшествия": VN_STOP_MARKERS,
 }
 
 
@@ -68,7 +86,7 @@ def fetch_article_html(url):
     return response.text
 
 
-def extract_article_text(html):
+def extract_article_text(html, source=None):
     """
     Извлекает текстовые абзацы из HTML страницы.
     Пока используем общий вариант без привязки к конкретному сайту.
@@ -76,6 +94,13 @@ def extract_article_text(html):
 
     # BeautifulSoup превращает HTML в удобное для поиска дерево.
     soup = BeautifulSoup(html, "html.parser")
+
+    # Для сайтов с надёжным article body используем отдельный extractor.
+    # Если VN-контейнер не найден, случайные <p> всей страницы не собираем.
+    source_extractor = SOURCE_TEXT_EXTRACTORS.get(source)
+
+    if source_extractor is not None:
+        return source_extractor(soup)
 
     paragraphs = []
 
@@ -93,6 +118,51 @@ def extract_article_text(html):
 
     # Возвращаем одну обычную строку с разделёнными абзацами.
     return "\n\n".join(paragraphs)
+
+
+def extract_vn_article_text(soup):
+    """Извлекает только тело текущей статьи VN.ru."""
+
+    article_body = soup.select_one(
+        '#newstext.one-news-text[itemprop="articleBody"]'
+    )
+
+    if article_body is None:
+        return ""
+
+    # Контейнер должен находиться в том же article, что и текущий h1.
+    # Это не даёт принять карточку соседней новости за основной материал.
+    current_article = article_body.find_parent("article")
+
+    if (
+        current_article is None
+        or current_article.select_one("h1.det_news_title") is None
+    ):
+        return ""
+
+    # Related-карточки иногда встроены прямо в первый абзац body.
+    # Удаляем их до get_text(), не затрагивая основной текст вокруг.
+    for related_block in article_body.select(
+        "aside.divider, .news-block-cit, .related-news, .recommendation"
+    ):
+        related_block.decompose()
+
+    paragraphs = []
+
+    # На VN.ru абзацы статьи — прямые дочерние div, а не теги <p>.
+    for block in article_body.find_all(["div", "p"], recursive=False):
+        text = block.get_text(" ", strip=True)
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
+# Диспетчер сохраняет source-specific правила в одном модуле.
+SOURCE_TEXT_EXTRACTORS = {
+    "VN.ru: происшествия": extract_vn_article_text,
+}
 
 
 def extract_article_image_url(html, page_url):

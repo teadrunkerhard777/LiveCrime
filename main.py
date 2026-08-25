@@ -116,7 +116,10 @@ def load_selected_article_text(selected_news):
             html = fetch_article_html(news_item["url"])
 
             if not news_item.get("article_text"):
-                extracted_text = extract_article_text(html)
+                extracted_text = extract_article_text(
+                    html,
+                    source=news_item.get("source"),
+                )
                 article_text = clean_article_text(
                     extracted_text,
                     source=news_item.get("source"),
