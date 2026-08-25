@@ -469,7 +469,12 @@ def run():
         MIN_PUBLICATION_SCORE,
     )
     ranked_news = sort_by_score(publication_news, SCORE_RULES)
-    unique_news = remove_duplicates(ranked_news)
+
+    # Event dedup сравнивает title с началом реального article_text.
+    # Загружаем hard-filter кандидатов до дедупликации; выбранная статья
+    # затем использует уже сохранённые article_text/image_url без повтора.
+    load_selected_article_text(ranked_news)
+    unique_news = remove_duplicates(ranked_news, debug=DRY_RUN)
     history = load_history()
 
     # В DRY_RUN история не ограничивает повторные тесты.
@@ -501,9 +506,6 @@ def run():
     if DRY_RUN:
         print_ranked_diagnostics(ranked_news)
         print_rejected_diagnostics(fresh_news, SCORE_RULES)
-
-    # Сеть статьи нужна только для уже окончательно выбранных материалов.
-    load_selected_article_text(selected_news)
 
     history_changed = publish_selected_news(
         selected_news,
