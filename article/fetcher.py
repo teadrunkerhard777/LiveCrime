@@ -159,8 +159,17 @@ def extract_vn_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
-def extract_krasnoyarskmedia_article_text(soup):
-    """Извлекает только тело текущей статьи KrasnoyarskMedia."""
+# Эти вложенные блоки подтверждены на сайтах Media-семейства.
+# Они находятся внутри article body, но не относятся к тексту новости.
+MEDIA_FAMILY_SERVICE_SELECTORS = (
+    ".noprint",
+    ".news_links_related",
+    ".page-content__related",
+)
+
+
+def extract_media_family_article_text(soup):
+    """Извлекает только тело текущей статьи Media-семейства."""
 
     article_body = soup.select_one(
         '.page-content.io-article-body[itemprop="articleBody"]'
@@ -179,9 +188,11 @@ def extract_krasnoyarskmedia_article_text(soup):
     if current_article is None or current_article.select_one("h1") is None:
         return ""
 
-    # На реальной странице внутри article body расположен noprint-блок
-    # с Push-уведомлениями и ссылками на социальные сети.
-    for service_block in article_body.select(".noprint"):
+    # Удаляем рекламу, соцблоки, навигацию и related links до get_text().
+    # DOM-селекторы не затрагивают обычные содержательные абзацы.
+    for service_block in article_body.select(
+        ", ".join(MEDIA_FAMILY_SERVICE_SELECTORS)
+    ):
         service_block.decompose()
 
     paragraphs = []
@@ -240,9 +251,15 @@ def extract_agn_moscow_article_text(soup):
 SOURCE_TEXT_EXTRACTORS = {
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
     "VN.ru: происшествия": extract_vn_article_text,
-    "KrasnoyarskMedia: происшествия": (
-        extract_krasnoyarskmedia_article_text
+    "KrasnoyarskMedia: происшествия": extract_media_family_article_text,
+    "AmurMedia: происшествия Хабаровского края": (
+        extract_media_family_article_text
     ),
+    "YakutiaMedia: происшествия": extract_media_family_article_text,
+    "PriamurMedia: происшествия": extract_media_family_article_text,
+    "KamchatkaMedia: происшествия": extract_media_family_article_text,
+    "EAOMedia: происшествия": extract_media_family_article_text,
+    "MagadanMedia: происшествия": extract_media_family_article_text,
 }
 
 
