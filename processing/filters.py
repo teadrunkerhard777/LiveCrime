@@ -2,11 +2,21 @@ import re
 from datetime import datetime, timedelta, timezone
 
 
+CONTEXTUAL_SCORE_BONUS_LIMIT = 3
+
+
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
     # Левая граница не даёт "следств" совпасть внутри "последствия".
-    pattern = rf"(?<!\w){re.escape(topic.casefold())}"
+    suffix_guard = ""
+
+    # "убит" покрывает "убит/убита/убиты", но не инфинитив "убить".
+    # Иначе фраза "пытался убить" ошибочно превращала бы покушение в убийство.
+    if topic.casefold() == "убит":
+        suffix_guard = r"(?!ь)"
+
+    pattern = rf"(?<!\w){re.escape(topic.casefold())}{suffix_guard}"
     return re.search(pattern, full_text) is not None
 
 
@@ -42,13 +52,16 @@ def filter_by_topics(
     news_items,
     topics,
     exclude_keywords,
-    crime_context_keywords=(),
+    serious_outcome_keywords=(),
     strong_topics=None,
     contextual_topics=None,
+    conditional_serious_topics=(),
 ):
     """
-    Оставляет свежие криминальные новости по нужным темам
-    и отбрасывает только явные посторонние совпадения.
+    Оставляет только hard true crime материалы.
+
+    Contextual topics не могут открыть фильтр без прямой тяжёлой темы
+    или сочетания насильственного действия с тяжёлым исходом.
     """
 
     filtered_news = []
@@ -57,6 +70,9 @@ def filter_by_topics(
     }
     contextual_topic_set = {
         topic.casefold() for topic in (contextual_topics or ())
+    }
+    conditional_topic_set = {
+        topic.casefold() for topic in conditional_serious_topics
     }
 
     for news_item in news_items:
@@ -89,44 +105,58 @@ def filter_by_topics(
             if topic.casefold() in contextual_topic_set
         ]
 
-        # Неоднозначную тему подтверждаем явной уголовной конструкцией.
-        matched_crime_contexts = [
-            keyword for keyword in crime_context_keywords
-            if keyword.casefold() in full_text
+        # Тяжёлый исход учитываем только рядом с условно-насильственной темой.
+        matched_serious_outcomes = [
+            keyword for keyword in serious_outcome_keywords
+            if _topic_matches(full_text, keyword)
+        ]
+        matched_conditional_topics = [
+            topic for topic in matched_contextual_topics
+            if topic.casefold() in conditional_topic_set
         ]
 
-        # Сильная тема достаточна сама по себе. Слабая требует явной
-        # уголовной конструкции и позже ещё проходит minimum score.
-        has_supported_topic = bool(matched_strong_topics) or (
-            bool(matched_contextual_topics) and bool(matched_crime_contexts)
+        # Например, "избил" недостаточно, а "избил до смерти" проходит.
+        has_severe_conditional_event = bool(
+            matched_conditional_topics and matched_serious_outcomes
         )
+        has_supported_topic = bool(matched_strong_topics) or (
+            has_severe_conditional_event
+        )
+
+        serious_topics = matched_strong_topics.copy()
+
+        if has_severe_conditional_event:
+            serious_topics.append(
+                f"{matched_conditional_topics[0]} + "
+                f"{matched_serious_outcomes[0]}"
+            )
 
         # Диагностика хранится в том же news_item и не рассинхронизируется.
         news_item["matched_topics"] = matched_topics
-        news_item["strong_topics"] = matched_strong_topics
+        news_item["strong_topics"] = serious_topics
         news_item["contextual_topics"] = matched_contextual_topics
 
-        if matched_strong_topics and matched_contextual_topics:
+        if matched_strong_topics:
             news_item["admission_reason"] = (
-                f'contextual "{matched_contextual_topics[0]}" + '
-                f'strong "{matched_strong_topics[0]}"'
+                f'hard serious topic "{matched_strong_topics[0]}"'
             )
-        elif matched_strong_topics:
+        elif has_severe_conditional_event:
             news_item["admission_reason"] = (
-                f'strong topic "{matched_strong_topics[0]}"'
-            )
-        elif matched_contextual_topics and matched_crime_contexts:
-            news_item["admission_reason"] = (
-                f'contextual "{matched_contextual_topics[0]}" + '
-                f'explicit context "{matched_crime_contexts[0]}"'
+                f'conditional "{matched_conditional_topics[0]}" + '
+                f'severe outcome "{matched_serious_outcomes[0]}"'
             )
 
         if has_excluded_keyword:
             news_item["rejection_reason"] = "excluded keyword"
-        elif matched_contextual_topics and not matched_crime_contexts:
+        elif matched_conditional_topics and not matched_serious_outcomes:
+            topics_text = ", ".join(matched_conditional_topics)
+            news_item["rejection_reason"] = (
+                f"violent context without severe outcome: {topics_text}"
+            )
+        elif matched_contextual_topics:
             topics_text = ", ".join(matched_contextual_topics)
             news_item["rejection_reason"] = (
-                f"only weak topic: {topics_text}"
+                f"only contextual topics: {topics_text}"
             )
         elif not matched_topics:
             news_item["rejection_reason"] = "no crime topics"
@@ -139,8 +169,7 @@ def filter_by_topics(
             and not has_excluded_keyword
         )
 
-        # Оставляем новость, если она подходит по теме
-        # и неоднозначные основы подтверждены криминальным контекстом.
+        # Никакой score не может заменить hard serious допуск.
         if (
             matched_topics
             and has_supported_topic
@@ -164,14 +193,26 @@ def calculate_score(news_item, score_rules):
 
     full_text = f"{title} {description}"
 
-    score = 0
+    severity_score = 0
+    contextual_bonus = 0
 
     for keyword, points in score_rules.items():
         # Используем ту же границу слова, что и strict filter.
         if _topic_matches(full_text, keyword):
-            score += points
+            if points > 1:
+                # Несколько форм одного тяжёлого события не удваивают severity.
+                severity_score = max(severity_score, points)
+            else:
+                contextual_bonus += points
 
-    return score
+    # Длинное полицейское описание не должно выигрывать только числом
+    # procedural-слов: общий contextual bonus намеренно ограничен.
+    contextual_bonus = min(
+        contextual_bonus,
+        CONTEXTUAL_SCORE_BONUS_LIMIT,
+    )
+
+    return severity_score + contextual_bonus
 
 
 def add_scores(news_items, score_rules):

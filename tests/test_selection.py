@@ -4,13 +4,15 @@ from io import StringIO
 from unittest.mock import Mock
 
 from config import (
+    CONDITIONAL_SERIOUS_TOPICS,
     CONTEXTUAL_TOPICS,
-    CRIME_CONTEXT_KEYWORDS,
     EXCLUDE_KEYWORDS,
     MIN_PUBLICATION_SCORE,
     SCORE_RULES,
+    SERIOUS_OUTCOME_KEYWORDS,
     STRONG_TOPICS,
     TOPICS,
+    TOPIC_TAGS,
 )
 from generation.post_generator import generate_tags
 from main import publish_selected_news
@@ -32,19 +34,51 @@ def make_news_item(title, description=""):
     }
 
 
-def strict_filter(news_items):
+def hard_filter(news_items):
     return filter_by_topics(
         news_items,
         TOPICS,
         EXCLUDE_KEYWORDS,
-        CRIME_CONTEXT_KEYWORDS,
+        SERIOUS_OUTCOME_KEYWORDS,
         STRONG_TOPICS,
         CONTEXTUAL_TOPICS,
+        CONDITIONAL_SERIOUS_TOPICS,
     )
 
 
-class StrictTrueCrimeTests(unittest.TestCase):
-    def test_real_false_positives_are_rejected(self):
+class HardTrueCrimeTests(unittest.TestCase):
+    def test_required_weak_crime_cases_are_rejected(self):
+        titles = [
+            "Москвич задержан после ограбления магазина",
+            "Курьер мошенников задержан",
+            "Россиянина обвинили в мошенничестве",
+            "Подозреваемого в краже ноутбука задержали",
+            "Мужчину задержали с наркотиками",
+            "Мужчина избил прохожего",
+            "Подростки избили сверстника",
+            "Мужчину обвинили в покушении",
+            "Полиция сообщила о похищении человека",
+        ]
+
+        self.assertEqual(hard_filter([make_news_item(t) for t in titles]), [])
+
+    def test_required_hard_true_crime_cases_are_accepted(self):
+        titles = [
+            "Мужчину задержали по подозрению в убийстве",
+            "Суд вынес приговор за изнасилование",
+            "Подозреваемого арестовали после расстрела двух человек",
+            "Следователи раскрыли серию убийств",
+            "Женщина совершила самоубийство",
+            "Мужчина избил прохожего до смерти",
+            "Вооружённое нападение закончилось гибелью двух человек",
+        ]
+
+        result = hard_filter([make_news_item(t) for t in titles])
+
+        self.assertEqual(len(result), len(titles))
+        self.assertTrue(all(item["strong_topics"] for item in result))
+
+    def test_old_real_false_positives_stay_rejected(self):
         titles = [
             "Лондонцы столкнулись с неочевидным последствием аномальной жары",
             "Украину обвинили в экспериментах в духовной сфере",
@@ -52,84 +86,99 @@ class StrictTrueCrimeTests(unittest.TestCase):
             "Россиянка спустя 20 лет разыскала подругу детства благодаря соцсетям",
         ]
 
-        self.assertEqual(strict_filter([make_news_item(t) for t in titles]), [])
+        self.assertEqual(hard_filter([make_news_item(t) for t in titles]), [])
 
-    def test_real_crime_cases_are_accepted(self):
-        titles = [
-            "Мужчину задержали по подозрению в убийстве",
-            "Полиция разыскивает подозреваемого в убийстве",
-            "Россиянина обвинили в мошенничестве",
-            "Суд вынес приговор обвиняемому в убийстве",
-            "Врача задержали по подозрению в убийстве пациента",
-            "Медсестру обвинили в мошенничестве",
-            "Следствие возбудило уголовное дело после нападения",
-        ]
+    def test_contextual_topics_cannot_open_filter_by_accumulating(self):
+        item = make_news_item(
+            "Полиция задержала обвиняемого в краже и мошенничестве"
+        )
 
-        result = strict_filter([make_news_item(t) for t in titles])
+        self.assertEqual(hard_filter([item]), [])
+        self.assertEqual(item["strong_topics"], [])
 
-        self.assertEqual(len(result), len(titles))
-        self.assertTrue(all(item["strong_topics"] for item in result))
+    def test_attempt_language_does_not_match_killed_form(self):
+        item = make_news_item(
+            "Премьера обвинили в покушении",
+            "Следствие заявило, что подозреваемый пытался убить политика.",
+        )
 
-    def test_weak_topic_needs_supporting_crime_context(self):
-        [item] = strict_filter([
-            make_news_item("Мужчине предъявили обвинение")
+        self.assertEqual(hard_filter([item]), [])
+        self.assertNotIn("убит", item["matched_topics"])
+
+    def test_fatal_assault_records_derived_serious_topic(self):
+        [item] = hard_filter([
+            make_news_item("Мужчина избил прохожего до смерти")
         ])
 
-        self.assertEqual(item["strong_topics"], [])
-        self.assertEqual(item["contextual_topics"], ["обвин"])
-        self.assertIn("explicit context", item["admission_reason"])
+        self.assertIn("избил + до смерти", item["strong_topics"])
+        self.assertIn("severe outcome", item["admission_reason"])
 
     def test_word_start_matching_rejects_consequences(self):
         item = make_news_item("Неочевидные последствия жары")
 
-        strict_filter([item])
+        hard_filter([item])
 
         self.assertNotIn("следств", item["matched_topics"])
 
-    def test_suicide_topics_do_not_turn_into_murder(self):
-        items = strict_filter([
-            make_news_item("Мужчина совершил самоубийство"),
-            make_news_item("Следователи подтвердили суицид"),
-        ])
+    def test_all_suicide_forms_are_serious_without_murder_tag(self):
+        titles = [
+            "Мужчина совершил самоубийство",
+            "Следователи подтвердили суицид",
+            "Мужчина покончил с собой",
+            "Женщина покончила с собой",
+        ]
 
-        self.assertEqual(items[0]["matched_topics"], ["самоубий"])
-        self.assertEqual(items[1]["matched_topics"], ["суицид"])
-        self.assertNotIn("#убийство", generate_tags(items[0], {
-            "самоубий": "#суицид",
-            "убий": "#убийство",
-        }))
+        items = hard_filter([make_news_item(t) for t in titles])
+
+        self.assertEqual(len(items), 4)
+        for item in items:
+            tags = generate_tags(item, TOPIC_TAGS)
+            self.assertIn("#суицид", tags)
+            self.assertNotIn("#убийство", tags)
 
 
 class SeverityRankingTests(unittest.TestCase):
-    def test_minimum_score_removes_weak_procedural_news(self):
-        news = strict_filter([
-            make_news_item("Мужчине предъявили обвинение"),
-            make_news_item("Раскрыто мошенничество"),
+    def test_minimum_score_keeps_hard_topic(self):
+        news = hard_filter([
+            make_news_item("Раскрыто убийство"),
+            make_news_item("Мужчина совершил самоубийство"),
         ])
         add_scores(news, SCORE_RULES)
 
         result = filter_by_minimum_score(news, MIN_PUBLICATION_SCORE)
 
-        self.assertEqual([item["title"] for item in result], [
-            "Раскрыто мошенничество"
-        ])
+        self.assertEqual(len(result), 2)
+        self.assertTrue(
+            all(item["score"] >= MIN_PUBLICATION_SCORE for item in result)
+        )
 
-    def test_murder_has_highest_severity_score(self):
-        news = [
-            make_news_item("Судебное заседание по уголовному делу"),
-            make_news_item("Раскрыто мошенничество"),
+    def test_murder_ranks_above_rape_and_suicide(self):
+        news = hard_filter([
+            make_news_item("Подтверждено самоубийство"),
+            make_news_item("Раскрыто изнасилование"),
             make_news_item("Раскрыто убийство"),
-            make_news_item("Проведено задержание подозреваемого"),
-        ]
+        ])
 
         ranked = sort_by_score(news, SCORE_RULES)
 
         self.assertEqual(ranked[0]["title"], "Раскрыто убийство")
         self.assertEqual(ranked[0]["score"], 10)
 
+    def test_contextual_score_bonus_is_capped(self):
+        [item] = hard_filter([
+            make_news_item(
+                "Полиция задержала обвиняемого за убийство",
+                "Арест, уголовное дело, следствие, розыск и приговор.",
+            )
+        ])
+
+        add_scores([item], SCORE_RULES)
+
+        self.assertEqual(item["score"], 13)
+
     def test_equal_scores_keep_input_order(self):
-        first = make_news_item("Первое мошенничество")
-        second = make_news_item("Второе мошенничество")
+        first = make_news_item("Первое убийство")
+        second = make_news_item("Второе убийство")
 
         ranked = sort_by_score([first, second], SCORE_RULES)
 

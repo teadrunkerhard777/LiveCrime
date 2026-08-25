@@ -1,9 +1,10 @@
 import unittest
 
 from config import (
+    CONDITIONAL_SERIOUS_TOPICS,
     CONTEXTUAL_TOPICS,
-    CRIME_CONTEXT_KEYWORDS,
     EXCLUDE_KEYWORDS,
+    SERIOUS_OUTCOME_KEYWORDS,
     STRONG_TOPICS,
     TOPICS,
 )
@@ -27,9 +28,10 @@ class AccusationContextTests(unittest.TestCase):
             [news_item],
             TOPICS,
             EXCLUDE_KEYWORDS,
-            CRIME_CONTEXT_KEYWORDS,
+            SERIOUS_OUTCOME_KEYWORDS,
             STRONG_TOPICS,
             CONTEXTUAL_TOPICS,
+            CONDITIONAL_SERIOUS_TOPICS,
         )
 
     def test_country_accusation_is_rejected(self):
@@ -52,33 +54,24 @@ class AccusationContextTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["matched_topics"], ["убий", "обвин"])
 
-    def test_formal_accusation_phrase_supports_weak_topic(self):
+    def test_formal_accusation_without_serious_topic_is_rejected(self):
         result = self.filter_item("Мужчине предъявили обвинение")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["matched_topics"], ["обвин"])
+        self.assertEqual(result, [])
 
-    def test_fraud_accusation_is_accepted(self):
+    def test_fraud_accusation_is_rejected(self):
         result = self.filter_item(
             "Россиянина обвинили в мошенничестве"
         )
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(
-            result[0]["matched_topics"],
-            ["мошеннич", "обвин"],
-        )
+        self.assertEqual(result, [])
 
-    def test_accused_in_criminal_case_is_accepted(self):
+    def test_criminal_case_and_arrest_without_serious_topic_is_rejected(self):
         result = self.filter_item(
             "Обвиняемого по уголовному делу отправили под арест"
         )
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(
-            result[0]["matched_topics"],
-            ["арест", "уголовн", "обвин"],
-        )
+        self.assertEqual(result, [])
 
 
 class MedicalNoiseTests(unittest.TestCase):
@@ -89,9 +82,10 @@ class MedicalNoiseTests(unittest.TestCase):
             [news_item],
             TOPICS,
             EXCLUDE_KEYWORDS,
-            CRIME_CONTEXT_KEYWORDS,
+            SERIOUS_OUTCOME_KEYWORDS,
             STRONG_TOPICS,
             CONTEXTUAL_TOPICS,
+            CONDITIONAL_SERIOUS_TOPICS,
         )
 
     def test_belly_button_health_advice_is_rejected(self):
@@ -119,16 +113,12 @@ class MedicalNoiseTests(unittest.TestCase):
             ["убий", "задерж"],
         )
 
-    def test_nurse_accused_of_fraud_is_accepted(self):
+    def test_nurse_accused_of_fraud_is_rejected(self):
         result = self.filter_item(
             "Медсестру обвинили в мошенничестве"
         )
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(
-            result[0]["matched_topics"],
-            ["мошеннич", "обвин"],
-        )
+        self.assertEqual(result, [])
 
     def test_investigation_of_death_after_attack_is_accepted(self):
         result = self.filter_item(
@@ -154,12 +144,12 @@ class MedicalNoiseTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["matched_topics"], ["самоубий"])
 
-    def test_regular_crime_material_is_accepted(self):
+    def test_attack_without_severe_outcome_is_rejected(self):
         result = self.filter_item(
             "Задержан подозреваемый в нападении"
         )
 
-        self.assertEqual(len(result), 1)
+        self.assertEqual(result, [])
 
 
 if __name__ == "__main__":

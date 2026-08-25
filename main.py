@@ -8,8 +8,8 @@ from core.run_lock import AlreadyRunningError, single_instance_lock
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
+    CONDITIONAL_SERIOUS_TOPICS,
     CONTEXTUAL_TOPICS,
-    CRIME_CONTEXT_KEYWORDS,
     DRY_RUN,
     EXCLUDE_KEYWORDS,
     MAX_NEWS_PER_RUN,
@@ -17,6 +17,7 @@ from config import (
     NEWS_LOOKBACK_DAYS,
     POST_MODE,
     SCORE_RULES,
+    SERIOUS_OUTCOME_KEYWORDS,
     SOURCES,
     STRONG_TOPICS,
     TOPICS,
@@ -160,7 +161,7 @@ def print_selected_diagnostics(selected_news):
         print("SELECTED:")
         print(f"Заголовок: {news_item['title']}")
         print(f"Matched topics: {news_item.get('matched_topics', [])}")
-        print(f"Strong topics: {news_item.get('strong_topics', [])}")
+        print(f"Serious topics: {news_item.get('strong_topics', [])}")
         print(
             "Contextual topics: "
             f"{news_item.get('contextual_topics', [])}"
@@ -205,7 +206,7 @@ def print_rejected_diagnostics(news_items, score_rules, limit=5):
         print()
 
 
-def print_ranked_diagnostics(ranked_news, limit=5):
+def print_ranked_diagnostics(ranked_news, limit=10):
     """Показывает лучшие допустимые новости без увеличения лимита постов."""
 
     print(f"TOP {min(limit, len(ranked_news))} CANDIDATES:")
@@ -213,7 +214,11 @@ def print_ranked_diagnostics(ranked_news, limit=5):
     for position, news_item in enumerate(ranked_news[:limit], start=1):
         print(f"{position}. Источник: {news_item.get('source', 'не указан')}")
         print(f"   Заголовок: {news_item['title']}")
-        print(f"   Matched topics: {news_item.get('matched_topics', [])}")
+        print(f"   Serious topics: {news_item.get('strong_topics', [])}")
+        print(
+            "   Contextual topics: "
+            f"{news_item.get('contextual_topics', [])}"
+        )
         print(f"   Score: {news_item.get('score', 0)}")
 
     print()
@@ -367,9 +372,10 @@ def run():
         fresh_news,
         TOPICS,
         EXCLUDE_KEYWORDS,
-        CRIME_CONTEXT_KEYWORDS,
+        SERIOUS_OUTCOME_KEYWORDS,
         STRONG_TOPICS,
         CONTEXTUAL_TOPICS,
+        CONDITIONAL_SERIOUS_TOPICS,
     )
     add_scores(topic_news, SCORE_RULES)
     publication_news = filter_by_minimum_score(
@@ -393,7 +399,7 @@ def run():
 
     print(f"Всего собрано новостей: {len(all_news)}")
     print(f"За последние {NEWS_LOOKBACK_DAYS} дня: {len(fresh_news)}")
-    print(f"После strict true crime filter: {len(topic_news)}")
+    print(f"После hard serious-crime filter: {len(topic_news)}")
     print(
         "После MIN_PUBLICATION_SCORE "
         f"({MIN_PUBLICATION_SCORE}): {len(publication_news)}"
