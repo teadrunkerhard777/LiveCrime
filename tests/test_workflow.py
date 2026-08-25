@@ -48,8 +48,14 @@ class ConfigTests(unittest.TestCase):
         ]
 
         self.assertEqual(MAX_NEWS_PER_RUN, 1)
-        self.assertEqual(len(enabled_sources), 1)
-        self.assertEqual(enabled_sources[0]["name"], "Lenta.ru")
+        self.assertEqual(
+            [source["name"] for source in enabled_sources],
+            [
+                "Lenta.ru",
+                "АГН Москва: происшествия",
+                "PeterburgMedia: происшествия",
+            ],
+        )
 
 
 class WorkflowTests(unittest.TestCase):

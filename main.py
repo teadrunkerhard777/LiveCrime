@@ -211,7 +211,8 @@ def print_ranked_diagnostics(ranked_news, limit=5):
     print(f"TOP {min(limit, len(ranked_news))} CANDIDATES:")
 
     for position, news_item in enumerate(ranked_news[:limit], start=1):
-        print(f"{position}. {news_item['title']}")
+        print(f"{position}. Источник: {news_item.get('source', 'не указан')}")
+        print(f"   Заголовок: {news_item['title']}")
         print(f"   Matched topics: {news_item.get('matched_topics', [])}")
         print(f"   Score: {news_item.get('score', 0)}")
 

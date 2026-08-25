@@ -432,14 +432,20 @@ class PublishingFlowTests(unittest.TestCase):
         self.assertIn("[DRY RUN] Photo URL:", output.getvalue())
         self.assertIn("[DRY RUN] Caption:", output.getvalue())
 
-    def test_only_lenta_is_enabled(self):
+    def test_only_selected_pilot_sources_are_enabled(self):
         active_sources = [
             source for source in SOURCES
             if source.get("enabled", True)
         ]
 
-        self.assertEqual(len(active_sources), 1)
-        self.assertEqual(active_sources[0]["name"], "Lenta.ru")
+        self.assertEqual(
+            [source["name"] for source in active_sources],
+            [
+                "Lenta.ru",
+                "АГН Москва: происшествия",
+                "PeterburgMedia: происшествия",
+            ],
+        )
 
     def test_second_process_lock_is_rejected(self):
         with single_instance_lock():

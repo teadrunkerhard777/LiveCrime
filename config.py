@@ -165,7 +165,7 @@ SOURCES = [
         "name": "АГН Москва: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://www.mskagency.ru/rss/incident.rss",
     },
 
@@ -183,7 +183,7 @@ SOURCES = [
         "name": "PeterburgMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://peterburgmedia.ru/export/new/newsByRubric_88_198.rss",
     },
 
