@@ -17,6 +17,27 @@ SERVICE_PARAGRAPH_PREFIXES = (
 )
 
 
+# Эти маркеры относятся только к footer сайта PeterburgMedia.
+# Первый найденный маркер завершает полезную часть статьи целиком.
+PETERBURGMEDIA_STOP_MARKERS = (
+    "push-уведомления",
+    "читайте наши новости в telegram",
+    "подписывайтесь на новости peterburgmedia во вконтакте",
+    "информация для пользователей 18+",
+    "отправить сообщение в редакцию сайта?",
+    "электронный ресурс (сайт) использует cookies",
+    "политикой обработки персональных данных",
+    "согласием на обработку персональных данных",
+    "на сайте используются рекомендательные технологии",
+)
+
+
+# Новые сайты можно подключать здесь, не добавляя условия в main.py.
+SOURCE_STOP_MARKERS = {
+    "PeterburgMedia: происшествия": PETERBURGMEDIA_STOP_MARKERS,
+}
+
+
 def fetch_article_html(url):
     """
     Загружает HTML страницы новости.
@@ -104,12 +125,13 @@ def extract_article_image_url(html, page_url):
     return urljoin(page_url, image_url)
 
 
-def clean_article_text(article_text):
+def clean_article_text(article_text, source=None):
     """
     Удаляет служебные абзацы из извлечённого текста статьи.
     """
 
     clean_paragraphs = []
+    source_stop_markers = SOURCE_STOP_MARKERS.get(source, ())
 
     # extract_article_text разделяет абзацы пустой строкой.
     for paragraph in article_text.split("\n\n"):
@@ -122,6 +144,15 @@ def clean_article_text(article_text):
         # Сравниваем без учёта регистра, чтобы правило работало
         # и для "Фото:", и для "ФОТО:".
         normalized_paragraph = paragraph.casefold()
+
+        # Footer PeterburgMedia начинается с отдельного служебного абзаца.
+        # Всё ниже уже относится к подпискам, cookies и информации сайта.
+        has_source_footer_started = normalized_paragraph.startswith(
+            source_stop_markers
+        )
+
+        if has_source_footer_started:
+            break
 
         # Подписи к фото, ссылки на прошлые материалы
         # и похожие вставки не должны попадать в текст поста.

@@ -117,7 +117,10 @@ def load_selected_article_text(selected_news):
 
             if not news_item.get("article_text"):
                 extracted_text = extract_article_text(html)
-                article_text = clean_article_text(extracted_text)
+                article_text = clean_article_text(
+                    extracted_text,
+                    source=news_item.get("source"),
+                )
                 news_item["article_text"] = article_text
 
             if not news_item.get("image_url"):
