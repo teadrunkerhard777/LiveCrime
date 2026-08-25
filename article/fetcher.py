@@ -159,9 +159,50 @@ def extract_vn_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
+def extract_krasnoyarskmedia_article_text(soup):
+    """Извлекает только тело текущей статьи KrasnoyarskMedia."""
+
+    article_body = soup.select_one(
+        '.page-content.io-article-body[itemprop="articleBody"]'
+    )
+
+    if article_body is None:
+        return ""
+
+    # Article body должен находиться рядом с h1 текущей новости.
+    # Так соседние карточки и общий footer страницы не попадут в результат.
+    current_article = article_body.find_parent(
+        "div",
+        class_="page-fullnews",
+    )
+
+    if current_article is None or current_article.select_one("h1") is None:
+        return ""
+
+    # На реальной странице внутри article body расположен noprint-блок
+    # с Push-уведомлениями и ссылками на социальные сети.
+    for service_block in article_body.select(".noprint"):
+        service_block.decompose()
+
+    paragraphs = []
+
+    # Берём абзацы только из надёжного article body.
+    # Footer и соседние новости находятся за его границами.
+    for paragraph in article_body.find_all("p"):
+        text = paragraph.get_text(" ", strip=True)
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
     "VN.ru: происшествия": extract_vn_article_text,
+    "KrasnoyarskMedia: происшествия": (
+        extract_krasnoyarskmedia_article_text
+    ),
 }
 
 
