@@ -264,7 +264,7 @@ SOURCES = [
         "name": "AmurMedia: происшествия Хабаровского края",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://amurmedia.ru/export/new/newsByRubric_77_27.rss",
     },
 
@@ -282,7 +282,7 @@ SOURCES = [
         "name": "YakutiaMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://yakutiamedia.ru/export/new/newsByRubric_55_71.rss",
     },
 
@@ -291,7 +291,7 @@ SOURCES = [
         "name": "PriamurMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://priamurmedia.ru/export/new/newsByRubric_2_121.rss",
     },
 
@@ -300,7 +300,7 @@ SOURCES = [
         "name": "KamchatkaMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://kamchatkamedia.ru/export/new/newsByRubric_18_118.rss",
     },
 
@@ -309,7 +309,7 @@ SOURCES = [
         "name": "EAOMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://eaomedia.ru/export/new/newsByRubric_11_35.rss",
     },
 
