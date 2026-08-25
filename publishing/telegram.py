@@ -13,6 +13,8 @@ load_dotenv()
 
 TELEGRAM_MAX_ATTEMPTS = 2
 TELEGRAM_RETRY_DELAY_SECONDS = 2
+TELEGRAM_CONNECT_TIMEOUT_SECONDS = 10
+TELEGRAM_READ_TIMEOUT_SECONDS = 30
 
 
 @dataclass(frozen=True)
@@ -100,19 +102,25 @@ def _send_telegram_request(method, payload):
     # Telegram разберёт только минимальные теги <b> и <a>,
     # которые формирует и безопасно экранирует post_generator.py.
     request_payload = {"chat_id": chat_id, **payload}
+    log_prefix = "[PHOTO]" if method == "sendPhoto" else "[TELEGRAM]"
 
     for attempt in range(1, TELEGRAM_MAX_ATTEMPTS + 1):
         print(
-            f"[TELEGRAM] {method} attempt "
+            f"{log_prefix} {method} attempt "
             f"{attempt}/{TELEGRAM_MAX_ATTEMPTS}"
         )
 
         try:
-            # timeout не позволяет зависнуть при проблемах с сетью.
+            # Telegram иногда дольше забирает remote image URL.
+            # Раздельный read timeout даёт sendPhoto время, не меняя
+            # безопасную стратегию для неопределённого результата.
             response = requests.post(
                 api_url,
                 json=request_payload,
-                timeout=15,
+                timeout=(
+                    TELEGRAM_CONNECT_TIMEOUT_SECONDS,
+                    TELEGRAM_READ_TIMEOUT_SECONDS,
+                ),
             )
 
             # HTTP-ответ означает, что retry уже небезопасен или бесполезен.
@@ -123,7 +131,7 @@ def _send_telegram_request(method, payload):
             # поэтому повтор не создаст второе Telegram-сообщение.
             if attempt < TELEGRAM_MAX_ATTEMPTS:
                 print(
-                    "[TELEGRAM] ConnectTimeout, retry через "
+                    f"{log_prefix} ConnectTimeout, retry через "
                     f"{TELEGRAM_RETRY_DELAY_SECONDS} сек."
                 )
                 time.sleep(TELEGRAM_RETRY_DELAY_SECONDS)
@@ -139,7 +147,8 @@ def _send_telegram_request(method, payload):
             # Telegram мог принять запрос до разрыва ожидания ответа.
             # Повтор или fallback здесь способен создать дубль.
             print(
-                "[TELEGRAM] ReadTimeout: результат неизвестен, "
+                f"{log_prefix} result: ReadTimeout; "
+                "publication status unknown, "
                 "автоматический retry отключён"
             )
             return TelegramSendResult(
@@ -152,7 +161,8 @@ def _send_telegram_request(method, payload):
         except requests.ConnectionError as error:
             # Общий ConnectionError не гарантирует, что запрос не был принят.
             print(
-                "[TELEGRAM] ConnectionError: результат неизвестен, "
+                f"{log_prefix} result: ConnectionError; "
+                "publication status unknown, "
                 "автоматический retry отключён"
             )
             return TelegramSendResult(
@@ -168,9 +178,17 @@ def _send_telegram_request(method, payload):
                 if error.response is not None
                 else "неизвестен"
             )
+            # Telegram обычно присылает полезное поле description даже с 4xx.
+            # Показываем только его: URL API с токеном никогда не логируется.
+            api_description = _read_api_error_description(error.response)
+            reason = f"сервер вернул HTTP-статус {status_code}"
+
+            if api_description:
+                reason = f"{reason}: {api_description}"
+
             return TelegramSendResult(
                 success=False,
-                error_reason=f"сервер вернул HTTP-статус {status_code}",
+                error_reason=reason,
                 attempts=attempt,
             )
 
@@ -219,3 +237,26 @@ def _send_telegram_request(method, payload):
         success=True,
         attempts=attempt,
     )
+
+
+def _read_api_error_description(response):
+    """Безопасно читает короткое описание ошибки Telegram из JSON."""
+
+    if response is None:
+        return None
+
+    try:
+        response_data = response.json()
+    except (ValueError, requests.exceptions.JSONDecodeError):
+        return None
+
+    if not isinstance(response_data, dict):
+        return None
+
+    description = response_data.get("description")
+
+    if not isinstance(description, str):
+        return None
+
+    # Ограничение защищает Actions logs от неожиданно большого ответа.
+    return description.strip()[:300] or None

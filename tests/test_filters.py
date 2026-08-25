@@ -1,6 +1,12 @@
 import unittest
 
-from config import CRIME_CONTEXT_KEYWORDS, EXCLUDE_KEYWORDS, TOPICS
+from config import (
+    CONTEXTUAL_TOPICS,
+    CRIME_CONTEXT_KEYWORDS,
+    EXCLUDE_KEYWORDS,
+    STRONG_TOPICS,
+    TOPICS,
+)
 from processing.filters import filter_by_topics
 
 
@@ -22,6 +28,8 @@ class AccusationContextTests(unittest.TestCase):
             TOPICS,
             EXCLUDE_KEYWORDS,
             CRIME_CONTEXT_KEYWORDS,
+            STRONG_TOPICS,
+            CONTEXTUAL_TOPICS,
         )
 
     def test_country_accusation_is_rejected(self):
@@ -82,6 +90,8 @@ class MedicalNoiseTests(unittest.TestCase):
             TOPICS,
             EXCLUDE_KEYWORDS,
             CRIME_CONTEXT_KEYWORDS,
+            STRONG_TOPICS,
+            CONTEXTUAL_TOPICS,
         )
 
     def test_belly_button_health_advice_is_rejected(self):

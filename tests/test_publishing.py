@@ -169,6 +169,7 @@ class TelegramTests(unittest.TestCase):
         self.assertTrue(result)
         payload = post_mock.call_args.kwargs["json"]
         self.assertEqual(payload["parse_mode"], "HTML")
+        self.assertEqual(post_mock.call_args.kwargs["timeout"], (10, 30))
         self.assertEqual(post_mock.call_count, 1)
 
     @patch("publishing.telegram.requests.post")
@@ -228,6 +229,29 @@ class TelegramTests(unittest.TestCase):
             output.getvalue(),
         )
         self.assertNotIn("secret-test-token", output.getvalue())
+
+    @patch("publishing.telegram.requests.post")
+    def test_http_error_includes_safe_telegram_description(self, post_mock):
+        response = Mock()
+        response.status_code = 400
+        response.json.return_value = {
+            "ok": False,
+            "description": "Bad Request: failed to get HTTP URL content",
+        }
+        response.raise_for_status.side_effect = requests.HTTPError(
+            response=response
+        )
+        post_mock.return_value = response
+
+        with patch.dict("os.environ", TELEGRAM_ENV, clear=False):
+            result = send_telegram_photo(
+                "https://img.example/broken.jpg",
+                "caption",
+            )
+
+        self.assertFalse(result)
+        self.assertIn("HTTP-статус 400", result.error_reason)
+        self.assertIn("failed to get HTTP URL content", result.error_reason)
 
 
 class PublishingFlowTests(unittest.TestCase):
@@ -307,7 +331,7 @@ class PublishingFlowTests(unittest.TestCase):
         self.assertEqual(history_mock.call_count, 1)
         self.assertEqual(len(history), 1)
         self.assertIn(
-            "[TELEGRAM] sendPhoto failed after 1 attempt(s), "
+            "[PHOTO] sendPhoto failed after 1 attempt(s), "
             "fallback to sendMessage",
             output.getvalue(),
         )
@@ -358,7 +382,7 @@ class PublishingFlowTests(unittest.TestCase):
         self.assertEqual(send_post_mock.call_count, 1)
         self.assertEqual(history_mock.call_count, 1)
         self.assertIn(
-            "[TELEGRAM] image_url not found, using sendMessage",
+            "[PHOTO] image_url not found, using sendMessage",
             output.getvalue(),
         )
 
@@ -619,7 +643,7 @@ class TelegramRetryTests(unittest.TestCase):
         send_post_mock.assert_not_called()
         history_mock.assert_not_called()
         self.assertIn("ReadTimeout", output.getvalue())
-        self.assertIn("fallback disabled", output.getvalue())
+        self.assertIn("no retry or fallback", output.getvalue())
 
 
 if __name__ == "__main__":

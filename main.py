@@ -8,18 +8,24 @@ from core.run_lock import AlreadyRunningError, single_instance_lock
 from processing.deduplicator import remove_duplicates
 from collectors.rss_collector import collect_rss
 from config import (
+    CONTEXTUAL_TOPICS,
     CRIME_CONTEXT_KEYWORDS,
     DRY_RUN,
     EXCLUDE_KEYWORDS,
     MAX_NEWS_PER_RUN,
+    MIN_PUBLICATION_SCORE,
     NEWS_LOOKBACK_DAYS,
     POST_MODE,
     SCORE_RULES,
     SOURCES,
+    STRONG_TOPICS,
     TOPICS,
 )
 from processing.filters import (
+    add_scores,
+    calculate_score,
     filter_by_date,
+    filter_by_minimum_score,
     filter_by_topics,
     sort_by_score,
 )
@@ -92,6 +98,10 @@ def load_selected_article_text(selected_news):
             "article_text" in news_item
             and "image_url" in news_item
         ):
+            print(
+                "[PHOTO] image_url found: "
+                f"{'yes' if news_item.get('image_url') else 'no'}"
+            )
             continue
 
         # Пустое значение включает fallback на RSS description.
@@ -114,6 +124,11 @@ def load_selected_article_text(selected_news):
                     html,
                     news_item["url"],
                 )
+
+            print(
+                "[PHOTO] image_url found: "
+                f"{'yes' if news_item.get('image_url') else 'no'}"
+            )
 
         # Ошибка одной страницы не останавливает остальные статьи.
         except (
@@ -138,6 +153,71 @@ def load_selected_article_text(selected_news):
         # Текст и картинка остаются привязаны к одному news_item.
 
 
+def print_selected_diagnostics(selected_news):
+    """Показывает, почему каждая новость дошла до публикации."""
+
+    for news_item in selected_news:
+        print("SELECTED:")
+        print(f"Заголовок: {news_item['title']}")
+        print(f"Matched topics: {news_item.get('matched_topics', [])}")
+        print(f"Strong topics: {news_item.get('strong_topics', [])}")
+        print(
+            "Contextual topics: "
+            f"{news_item.get('contextual_topics', [])}"
+        )
+        print(f"Score: {news_item.get('score', 0)}")
+        print(
+            "Причина допуска: "
+            f"{news_item.get('admission_reason', 'не указана')}"
+        )
+        print()
+
+
+def print_rejected_diagnostics(news_items, score_rules, limit=5):
+    """Показывает несколько лучших отклонённых кандидатов в DRY_RUN."""
+
+    rejected_news = []
+
+    for news_item in news_items:
+        # Материалы вообще без тематических совпадений не засоряют лог.
+        if not news_item.get("matched_topics"):
+            continue
+
+        if news_item.get("strict_filter_passed") and (
+            news_item.get("score", 0) >= MIN_PUBLICATION_SCORE
+        ):
+            continue
+
+        # Для strict-rejected материалов score нужен только для диагностики.
+        news_item.setdefault(
+            "score",
+            calculate_score(news_item, score_rules),
+        )
+        rejected_news.append(news_item)
+
+    rejected_news.sort(key=lambda item: item["score"], reverse=True)
+
+    for news_item in rejected_news[:limit]:
+        print("REJECTED:")
+        print(f"Заголовок: {news_item['title']}")
+        print(f"Причина: {news_item.get('rejection_reason', 'не указана')}")
+        print(f"Score: {news_item['score']}")
+        print()
+
+
+def print_ranked_diagnostics(ranked_news, limit=5):
+    """Показывает лучшие допустимые новости без увеличения лимита постов."""
+
+    print(f"TOP {min(limit, len(ranked_news))} CANDIDATES:")
+
+    for position, news_item in enumerate(ranked_news[:limit], start=1):
+        print(f"{position}. {news_item['title']}")
+        print(f"   Matched topics: {news_item.get('matched_topics', [])}")
+        print(f"   Score: {news_item.get('score', 0)}")
+
+    print()
+
+
 def publish_selected_news(
     selected_news,
     history,
@@ -158,6 +238,10 @@ def publish_selected_news(
         image_url = news_item.get("image_url")
         photo_caption = generate_photo_caption(news_item)
         print("=" * 60)
+        print(
+            "[PHOTO] image_url found: "
+            f"{'yes' if image_url else 'no'}"
+        )
 
         # В DRY_RUN Telegram API и история вообще не вызываются.
         if dry_run:
@@ -190,7 +274,7 @@ def publish_selected_news(
         publication_uncertain = False
 
         if image_url:
-            print("Пробуем отправить одно сообщение через sendPhoto.")
+            print("[PHOTO] calling sendPhoto")
             photo_result = send_photo(
                 image_url,
                 photo_caption,
@@ -203,26 +287,33 @@ def publish_selected_news(
             )
 
             if publication_succeeded:
-                print("Пост с изображением успешно отправлен в Telegram.")
+                print("[PHOTO] result: success")
             elif publication_uncertain:
                 # При ReadTimeout Telegram мог уже создать сообщение.
                 # Не делаем fallback, чтобы не получить второй пост.
                 print(
-                    "[TELEGRAM] sendPhoto result uncertain, "
-                    "fallback disabled to prevent duplicate"
+                    "[PHOTO] result: delivery status unknown; "
+                    "no retry or fallback to prevent duplicate"
                 )
             else:
                 # Если Telegram не получил картинку, сохраняем текстовый путь.
                 attempts = getattr(photo_result, "attempts", 1)
+                error_reason = getattr(
+                    photo_result,
+                    "error_reason",
+                    "причина не указана",
+                )
                 print(
-                    f"[TELEGRAM] sendPhoto failed after {attempts} "
+                    f"[PHOTO] sendPhoto failed after {attempts} "
                     "attempt(s), "
                     "fallback to sendMessage"
                 )
+                print(f"[PHOTO] Причина: {error_reason}")
+                print(f"[PHOTO] Image URL: {image_url}")
 
         else:
             print(
-                "[TELEGRAM] image_url not found, using sendMessage"
+                "[PHOTO] image_url not found, using sendMessage"
             )
 
         if not publication_succeeded and not publication_uncertain:
@@ -276,8 +367,15 @@ def run():
         TOPICS,
         EXCLUDE_KEYWORDS,
         CRIME_CONTEXT_KEYWORDS,
+        STRONG_TOPICS,
+        CONTEXTUAL_TOPICS,
     )
-    ranked_news = sort_by_score(topic_news, SCORE_RULES)
+    add_scores(topic_news, SCORE_RULES)
+    publication_news = filter_by_minimum_score(
+        topic_news,
+        MIN_PUBLICATION_SCORE,
+    )
+    ranked_news = sort_by_score(publication_news, SCORE_RULES)
     unique_news = remove_duplicates(ranked_news)
     history = load_history()
 
@@ -291,15 +389,28 @@ def run():
         ]
 
     selected_news = new_news[:MAX_NEWS_PER_RUN]
-    load_selected_article_text(selected_news)
 
     print(f"Всего собрано новостей: {len(all_news)}")
     print(f"За последние {NEWS_LOOKBACK_DAYS} дня: {len(fresh_news)}")
-    print(f"Подходят по тематике: {len(topic_news)}")
+    print(f"После strict true crime filter: {len(topic_news)}")
+    print(
+        "После MIN_PUBLICATION_SCORE "
+        f"({MIN_PUBLICATION_SCORE}): {len(publication_news)}"
+    )
     print(f"После удаления дублей: {len(unique_news)}")
     print(f"Новых новостей: {len(new_news)}")
     print(f"Выбрано для публикации: {len(selected_news)}")
     print()
+
+    print_selected_diagnostics(selected_news)
+
+    # В безопасном режиме показываем только несколько полезных отказов.
+    if DRY_RUN:
+        print_ranked_diagnostics(ranked_news)
+        print_rejected_diagnostics(fresh_news, SCORE_RULES)
+
+    # Сеть статьи нужна только для уже окончательно выбранных материалов.
+    load_selected_article_text(selected_news)
 
     history_changed = publish_selected_news(
         selected_news,
