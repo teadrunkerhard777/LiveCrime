@@ -105,7 +105,7 @@ class VnArticleExtractionTests(unittest.TestCase):
     def test_other_sources_keep_generic_paragraph_extraction(self):
         expected = extract_article_text(VN_REAL_CASE_HTML)
 
-        for source in ("Lenta.ru", "АГН Москва: происшествия"):
+        for source in ("Lenta.ru", "E1.ru: происшествия"):
             with self.subTest(source=source):
                 result = extract_article_text(
                     VN_REAL_CASE_HTML,

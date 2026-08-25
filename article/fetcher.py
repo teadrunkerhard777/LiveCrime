@@ -197,8 +197,48 @@ def extract_krasnoyarskmedia_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
+def extract_agn_moscow_article_text(soup):
+    """Извлекает только тело текущего материала АГН Москва."""
+
+    article_body = soup.select_one(
+        '#Article.article > div.text[itemprop="articleBody"]'
+    )
+
+    if article_body is None:
+        return ""
+
+    # Проверяем, что body связан с h1 именно текущего материала.
+    # Служебное время находится рядом с h1, но не внутри article body.
+    current_article = article_body.find_parent(
+        "div",
+        id="Article",
+    )
+
+    if (
+        current_article is None
+        or current_article.select_one(
+            'h1.title[itemprop="headline"]'
+        ) is None
+    ):
+        return ""
+
+    paragraphs = []
+
+    # На реальных страницах содержательные абзацы являются прямыми
+    # дочерними <p>. Header, дата и footer остаются за границами body.
+    for paragraph in article_body.find_all("p", recursive=False):
+        text = paragraph.get_text(" ", strip=True)
+
+        # Короткие содержательные абзацы тоже сохраняются.
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
+    "АГН Москва: происшествия": extract_agn_moscow_article_text,
     "VN.ru: происшествия": extract_vn_article_text,
     "KrasnoyarskMedia: происшествия": (
         extract_krasnoyarskmedia_article_text

@@ -78,7 +78,6 @@ class KrasnoyarskMediaArticleExtractionTests(unittest.TestCase):
 
         for source in (
             "Lenta.ru",
-            "АГН Москва: происшествия",
             "PeterburgMedia: происшествия",
             "116.ru: происшествия",
             "E1.ru: происшествия",
