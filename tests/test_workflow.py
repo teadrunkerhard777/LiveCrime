@@ -54,6 +54,10 @@ class ConfigTests(unittest.TestCase):
                 "Lenta.ru",
                 "АГН Москва: происшествия",
                 "PeterburgMedia: происшествия",
+                "116.ru: происшествия",
+                "E1.ru: происшествия",
+                "VN.ru: происшествия",
+                "vtomske.ru: происшествия",
             ],
         )
 
