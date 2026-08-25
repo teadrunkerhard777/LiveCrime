@@ -30,7 +30,12 @@ from processing.filters import (
     filter_by_topics,
     sort_by_score,
 )
-from publishing.telegram import send_telegram_photo, send_telegram_post
+from publishing.telegram import (
+    ImageDownloadError,
+    download_image_temp,
+    send_telegram_photo,
+    send_telegram_post,
+)
 from storage.history import (
     add_to_history,
     is_published,
@@ -237,6 +242,7 @@ def publish_selected_news(
     post_mode,
     send_post=send_telegram_post,
     send_photo=send_telegram_photo,
+    download_image=download_image_temp,
     add_history=add_to_history,
 ):
     """Формирует и по одному разу обрабатывает выбранные посты."""
@@ -286,7 +292,7 @@ def publish_selected_news(
         publication_uncertain = False
 
         if image_url:
-            print("[PHOTO] calling sendPhoto")
+            print("[PHOTO] trying remote URL")
             photo_result = send_photo(
                 image_url,
                 photo_caption,
@@ -299,7 +305,7 @@ def publish_selected_news(
             )
 
             if publication_succeeded:
-                print("[PHOTO] result: success")
+                print("[PHOTO] remote URL success")
             elif publication_uncertain:
                 # При ReadTimeout Telegram мог уже создать сообщение.
                 # Не делаем fallback, чтобы не получить второй пост.
@@ -307,8 +313,82 @@ def publish_selected_news(
                     "[PHOTO] result: delivery status unknown; "
                     "no retry or fallback to prevent duplicate"
                 )
+            elif getattr(photo_result, "remote_fetch_failed", False):
+                # File fallback нужен только когда Telegram явно сообщил,
+                # что не смог самостоятельно получить remote URL.
+                print("[PHOTO] Telegram cannot fetch remote URL")
+                print("[PHOTO] downloading image to temporary file")
+
+                temporary_image = None
+
+                try:
+                    temporary_image = download_image(image_url)
+                    downloaded_kb = temporary_image.size_bytes / 1024
+                    print(
+                        f"[PHOTO] downloaded: {temporary_image.mime_type}, "
+                        f"{downloaded_kb:.0f} KB"
+                    )
+                    print("[PHOTO] trying multipart upload")
+
+                    # Файл открывается только на время одного sendPhoto.
+                    with temporary_image.path.open("rb") as image_file:
+                        file_result = send_photo(
+                            image_file,
+                            photo_caption,
+                            filename=temporary_image.path.name,
+                            mime_type=temporary_image.mime_type,
+                        )
+
+                    publication_succeeded = bool(file_result)
+                    publication_uncertain = getattr(
+                        file_result,
+                        "uncertain",
+                        False,
+                    )
+
+                    if publication_succeeded:
+                        print("[PHOTO] multipart upload success")
+                    elif publication_uncertain:
+                        # После ReadTimeout повтор также может создать дубль.
+                        print(
+                            "[PHOTO] multipart result unknown; "
+                            "no sendMessage fallback to prevent duplicate"
+                        )
+                    else:
+                        error_reason = getattr(
+                            file_result,
+                            "error_reason",
+                            "причина не указана",
+                        )
+                        print("[PHOTO] multipart upload failed")
+                        print(f"[PHOTO] Причина: {error_reason}")
+                        print("[PHOTO] fallback to sendMessage")
+
+                except ImageDownloadError as error:
+                    # Непригодная картинка не мешает отправить текст новости.
+                    print(f"[PHOTO] temporary download failed: {error}")
+                    print("[PHOTO] fallback to sendMessage")
+
+                except OSError as error:
+                    # Ошибка временного файла также является подтверждённым
+                    # отсутствием пригодной картинки на стороне runner-а.
+                    print(
+                        "[PHOTO] temporary file failed: "
+                        f"{type(error).__name__}"
+                    )
+                    print("[PHOTO] fallback to sendMessage")
+
+                finally:
+                    # Temporary file никогда не остаётся в репозитории
+                    # или на runner-е после завершения этой попытки.
+                    if (
+                        temporary_image is not None
+                        and temporary_image.path.exists()
+                    ):
+                        temporary_image.path.unlink()
+                        print("[PHOTO] temporary file removed")
             else:
-                # Если Telegram не получил картинку, сохраняем текстовый путь.
+                # Подтверждённая несвязанная ошибка не запускает скачивание.
                 attempts = getattr(photo_result, "attempts", 1)
                 error_reason = getattr(
                     photo_result,
@@ -357,7 +437,7 @@ def publish_selected_news(
                     "История не изменена."
                 )
             elif image_url:
-                print("Оба способа не сработали. История не изменена.")
+                print("Публикация не удалась. История не изменена.")
             else:
                 print("Текстовый пост не отправлен. История не изменена.")
 
