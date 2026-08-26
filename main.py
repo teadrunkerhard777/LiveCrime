@@ -1,3 +1,6 @@
+from pathlib import Path
+from urllib.parse import unquote, urlsplit
+
 from bs4 import FeatureNotFound
 from bs4.exceptions import ParserRejectedMarkup
 from requests import RequestException
@@ -50,6 +53,37 @@ from article.fetcher import (
     extract_article_text,
     fetch_article_html,
 )
+
+
+# Финальный PNG можно добавить отдельно: отсутствие файла безопасно
+# переводит публикацию на обычный sendMessage.
+FALLBACK_BANNER_PATH = (
+    Path(__file__).resolve().parent
+    / "assets"
+    / "livecrime_fallback_banner.png"
+)
+
+# Короткий список ловит только очевидные служебные картинки сайтов.
+# Его намеренно не расширяем до агрессивного blacklist всех URL.
+SERVICE_IMAGE_MARKERS = (
+    "logo",
+    "placeholder",
+    "default_image",
+    "default-image",
+    "noimage",
+    "no-image",
+)
+
+
+def is_usable_article_image(image_url):
+    """Отбрасывает отсутствующие и очевидно служебные image URL."""
+
+    if not isinstance(image_url, str) or not image_url.strip():
+        return False
+
+    # Маркеры проверяем в URL-пути и имени файла без параметров запроса.
+    image_path = unquote(urlsplit(image_url).path).casefold()
+    return not any(marker in image_path for marker in SERVICE_IMAGE_MARKERS)
 
 
 def collect_enabled_news():
@@ -244,6 +278,7 @@ def publish_selected_news(
     send_photo=send_telegram_photo,
     download_image=download_image_temp,
     add_history=add_to_history,
+    fallback_banner_path=None,
 ):
     """Формирует и по одному разу обрабатывает выбранные посты."""
 
@@ -254,24 +289,45 @@ def publish_selected_news(
     for post_number, news_item in enumerate(selected_news, start=1):
         post = generate_post(news_item)
         image_url = news_item.get("image_url")
+        usable_image_url = (
+            image_url if is_usable_article_image(image_url) else None
+        )
+        banner_path = (
+            Path(fallback_banner_path)
+            if fallback_banner_path is not None
+            else None
+        )
         photo_caption = generate_photo_caption(news_item)
         print("=" * 60)
         print(
             "[PHOTO] image_url found: "
             f"{'yes' if image_url else 'no'}"
         )
+        print(
+            "[PHOTO] article image usable: "
+            f"{'yes' if usable_image_url else 'no'}"
+        )
+
+        if image_url and not usable_image_url:
+            print(f"[PHOTO] service image rejected: {image_url}")
 
         # В DRY_RUN Telegram API и история вообще не вызываются.
         if dry_run:
             matched_topics = news_item.get("matched_topics", [])
             print(f"Темы: {', '.join(matched_topics)}")
 
-            if image_url:
-                print(f"[DRY RUN] Photo URL: {image_url}")
+            if usable_image_url:
+                print(f"[DRY RUN] Photo URL: {usable_image_url}")
+                print("[DRY RUN] Caption:")
+                print(photo_caption)
+            elif banner_path is not None and banner_path.is_file():
+                print("[DRY RUN] Selected image source: fallback banner")
+                print(f"[DRY RUN] Banner: {banner_path}")
                 print("[DRY RUN] Caption:")
                 print(photo_caption)
             else:
                 print("[DRY RUN] Photo URL: NOT FOUND")
+                print("[DRY RUN] Fallback banner: NOT FOUND")
                 print("[DRY RUN] Текстовый пост:")
                 print(post)
 
@@ -291,10 +347,10 @@ def publish_selected_news(
         publication_succeeded = False
         publication_uncertain = False
 
-        if image_url:
+        if usable_image_url:
             print("[PHOTO] trying remote URL")
             photo_result = send_photo(
-                image_url,
+                usable_image_url,
                 photo_caption,
             )
             publication_succeeded = bool(photo_result)
@@ -322,7 +378,7 @@ def publish_selected_news(
                 temporary_image = None
 
                 try:
-                    temporary_image = download_image(image_url)
+                    temporary_image = download_image(usable_image_url)
                     downloaded_kb = temporary_image.size_bytes / 1024
                     print(
                         f"[PHOTO] downloaded: {temporary_image.mime_type}, "
@@ -401,12 +457,74 @@ def publish_selected_news(
                     "fallback to sendMessage"
                 )
                 print(f"[PHOTO] Причина: {error_reason}")
-                print(f"[PHOTO] Image URL: {image_url}")
+                print(f"[PHOTO] Image URL: {usable_image_url}")
 
         else:
-            print(
-                "[PHOTO] image_url not found, using sendMessage"
-            )
+            if image_url:
+                print("[PHOTO] article image is not usable")
+            elif banner_path is None:
+                # Сохраняем прежнюю диагностику для явно отключённого banner.
+                print("[PHOTO] image_url not found, using sendMessage")
+            else:
+                print("[PHOTO] image_url not found")
+
+        # Banner допустим только до первой отправки либо после подтверждённой
+        # безопасной ошибки. Неопределённый timeout сюда не попадёт.
+        if not publication_succeeded and not publication_uncertain:
+            if banner_path is None:
+                print("[PHOTO] fallback banner disabled")
+            else:
+                try:
+                    # Локальный PNG отправляется напрямую как multipart.
+                    # Никакой внешний hosting или второй download не нужен.
+                    with banner_path.open("rb") as banner_file:
+                        print("[PHOTO] trying local fallback banner")
+                        banner_result = send_photo(
+                            banner_file,
+                            photo_caption,
+                            filename=banner_path.name,
+                            mime_type="image/png",
+                        )
+
+                    publication_succeeded = bool(banner_result)
+                    publication_uncertain = getattr(
+                        banner_result,
+                        "uncertain",
+                        False,
+                    )
+
+                    if publication_succeeded:
+                        print("[PHOTO] fallback banner success")
+                    elif publication_uncertain:
+                        # Telegram мог принять banner: sendMessage создаст дубль.
+                        print(
+                            "[PHOTO] fallback banner result unknown; "
+                            "no sendMessage fallback to prevent duplicate"
+                        )
+                    else:
+                        error_reason = getattr(
+                            banner_result,
+                            "error_reason",
+                            "причина не указана",
+                        )
+                        print("[PHOTO] fallback banner failed")
+                        print(f"[PHOTO] Причина: {error_reason}")
+                        print("[PHOTO] fallback to sendMessage")
+
+                except FileNotFoundError:
+                    print(
+                        "[PHOTO] fallback banner not found: "
+                        f"{banner_path}"
+                    )
+                    print("[PHOTO] fallback to sendMessage")
+
+                except OSError as error:
+                    # Нечитаемый asset не должен останавливать весь запуск.
+                    print(
+                        "[PHOTO] fallback banner cannot be read: "
+                        f"{type(error).__name__}"
+                    )
+                    print("[PHOTO] fallback to sendMessage")
 
         if not publication_succeeded and not publication_uncertain:
             post_result = send_post(post)
@@ -436,7 +554,7 @@ def publish_selected_news(
                     "Результат отправки не подтверждён. "
                     "История не изменена."
                 )
-            elif image_url:
+            elif image_url or banner_path is not None:
                 print("Публикация не удалась. История не изменена.")
             else:
                 print("Текстовый пост не отправлен. История не изменена.")
@@ -512,6 +630,7 @@ def run():
         history,
         DRY_RUN,
         POST_MODE,
+        fallback_banner_path=FALLBACK_BANNER_PATH,
     )
 
     # Все успешные добавления сохраняются одним вызовом после цикла.
