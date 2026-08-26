@@ -5,12 +5,14 @@ from article.fetcher import extract_article_text
 
 MEDIA_FAMILY_SOURCES = (
     "KrasnoyarskMedia: происшествия",
+    "StolicaMedia: происшествия Москвы и области",
     "AmurMedia: происшествия Хабаровского края",
     "YakutiaMedia: происшествия",
     "PriamurMedia: происшествия",
     "KamchatkaMedia: происшествия",
     "EAOMedia: происшествия",
     "MagadanMedia: происшествия",
+    "ChukotkaMedia: происшествия",
 )
 
 MEDIA_FAMILY_REAL_STRUCTURE_HTML = """
@@ -101,6 +103,20 @@ class MediaFamilyArticleExtractionTests(unittest.TestCase):
 
         self.assertTrue(result.startswith("Media, 25 августа."))
         self.assertNotIn("Рекламный блок", result)
+
+    def test_stolicamedia_footer_is_not_included(self):
+        result = self.extract_for(
+            "StolicaMedia: происшествия Москвы и области"
+        )
+
+        self.assertIn("Первый содержательный абзац", result)
+        self.assertNotIn("cookies", result)
+
+    def test_chukotkamedia_article_body_is_preserved(self):
+        result = self.extract_for("ChukotkaMedia: происшествия")
+
+        self.assertIn("Второй абзац", result)
+        self.assertNotIn("Copyright", result)
 
     def test_all_confirmed_sources_remove_navigation_and_service_blocks(self):
         for source in MEDIA_FAMILY_SOURCES:

@@ -247,11 +247,77 @@ def extract_agn_moscow_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
+def extract_amic_article_text(soup):
+    """Извлекает только редакционное тело статьи Amic.ru."""
+
+    article_body = soup.select_one("#post.post > section.text")
+
+    if article_body is None:
+        return ""
+
+    # Надёжный body должен относиться к тому же post, где находится h1.
+    current_article = article_body.find_parent("div", id="post")
+
+    if current_article is None or current_article.select_one("h1") is None:
+        return ""
+
+    paragraphs = []
+
+    # Содержательные цитаты сохраняем вместе с обычными абзацами.
+    # Inject-карточки соседних материалов имеют другой тип элемента.
+    for block in article_body.find_all(
+        ["p", "blockquote"],
+        recursive=False,
+    ):
+        text = block.get_text(" ", strip=True)
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
+def extract_a42_article_text(soup):
+    """Извлекает только редакционный текст материала A42."""
+
+    article_body = soup.select_one(
+        'article.material .material__body[itemprop="articleBody"]'
+    )
+
+    if article_body is None:
+        return ""
+
+    current_article = article_body.find_parent("article", class_="material")
+
+    if current_article is None or current_article.select_one("h1") is None:
+        return ""
+
+    # Автор, категория и мобильная копия заголовка лежат рядом,
+    # а полезные абзацы находятся только внутри rte-text.
+    text_body = article_body.select_one(".rte-block.rte-text")
+
+    if text_body is None:
+        return ""
+
+    paragraphs = []
+
+    for paragraph in text_body.find_all("p"):
+        text = paragraph.get_text(" ", strip=True)
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
     "VN.ru: происшествия": extract_vn_article_text,
     "KrasnoyarskMedia: происшествия": extract_media_family_article_text,
+    "StolicaMedia: происшествия Москвы и области": (
+        extract_media_family_article_text
+    ),
     "AmurMedia: происшествия Хабаровского края": (
         extract_media_family_article_text
     ),
@@ -260,6 +326,9 @@ SOURCE_TEXT_EXTRACTORS = {
     "KamchatkaMedia: происшествия": extract_media_family_article_text,
     "EAOMedia: происшествия": extract_media_family_article_text,
     "MagadanMedia: происшествия": extract_media_family_article_text,
+    "ChukotkaMedia: происшествия": extract_media_family_article_text,
+    "Amic.ru: происшествия": extract_amic_article_text,
+    "A42: происшествия": extract_a42_article_text,
 }
 
 
