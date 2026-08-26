@@ -183,7 +183,7 @@ SOURCES = [
         "name": "SarBC: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://www.sarbc.ru/rss/data-utf/event.rss",
     },
 
@@ -201,7 +201,7 @@ SOURCES = [
         "name": "StolicaMedia: происшествия Москвы и области",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://stolicamedia.ru/export/new/newsByRubric_121_188.rss",
     },
 
@@ -318,7 +318,7 @@ SOURCES = [
         "name": "MagadanMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://magadanmedia.ru/export/new/newsByRubric_31_63.rss",
     },
 
@@ -327,7 +327,7 @@ SOURCES = [
         "name": "ChukotkaMedia: происшествия",
         "type": "rss",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://chukotkamedia.ru/export/new/newsByRubric_83_44.rss",
     },
 
@@ -377,7 +377,7 @@ SOURCES = [
         "name": "Amic.ru: происшествия",
         "type": "html",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://www.amic.ru/news/incident",
         "adapter": "amic",
         "timezone": "Asia/Barnaul",
@@ -387,7 +387,7 @@ SOURCES = [
         "name": "A42: происшествия",
         "type": "html",
         "role": "article_source",
-        "enabled": False,
+        "enabled": True,
         "url": "https://gazeta.a42.ru/lenta/news/kuzbass/proisshestviya",
         "adapter": "a42",
         "timezone": "Asia/Novokuznetsk",

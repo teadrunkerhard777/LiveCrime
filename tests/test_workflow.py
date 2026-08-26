@@ -52,7 +52,9 @@ class ConfigTests(unittest.TestCase):
             [source["name"] for source in enabled_sources],
             [
                 "Lenta.ru",
+                "SarBC: происшествия",
                 "АГН Москва: происшествия",
+                "StolicaMedia: происшествия Москвы и области",
                 "PeterburgMedia: происшествия",
                 "KrasnodarMedia: происшествия",
                 "IrkutskMedia: происшествия",
@@ -65,10 +67,14 @@ class ConfigTests(unittest.TestCase):
                 "PriamurMedia: происшествия",
                 "KamchatkaMedia: происшествия",
                 "EAOMedia: происшествия",
+                "MagadanMedia: происшествия",
+                "ChukotkaMedia: происшествия",
                 "116.ru: происшествия",
                 "E1.ru: происшествия",
                 "VN.ru: происшествия",
                 "vtomske.ru: происшествия",
+                "Amic.ru: происшествия",
+                "A42: происшествия",
             ],
         )
 
