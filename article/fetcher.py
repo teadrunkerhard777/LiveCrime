@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -82,6 +82,11 @@ def fetch_article_html(url):
 
     # Сразу сообщаем об HTTP-ошибках вроде 404 или 500.
     response.raise_for_status()
+
+    # Fontanka отдаёт UTF-8 HTML без charset в HTTP-заголовке.
+    # requests иначе ошибочно декодирует кириллицу как Latin-1.
+    if urlparse(url).netloc.casefold().removeprefix("www.") == "fontanka.ru":
+        response.encoding = "utf-8"
 
     return response.text
 
@@ -310,6 +315,66 @@ def extract_a42_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
+def extract_mk_article_text(soup):
+    """Извлекает редакционное тело статьи MK.ru."""
+
+    article_body = soup.select_one(
+        '.article__body[itemprop="articleBody"]'
+    )
+
+    if article_body is None:
+        return ""
+
+    paragraphs = []
+
+    # На MK ссылки «Читайте также» находятся внутри article body.
+    # Завершаем текст на явном маркере, не затрагивая основную статью.
+    for paragraph in article_body.find_all("p", recursive=False):
+        text = paragraph.get_text(" ", strip=True)
+
+        if text.casefold().startswith("читайте также"):
+            break
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
+def extract_fontanka_article_text(soup):
+    """Извлекает первый содержательный блок текущей статьи Fontanka.ru."""
+
+    headline = soup.find("h1")
+    current_article = headline.find_parent("article") if headline else None
+
+    if current_article is None:
+        return ""
+
+    article_body = None
+
+    # CSS-классы Fontanka хешируются при сборке сайта. Вместо них берём
+    # первый прямой дочерний div статьи, содержащий обычные абзацы.
+    for block in current_article.find_all("div", recursive=False):
+        if block.find("p") is not None:
+            article_body = block
+            break
+
+    if article_body is None:
+        return ""
+
+    paragraphs = []
+
+    # Related, реакции и сведения об авторе идут следующими соседями article.
+    # Поэтому собираем <p> только из найденного body текущего материала.
+    for paragraph in article_body.find_all("p"):
+        text = paragraph.get_text(" ", strip=True)
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
@@ -329,6 +394,8 @@ SOURCE_TEXT_EXTRACTORS = {
     "ChukotkaMedia: происшествия": extract_media_family_article_text,
     "Amic.ru: происшествия": extract_amic_article_text,
     "A42: происшествия": extract_a42_article_text,
+    "MK.ru: происшествия": extract_mk_article_text,
+    "Фонтанка: происшествия": extract_fontanka_article_text,
 }
 
 
