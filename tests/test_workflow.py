@@ -75,6 +75,8 @@ class ConfigTests(unittest.TestCase):
                 "vtomske.ru: происшествия",
                 "Amic.ru: происшествия",
                 "A42: происшествия",
+                "MK.ru: происшествия",
+                "Фонтанка: происшествия",
             ],
         )
 

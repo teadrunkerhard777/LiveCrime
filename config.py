@@ -393,6 +393,26 @@ SOURCES = [
         "timezone": "Asia/Novokuznetsk",
         "limit": 40,
     },
+
+    # Крупные федеральные и городские источники.
+    # MK предоставляет официальный тематический RSS без HTML-адаптера.
+    {
+        "name": "MK.ru: происшествия",
+        "type": "rss",
+        "role": "article_source",
+        "enabled": True,
+        "url": "https://www.mk.ru/rss/incident/index.xml",
+    },
+    {
+        "name": "Фонтанка: происшествия",
+        "type": "html",
+        "role": "article_source",
+        "enabled": True,
+        "url": "https://www.fontanka.ru/incidents/",
+        "adapter": "fontanka",
+        "timezone": "Europe/Moscow",
+        "limit": 40,
+    },
 ]
 
 # Слова и выражения, при которых новость

@@ -392,6 +392,57 @@ def collect_a42(soup, source):
     return news_items
 
 
+def collect_fontanka(soup, source):
+    """Разбирает официальную рубрику происшествий Fontanka.ru."""
+
+    news_by_url = {}
+    timezone_name = source.get("timezone", "Europe/Moscow")
+
+    # data-announcement-title принадлежит именно карточкам ленты.
+    # Хешированные CSS-классы сайта намеренно не используем.
+    for title_link in soup.select("a[data-announcement-title][href]"):
+        title = _clean_text(title_link.get("data-announcement-title", ""))
+        article_url = urljoin(source["url"], title_link.get("href", ""))
+
+        if not title or not _is_direct_fontanka_article(article_url, source):
+            continue
+
+        # Дата расположена в общей оболочке одной карточки — на три уровня
+        # выше заголовка. Выше уже начинается список соседних материалов.
+        card = title_link
+
+        for _ in range(3):
+            card = card.parent
+
+            if card is None:
+                break
+
+        card_text = card.get_text(" ", strip=True) if card else ""
+        date_match = re.search(
+            r"\d{1,2}\s+[А-Яа-яЁё]+,\s+\d{4},\s+\d{1,2}:\d{2}",
+            card_text,
+        )
+        date_text = date_match.group(0) if date_match else ""
+
+        # Если карточка изменилась, дата в прямом URL остаётся надёжным
+        # запасным вариантом. Время при этом не придумываем.
+        published_at = _parse_publication_date(date_text, timezone_name)
+        published_at = published_at or _parse_fontanka_url_date(
+            article_url,
+            timezone_name,
+        )
+
+        news_by_url[article_url] = _build_news_item(
+            title=title,
+            url=article_url,
+            published_at=published_at,
+            description="",
+            source=source,
+        )
+
+    return list(news_by_url.values())
+
+
 def _collect_ngs_news(soup, source, default_timezone):
     """Общая логика карточек платформы 116.ru / E1.ru."""
 
@@ -672,6 +723,28 @@ def _parse_ngs_url_date(article_url, timezone_name):
         return None
 
 
+def _parse_fontanka_url_date(article_url, timezone_name):
+    """Берёт календарную дату из прямого URL Fontanka.ru."""
+
+    date_match = re.fullmatch(
+        r"/(\d{4})/(\d{2})/(\d{2})/\d+/?",
+        urlparse(article_url).path,
+    )
+
+    if date_match is None:
+        return None
+
+    try:
+        return datetime(
+            int(date_match.group(1)),
+            int(date_match.group(2)),
+            int(date_match.group(3)),
+            tzinfo=ZoneInfo(timezone_name),
+        )
+    except ValueError:
+        return None
+
+
 def _is_direct_ngs_article(article_url, source):
     """Проверяет домен и формат прямой ссылки 116.ru / E1.ru."""
 
@@ -733,6 +806,16 @@ def _is_direct_a42_article(article_url, source):
     )
 
 
+def _is_direct_fontanka_article(article_url, source):
+    """Проверяет прямой URL статьи Fontanka.ru."""
+
+    return _is_direct_article_path(
+        article_url,
+        source,
+        r"/\d{4}/\d{2}/\d{2}/\d+/?",
+    )
+
+
 def _is_direct_article_path(article_url, source, path_pattern):
     """Сверяет домен источника и ожидаемый путь статьи."""
 
@@ -784,4 +867,5 @@ ADAPTERS = {
     "vtomske": collect_vtomske,
     "amic": collect_amic,
     "a42": collect_a42,
+    "fontanka": collect_fontanka,
 }
