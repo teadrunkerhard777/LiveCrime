@@ -14719,5 +14719,23 @@
       ],
       "locations": []
     }
+  },
+  {
+    "title": "Медведя убили в одном из сел Республики Алтай",
+    "url": "https://www.amic.ru/news/medvedya-ubili-v-odnom-iz-sel-respubliki-altay-591415",
+    "published_at": "2026-09-02T23:01:00+07:00",
+    "source": "Amic.ru: происшествия",
+    "event_fingerprint": {
+      "topics": [
+        "homicide"
+      ],
+      "tokens": [
+        "алтай",
+        "медвед",
+        "одном",
+        "республик"
+      ],
+      "locations": []
+    }
   }
 ]
