@@ -2,6 +2,7 @@
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/unbounded";
 import "../styles/global.css";
+import { CRIME_CHANNELS } from "../config/channels";
 import { withBase } from "../lib/events";
 
 interface Props {
@@ -89,9 +90,19 @@ const socialImage = new URL(withBase("/og-default.png"), Astro.site ?? Astro.url
           Публикация информации о расследовании не означает доказанную
           виновность упомянутых лиц.
         </p>
-        <p class="footer-status">
-          Пилотное направление: <strong>Криминал</strong>
-        </p>
+        <div class="footer-follow">
+          <p class="footer-status">
+            Пилотное направление: <strong>Криминал</strong>
+          </p>
+          <div class="footer-channels" aria-label="Каналы криминального направления">
+            <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
+              Telegram
+            </a>
+            <a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">
+              MAX
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
   </body>

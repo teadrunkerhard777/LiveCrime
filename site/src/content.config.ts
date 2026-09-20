@@ -42,7 +42,6 @@ const events = defineCollection({
     sources: z.array(sourceSchema).min(1),
     updates: z.array(updateSchema).default([]),
     related_events: z.array(z.string()).default([]),
-    telegram_channel_url: z.url(),
     draft: z.boolean().default(true),
     demo: z.boolean().default(false),
   }),

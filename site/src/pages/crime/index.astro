@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import EventCard from "../../components/EventCard.astro";
+import { CRIME_CHANNELS } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
@@ -18,10 +19,20 @@ const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
       <div>
         <h1>Криминал</h1>
       </div>
-      <p>
-        Не поток одинаковых заголовков, а постоянные страницы событий. Здесь
-        видно, что известно, на чём основана информация и как история менялась.
-      </p>
+      <div class="masthead-copy">
+        <p>
+          Не поток одинаковых заголовков, а постоянные страницы событий. Здесь
+          видно, что известно, на чём основана информация и как история менялась.
+        </p>
+        <div class="masthead-actions" aria-label="Криминал в мессенджерах">
+          <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
+            Читать в Telegram
+          </a>
+          <a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">
+            Читать в MAX
+          </a>
+        </div>
+      </div>
     </div>
   </header>
 

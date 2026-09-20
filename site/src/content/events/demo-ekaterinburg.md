@@ -28,7 +28,6 @@ updates:
     source_urls:
       - "https://example.com/demo-source"
 related_events: []
-telegram_channel_url: "https://t.me/example"
 draft: false
 demo: true
 ---

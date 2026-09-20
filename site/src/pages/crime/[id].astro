@@ -1,5 +1,6 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
+import { CRIME_CHANNELS } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { EVENT_STATUS_LABELS, formatDate } from "../../lib/events";
 
@@ -115,13 +116,15 @@ const place = [
         <section class="channel-sheet">
           <span>Следите за продолжением</span>
           <h2>Оперативно — в мессенджерах</h2>
-          {event.data.demo ? (
-            <p>Настоящие ссылки Telegram и MAX появятся перед запуском реальных материалов.</p>
-          ) : (
-            <a href={event.data.telegram_channel_url} rel="noopener noreferrer" target="_blank">
-              Открыть Telegram-канал
+          <p>Новые публикации и продолжение историй выходят в каналах «По факту».</p>
+          <div class="channel-links">
+            <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
+              Открыть Telegram
             </a>
-          )}
+            <a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">
+              Открыть MAX
+            </a>
+          </div>
         </section>
       </aside>
     </div>
