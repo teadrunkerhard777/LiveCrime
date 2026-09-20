@@ -1,5 +1,6 @@
 import { getCollection } from "astro:content";
 import type { APIRoute } from "astro";
+import { isPublishableEvent } from "../lib/content-quality";
 import { withBase } from "../lib/events";
 
 function escapeXml(value: string) {
@@ -12,10 +13,9 @@ function escapeXml(value: string) {
 }
 
 export const GET: APIRoute = async ({ site }) => {
-  const events = await getCollection(
-    "events",
-    ({ data }) => !data.draft && !data.demo,
-  );
+  const events = (await getCollection("events"))
+    .filter(isPublishableEvent)
+    .filter(({ data }) => !data.demo);
   const pages = [
     { path: "/", changefreq: "weekly", priority: "1.0" },
     { path: "/crime/", changefreq: "daily", priority: "0.9" },

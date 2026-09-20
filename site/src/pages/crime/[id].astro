@@ -2,10 +2,11 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import { CRIME_CHANNELS } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { EVENT_STATUS_LABELS, formatDate } from "../../lib/events";
+import { isPublishableEvent } from "../../lib/content-quality";
+import { EVENT_STATUS_LABELS, LEGAL_STATUS_LABELS, formatDate } from "../../lib/events";
 
 export async function getStaticPaths() {
-  const events = await getCollection("events", ({ data }) => !data.draft);
+  const events = (await getCollection("events")).filter(isPublishableEvent);
   return events.map((event) => ({ params: { id: event.id }, props: { event } }));
 }
 
@@ -67,6 +68,10 @@ const place = [
         <div>
           <dt>Обновлений</dt>
           <dd>{event.data.updates.length}</dd>
+        </div>
+        <div>
+          <dt>Юридический статус</dt>
+          <dd>{LEGAL_STATUS_LABELS[event.data.legal_status]}</dd>
         </div>
       </dl>
     </header>

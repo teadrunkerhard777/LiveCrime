@@ -1,5 +1,7 @@
 ---
 event_id: "demo-ekaterinburg"
+section: "crime"
+publication_status: "ready"
 title: "Демонстрационная карточка криминального события"
 summary: "Вымышленный пример показывает будущую структуру страницы: проверяемые факты, место, статус, источники и последовательные обновления."
 event_date: "2026-09-18T09:30:00+05:00"
@@ -8,6 +10,7 @@ location:
   region: "Свердловская область"
   locality: "Екатеринбург"
 status: "investigating"
+legal_status: "no_person_named"
 created_at: "2026-09-18T12:00:00+05:00"
 updated_at: "2026-09-19T15:20:00+05:00"
 topics:
@@ -28,7 +31,6 @@ updates:
     source_urls:
       - "https://example.com/demo-source"
 related_events: []
-draft: false
 demo: true
 ---
 

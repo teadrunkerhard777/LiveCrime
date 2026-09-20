@@ -3,8 +3,9 @@ import { getCollection } from "astro:content";
 import EventCard from "../../components/EventCard.astro";
 import { CRIME_CHANNELS } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { isPublishableEvent } from "../../lib/content-quality";
 
-const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
+const events = (await getCollection("events")).filter(isPublishableEvent).sort(
   (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
 );
 ---

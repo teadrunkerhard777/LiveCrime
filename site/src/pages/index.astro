@@ -2,9 +2,10 @@
 import { getCollection } from "astro:content";
 import EventCard from "../components/EventCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { isPublishableEvent } from "../lib/content-quality";
 import { EVENT_STATUS_LABELS, formatDate, withBase } from "../lib/events";
 
-const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
+const events = (await getCollection("events")).filter(isPublishableEvent).sort(
   (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
 );
 const featured = events[0];

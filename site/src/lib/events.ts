@@ -8,6 +8,16 @@ export const EVENT_STATUS_LABELS = {
   closed: "Событие закрыто для обновлений",
 } as const;
 
+export const LEGAL_STATUS_LABELS = {
+  no_person_named: "Конкретное лицо не названо",
+  suspect: "Лицо упоминается как подозреваемое",
+  accused: "Лицу предъявлено обвинение",
+  defendant: "Дело в отношении подсудимого рассматривает суд",
+  convicted: "Лицо признано виновным судом",
+  acquitted: "Лицо оправдано судом",
+  case_closed: "Дело прекращено",
+} as const;
+
 export function formatDate(date: Date) {
   return new Intl.DateTimeFormat("ru-RU", {
     day: "numeric",

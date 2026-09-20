@@ -638,7 +638,7 @@ nav a.active {
 
 .facts-ledger {
   display: grid;
-  grid-template-columns: 1.1fr 1.7fr 0.6fr 0.7fr;
+  grid-template-columns: 1fr 1.45fr 0.55fr 0.65fr 1.4fr;
   margin: 0;
   border-top: 1px solid var(--line-strong);
   border-bottom: 1px solid var(--line-strong);
@@ -1143,6 +1143,13 @@ nav a.active {
 
   .facts-ledger > div:nth-child(4) {
     border-top: 1px solid var(--line);
+  }
+
+  .facts-ledger > div:nth-child(5) {
+    grid-column: 1 / -1;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
   }
 
   .event-layout {
