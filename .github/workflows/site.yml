@@ -30,6 +30,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Test independent site intake
+        run: python3 -m unittest discover -s site/tests -t site -v
+
       - name: Build and upload Astro site
         uses: withastro/action@v6
         with:
