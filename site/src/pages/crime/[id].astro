@@ -1,0 +1,128 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { EVENT_STATUS_LABELS, formatDate } from "../../lib/events";
+
+export async function getStaticPaths() {
+  const events = await getCollection("events", ({ data }) => !data.draft);
+  return events.map((event) => ({ params: { id: event.id }, props: { event } }));
+}
+
+interface Props {
+  event: CollectionEntry<"events">;
+}
+
+const { event } = Astro.props;
+const { Content } = await render(event);
+const place = [
+  event.data.location.locality,
+  event.data.location.region,
+  event.data.location.country,
+].join(", ");
+---
+
+<BaseLayout
+  title={`${event.data.title} — По факту`}
+  description={event.data.summary}
+  noindex={event.data.demo}
+  canonicalPath={`/crime/${event.id}/`}
+>
+  <article class="event-page">
+    <header class="event-sheet shell">
+      <div class="event-sheet-topline">
+        <span>По факту · Криминал</span>
+        <span>Карточка {event.data.event_id}</span>
+      </div>
+      {event.data.demo && (
+        <div class="demo-banner">
+          Учебный пример: событие, источники и обновления вымышлены.
+        </div>
+      )}
+      <div class="event-title-grid">
+        <div>
+          <span class="event-state">{EVENT_STATUS_LABELS[event.data.status]}</span>
+          <h1>{event.data.title}</h1>
+          <p class="lead">{event.data.summary}</p>
+        </div>
+        <div class="registry-stamp" aria-label="Дата последнего обновления">
+          <span>обновлено</span>
+          <strong>{formatDate(event.data.updated_at)}</strong>
+        </div>
+      </div>
+      <dl class="facts-ledger">
+        <div>
+          <dt>Дата события</dt>
+          <dd>{formatDate(event.data.event_date)}</dd>
+        </div>
+        <div>
+          <dt>Место</dt>
+          <dd>{place}</dd>
+        </div>
+        <div>
+          <dt>Источников</dt>
+          <dd>{event.data.sources.length}</dd>
+        </div>
+        <div>
+          <dt>Обновлений</dt>
+          <dd>{event.data.updates.length}</dd>
+        </div>
+      </dl>
+    </header>
+
+    <div class="shell event-layout">
+      <div class="event-main">
+        <section class="content-section">
+          <h2>Что известно</h2>
+          <div class="article-content"><Content /></div>
+        </section>
+
+        <section class="content-section">
+          <h2>Как развивалась история</h2>
+          <ol class="timeline">
+            {event.data.updates.map((update, index) => (
+              <li>
+                <div class="timeline-index">{String(index + 1).padStart(2, "0")}</div>
+                <div>
+                  <time datetime={update.date.toISOString()}>{formatDate(update.date)}</time>
+                  <h3>{update.title}</h3>
+                  <p>{update.summary}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+
+      <aside class="event-sidebar">
+        <section class="source-sheet">
+          <h2>Источники</h2>
+          <ul class="source-list">
+            {event.data.sources.map((source, index) => (
+              <li>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <a href={source.url} rel="noopener noreferrer" target="_blank">
+                    {source.name}
+                  </a>
+                  {source.published_at && <small>{formatDate(source.published_at)}</small>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="channel-sheet">
+          <span>Следите за продолжением</span>
+          <h2>Оперативно — в мессенджерах</h2>
+          {event.data.demo ? (
+            <p>Настоящие ссылки Telegram и MAX появятся перед запуском реальных материалов.</p>
+          ) : (
+            <a href={event.data.telegram_channel_url} rel="noopener noreferrer" target="_blank">
+              Открыть Telegram-канал
+            </a>
+          )}
+        </section>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

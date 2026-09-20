@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-20T17:26:40+05:00",
+  "title": "Design System: По факту",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "neutral", "displayName": "Реестровая тушь", "canonical": "#191b1d", "tonalRamp": ["#181a1c", "#303335", "#494c4e", "#646769", "#818486", "#a0a2a3", "#c2c3c3", "#e7e7e7"] },
+      "muted-ink": { "role": "neutral", "displayName": "Приглушённая тушь", "canonical": "#5d625f", "tonalRamp": ["#171918", "#303431", "#494e4b", "#636965", "#7f8581", "#9da29f", "#bec1bf", "#e5e6e5"] },
+      "warm-paper": { "role": "neutral", "displayName": "Тёплая бумага", "canonical": "#f1eadc", "tonalRamp": ["#241d10", "#473b27", "#685a42", "#897a5e", "#aa9b7e", "#cbbda0", "#e6dac0", "#faf3e5"] },
+      "registry-sheet": { "role": "neutral", "displayName": "Белый лист", "canonical": "#fffdf7", "tonalRamp": ["#24221c", "#47443d", "#69665e", "#8b887f", "#adaaa1", "#cfccc3", "#e9e6dd", "#fffdf7"] },
+      "archive-rule": { "role": "neutral", "displayName": "Архивная линейка", "canonical": "#bcb4a5", "tonalRamp": ["#211d16", "#413a2e", "#61584a", "#817769", "#a09687", "#beb5a6", "#dbd3c5", "#f5eee0"] },
+      "archive-rule-strong": { "role": "neutral", "displayName": "Усиленная линейка", "canonical": "#79766f", "tonalRamp": ["#1c1a17", "#393630", "#55524b", "#716e67", "#8e8b83", "#aaa79f", "#c9c6be", "#ece9e1"] },
+      "crime-red": { "role": "primary", "displayName": "Криминальный красный", "canonical": "#b92d27", "tonalRamp": ["#320805", "#5a100d", "#811914", "#a9231e", "#ca3c35", "#df6e68", "#efa6a1", "#f9dfdc"] },
+      "crime-red-deep": { "role": "primary", "displayName": "Глубокий криминальный красный", "canonical": "#84221e", "tonalRamp": ["#2d0705", "#500e0b", "#731713", "#96231e", "#b83b35", "#d06b65", "#e6a49f", "#f6dfdc"] },
+      "archive-blue": { "role": "secondary", "displayName": "Архивный синий", "canonical": "#385a72", "tonalRamp": ["#081923", "#123246", "#204b67", "#326585", "#51809f", "#78a0bb", "#acc2d2", "#e0eaf0"] },
+      "topic-roblox": { "role": "tertiary", "displayName": "Roblox blue", "canonical": "#4b83ad", "tonalRamp": ["#0a1d2b", "#153b56", "#25597e", "#3a78a2", "#6096bd", "#87b4d2", "#b5d2e4", "#e2edf4"] },
+      "topic-cats": { "role": "tertiary", "displayName": "Cats ochre", "canonical": "#d1813d", "tonalRamp": ["#2e1705", "#5a300e", "#844a1a", "#aa6429", "#ce8243", "#dfa26b", "#edc49c", "#f8e6d4"] },
+      "topic-mma": { "role": "tertiary", "displayName": "MMA olive", "canonical": "#7b865c", "tonalRamp": ["#1a1d10", "#353b22", "#505934", "#6c7749", "#879465", "#a3b083", "#c1cba8", "#e6ead9"] },
+      "topic-auto": { "role": "tertiary", "displayName": "Auto violet", "canonical": "#7b70ad", "tonalRamp": ["#19152e", "#332b58", "#4d4380", "#685ca4", "#877dba", "#a79fce", "#c8c3e1", "#ebe8f3"] },
+      "topic-stars": { "role": "tertiary", "displayName": "Stars berry", "canonical": "#b15a83", "tonalRamp": ["#2c0f1d", "#57203a", "#803354", "#a34a70", "#bd6d8c", "#d393aa", "#e5bdce", "#f5e4eb"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Главный тезис и крупнейшие заголовки разделов." },
+      "headline": { "displayName": "Headline", "purpose": "Заголовки крупных смысловых блоков." },
+      "title": { "displayName": "Registry title", "purpose": "Названия записей в реестре и карточках." },
+      "body": { "displayName": "Body", "purpose": "Основной интерфейсный и редакционный текст." },
+      "label": { "displayName": "Ledger label", "purpose": "Даты, статусы, метаданные и регистрационные подписи." }
+    },
+    "shadows": [
+      { "name": "raised-sheet", "value": "0 22px 52px rgba(65, 53, 39, 0.16)", "purpose": "Физически отделяет главный белый лист от тёплой бумаги." },
+      { "name": "large-sheet", "value": "0 22px 52px rgba(65, 53, 39, 0.14)", "purpose": "Более спокойная глубина верхней поверхности подробной страницы." }
+    ],
+    "motion": [
+      { "name": "stamp-in", "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Единственное постановочное движение: штамп быстро проявляется и садится на лист." },
+      { "name": "reduced-motion", "value": "0.01ms, 1 iteration", "purpose": "Практически мгновенно завершает анимации и переходы при prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "stack", "value": "900px" },
+      { "name": "mobile", "value": "650px" },
+      { "name": "minimum", "value": "320px" },
+      { "name": "container", "value": "1180px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "action-primary",
+      "description": "Основное действие криминального раздела на красной прямоугольной плашке.",
+      "html": "<a class=\"ds-action-primary\" href=\"#\">Открыть криминальный раздел</a>",
+      "css": ".ds-action-primary { display:inline-flex; min-height:50px; align-items:center; justify-content:center; padding:12px 18px; background:var(--crime, #b92d27); color:#fffdf7; font:800 0.9rem/1.35 'Manrope Variable',sans-serif; text-decoration:none; } .ds-action-primary:hover { background:var(--crime-dark, #84221e); } .ds-action-primary:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:4px; } .ds-action-primary:active { background:#6f1c19; }"
+    },
+    {
+      "name": "Text Action",
+      "kind": "button",
+      "description": "Вторичное действие внутри реестра или рядом с основной кнопкой.",
+      "html": "<a class=\"ds-action-text\" href=\"#\">Как устроен проект</a>",
+      "css": ".ds-action-text { color:var(--crime-dark, #84221e); font:800 0.9rem/1.4 'Manrope Variable',sans-serif; text-decoration:underline; text-underline-offset:.22em; text-decoration-thickness:1px; } .ds-action-text:hover { color:var(--crime, #b92d27); } .ds-action-text:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:4px; } .ds-action-text:active { color:#6f1c19; }"
+    },
+    {
+      "name": "Navigation Cell",
+      "kind": "nav",
+      "description": "Ячейка основной навигации, разделённая архивными линейками.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Основная навигация\"><a class=\"ds-nav-link ds-nav-link-active\" href=\"#\">Криминал</a><a class=\"ds-nav-link\" href=\"#\">О проекте</a></nav>",
+      "css": ".ds-nav { display:flex; background:var(--paper, #f1eadc); } .ds-nav-link { min-width:116px; min-height:48px; display:grid; place-items:center; border-left:1px solid var(--line, #bcb4a5); color:var(--ink, #191b1d); font:800 .82rem/1.4 'Manrope Variable',sans-serif; text-decoration:none; } .ds-nav-link:last-child { border-right:1px solid var(--line, #bcb4a5); } .ds-nav-link:hover,.ds-nav-link-active { background:var(--ink, #191b1d); color:var(--sheet, #fffdf7); } .ds-nav-link:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:-3px; }"
+    },
+    {
+      "name": "Current Status",
+      "kind": "chip",
+      "refersTo": "status-current",
+      "description": "Служебное состояние истории; компактная метка, а не фильтр.",
+      "html": "<span class=\"ds-status\">Идёт проверка или расследование</span>",
+      "css": ".ds-status { display:inline-block; padding:7px 10px; background:var(--archive-blue, #385a72); color:#fffdf7; font:800 .72rem/1.35 'Manrope Variable',sans-serif; }"
+    },
+    {
+      "name": "Event Registry Row",
+      "kind": "card",
+      "description": "Плоская строка реестра с номером, метаданными, заголовком и статусом.",
+      "html": "<article class=\"ds-event-row\"><div class=\"ds-event-number\"><span>№</span>001</div><div><div class=\"ds-event-meta\">18 сентября 2026 г. · Екатеринбург</div><h2><a href=\"#\">Демонстрационная карточка события</a></h2><p>Краткое проверяемое описание записи.</p></div><a class=\"ds-event-open\" href=\"#\">Открыть карточку</a></article>",
+      "css": ".ds-event-row { display:grid; grid-template-columns:92px minmax(0,1fr) 180px; gap:28px; padding:34px 0; border-top:1px solid var(--line-strong, #79766f); border-bottom:1px solid var(--line, #bcb4a5); color:var(--ink, #191b1d); font-family:'Manrope Variable',sans-serif; } .ds-event-number { color:var(--crime, #b92d27); font:720 1.3rem/1.2 'Unbounded Variable',sans-serif; font-variant-numeric:tabular-nums; } .ds-event-number span { font-size:.66rem; vertical-align:top; } .ds-event-meta { color:var(--muted, #5d625f); font-size:.72rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; } .ds-event-row h2 { margin:12px 0 10px; font:760 1.45rem/1.05 'Unbounded Variable',sans-serif; letter-spacing:-.035em; } .ds-event-row h2 a { color:inherit; text-decoration:none; } .ds-event-row p { margin:0; color:#444846; line-height:1.65; } .ds-event-open { color:var(--crime-dark, #84221e); font-weight:850; align-self:start; text-underline-offset:.22em; } .ds-event-row a:hover { color:var(--crime-dark, #84221e); } .ds-event-row a:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:4px; }"
+    },
+    {
+      "name": "Registry Sheet",
+      "kind": "card",
+      "refersTo": "registry-sheet",
+      "description": "Главная физическая метафора: белый лист поверх тёплой бумаги.",
+      "html": "<article class=\"ds-sheet\"><div class=\"ds-sheet-topline\"><span>Запись №001</span><span>Обновлено 19 сентября</span></div><h2>Карточка события</h2><p>Факты, источники и последовательные обновления.</p></article>",
+      "css": ".ds-sheet { padding:32px; background:var(--sheet, #fffdf7); color:var(--ink, #191b1d); box-shadow:0 22px 52px rgba(65,53,39,.16); font-family:'Manrope Variable',sans-serif; } .ds-sheet-topline { display:flex; justify-content:space-between; gap:20px; padding-bottom:12px; border-bottom:1px solid var(--line-strong, #79766f); color:var(--muted, #5d625f); font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; } .ds-sheet h2 { margin:22px 0 16px; font:760 2rem/1.05 'Unbounded Variable',sans-serif; letter-spacing:-.035em; } .ds-sheet p { color:#444846; line-height:1.65; }"
+    },
+    {
+      "name": "Source Sheet",
+      "kind": "card",
+      "description": "Боковая поверхность списка источников с синей служебной кромкой.",
+      "html": "<section class=\"ds-source-sheet\"><h2>Источники</h2><ol><li><span>01</span><a href=\"#\">Демонстрационный источник</a></li></ol></section>",
+      "css": ".ds-source-sheet { padding:26px; border-top:4px solid var(--archive-blue, #385a72); background:var(--sheet, #fffdf7); color:var(--ink, #191b1d); font-family:'Manrope Variable',sans-serif; } .ds-source-sheet h2 { margin:0; font:760 1.35rem/1.05 'Unbounded Variable',sans-serif; letter-spacing:-.035em; } .ds-source-sheet ol { margin:22px 0 0; padding:0; list-style:none; } .ds-source-sheet li { display:grid; grid-template-columns:34px 1fr; gap:12px; padding:14px 0; border-top:1px solid var(--line, #bcb4a5); } .ds-source-sheet span { color:var(--archive-blue, #385a72); font-size:.75rem; font-weight:850; } .ds-source-sheet a { color:var(--crime-dark, #84221e); font-weight:800; text-underline-offset:.22em; } .ds-source-sheet a:hover { color:var(--crime, #b92d27); } .ds-source-sheet a:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:4px; }"
+    },
+    {
+      "name": "Registry Stamp",
+      "kind": "custom",
+      "description": "Единственный выразительный motion-компонент: дата обновления как архивный штамп.",
+      "html": "<div class=\"ds-stamp\"><span>обновлено</span><strong>19 сентября 2026 г.</strong></div>",
+      "css": ".ds-stamp { max-width:230px; padding:22px 18px; border:3px double var(--crime, #b92d27); color:var(--crime-dark, #84221e); text-align:center; transform:rotate(2deg); animation:ds-stamp-in 700ms cubic-bezier(.16,1,.3,1) both; font-family:'Manrope Variable',sans-serif; } .ds-stamp span,.ds-stamp strong { display:block; } .ds-stamp span { font-size:.65rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; } .ds-stamp strong { margin-top:6px; font-size:.9rem; } @keyframes ds-stamp-in { from { filter:blur(4px); opacity:.25; transform:scale(1.2) rotate(8deg); } to { filter:blur(0); opacity:1; transform:scale(1) rotate(2deg); } } @media (prefers-reduced-motion:reduce) { .ds-stamp { animation-duration:.01ms; animation-iteration-count:1; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Живой реестр",
+    "overview": "«По факту» выглядит не как бесконечная новостная лента, а как аккуратно ведущийся публичный архив. Тёплая бумага образует общий фон, белые листы удерживают отдельные записи, а номера, статусы, источники и хронология делают происхождение информации видимым с первого взгляда.\n\nСистема спокойная и строгая, но не бюрократическая: выразительный геометрический заголовок создаёт узнаваемость, Manrope сохраняет ясность длинного чтения, криминальный красный отмечает действие и тему, архивный синий — служебное состояние. Будущие темы наследуют тот же материал, сетку и типографику, меняя только сдержанный тематический маркер.",
+    "keyCharacteristics": [
+      "Тёплая бумага и белые листы вместо стерильного цифрового холста.",
+      "Реестровые номера, тонкие линейки, статусы, факты, источники и временная шкала.",
+      "Криминальный красный для темы и действия; архивный синий для состояния.",
+      "Unbounded для редакционных акцентов, Manrope для интерфейса и чтения.",
+      "Единственный постановочный жест — появление штампа; вся остальная динамика функциональна."
+    ],
+    "rules": [
+      { "name": "The Semantic Ink Rule", "body": "Красный означает тему или действие, синий — статус или служебную опору; не использовать их как взаимозаменяемое украшение.", "section": "colors" },
+      { "name": "The Restrained Topic Rule", "body": "Цвет будущего направления появляется как короткая метка, а не как новый фон, новая типографика или отдельный бренд.", "section": "colors" },
+      { "name": "The Two-Voice Rule", "body": "Unbounded говорит только заголовками, брендом и номерами; Manrope несёт весь поясняющий и операционный текст.", "section": "typography" },
+      { "name": "The Ledger Label Rule", "body": "Капитель, плотный вес и расширенный трекинг применяются только к коротким служебным подписям, не к абзацам.", "section": "typography" },
+      { "name": "The Registry Grid Rule", "body": "Выровненные колонки, номера и линейки должны объяснять структуру до чтения текста; декоративная асимметрия не заменяет сетку.", "section": "layout" },
+      { "name": "The One Raised Sheet Rule", "body": "Не добавлять тени каждому контейнеру: одна поднятая бумага задаёт глубину, остальные поверхности отделяются линиями и тоном.", "section": "elevation" },
+      { "name": "The Square Archive Rule", "body": "Не смягчать систему карточными скруглениями или pill-формами; доверие здесь строится на бумаге, линейке и точной геометрии.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do сохранять тёплую бумагу как общий материал, а белый лист — как локальную поверхность записи.",
+      "Do показывать номер, дату, место, статус, источники и обновления через ясные реестровые поля.",
+      "Do использовать красный для темы и действия, а архивный синий для статуса, источника и focus-состояния.",
+      "Do проверять композицию на 320px, 650px, 900px и широком контейнере до 1180px.",
+      "Do сохранять заметный keyboard focus и полностью уважать reduced-motion."
+    ],
+    "donts": [
+      "Don't превращать страницы в бесконечную ленту одинаковых карточек или безликий агрегатор.",
+      "Don't добавлять скруглённые карточки, pill-чипы, стеклянные поверхности, градиенты или повсеместные тени.",
+      "Don't использовать тематические цвета большими заливками либо создавать для каждого раздела несовместимую дизайн-систему.",
+      "Don't добавлять анимации сверх одного штампующего жеста и необходимых переходов состояния.",
+      "Don't подменять визуальную иерархию декоративными надписями над главным заголовком."
+    ]
+  }
+}

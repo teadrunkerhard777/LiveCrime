@@ -1,0 +1,41 @@
+---
+import { getCollection } from "astro:content";
+import EventCard from "../../components/EventCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
+  (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Криминальные события — По факту"
+  description="Карточки криминальных событий с датами, местами, источниками, статусами и существенными обновлениями."
+  canonicalPath="/crime/"
+>
+  <header class="section-masthead">
+    <div class="shell masthead-grid">
+      <div>
+        <h1>Криминал</h1>
+      </div>
+      <p>
+        Не поток одинаковых заголовков, а постоянные страницы событий. Здесь
+        видно, что известно, на чём основана информация и как история менялась.
+      </p>
+    </div>
+  </header>
+
+  <section class="shell registry-section" aria-labelledby="crime-list-title">
+    <div class="section-title-row">
+      <h2 id="crime-list-title">Реестр событий</h2>
+      <p>Обновлено по мере появления существенных сведений</p>
+    </div>
+    <div class="demo-note">
+      До подключения настоящих данных здесь отображается одна вымышленная
+      карточка, закрытая от поисковой индексации.
+    </div>
+    <div class="registry-list">
+      {events.map((event, index) => <EventCard event={event} index={index} />)}
+    </div>
+  </section>
+</BaseLayout>

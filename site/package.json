@@ -1,5 +1,5 @@
 {
-  "name": "livecrime-site",
+  "name": "pofaktu-site",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource-variable/unbounded": "^5.3.0",
     "astro": "^7.3.3",
     "typescript": "^6.0.3"
   }

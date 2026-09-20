@@ -1,15 +1,11 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { EVENT_STATUS_LABELS, formatDate } from "../../lib/events";
+import { withBase } from "../../lib/events";
 
 export async function getStaticPaths() {
   const events = await getCollection("events", ({ data }) => !data.draft);
-
-  return events.map((event) => ({
-    params: { id: event.id },
-    props: { event },
-  }));
+  return events.map((event) => ({ params: { id: event.id }, props: { event } }));
 }
 
 interface Props {
@@ -17,94 +13,20 @@ interface Props {
 }
 
 const { event } = Astro.props;
-const { Content } = await render(event);
-const place = [
-  event.data.location.locality,
-  event.data.location.region,
-  event.data.location.country,
-].join(", ");
+const destination = withBase(`/crime/${event.id}/`);
 ---
 
 <BaseLayout
-  title={`${event.data.title} — LiveCrime`}
-  description={event.data.summary}
-  noindex={event.data.demo}
+  title="Карточка перемещена — По факту"
+  description="Карточка события теперь находится в разделе Криминал."
+  noindex={true}
 >
-  <article class="shell event-page">
-    {event.data.demo && (
-      <div class="demo-banner">
-        Демонстрация: событие, источники и обновления на этой странице вымышлены.
-      </div>
-    )}
-
-    <header class="event-header">
-      <p class="eyebrow">Карточка события</p>
-      <h1>{event.data.title}</h1>
-      <p class="lead">{event.data.summary}</p>
-      <dl class="facts-grid">
-        <div>
-          <dt>Дата события</dt>
-          <dd>{formatDate(event.data.event_date)}</dd>
-        </div>
-        <div>
-          <dt>Место</dt>
-          <dd>{place}</dd>
-        </div>
-        <div>
-          <dt>Текущий статус</dt>
-          <dd>{EVENT_STATUS_LABELS[event.data.status]}</dd>
-        </div>
-        <div>
-          <dt>Обновлено</dt>
-          <dd>{formatDate(event.data.updated_at)}</dd>
-        </div>
-      </dl>
-    </header>
-
-    <div class="event-layout">
-      <div class="event-main">
-        <section class="content-section">
-          <h2>Что известно</h2>
-          <div class="article-content"><Content /></div>
-        </section>
-
-        <section class="content-section">
-          <h2>Хронология обновлений</h2>
-          <ol class="timeline">
-            {event.data.updates.map((update) => (
-              <li>
-                <time datetime={update.date.toISOString()}>{formatDate(update.date)}</time>
-                <h3>{update.title}</h3>
-                <p>{update.summary}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-      </div>
-
-      <aside class="event-sidebar">
-        <section>
-          <h2>Источники</h2>
-          <ul class="source-list">
-            {event.data.sources.map((source) => (
-              <li>
-                <a href={source.url} rel="noopener noreferrer" target="_blank">
-                  {source.name} <span aria-hidden="true">↗</span>
-                </a>
-                {source.published_at && <small>{formatDate(source.published_at)}</small>}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section class="telegram-card">
-          <span>Оперативные публикации</span>
-          <strong>Читайте LiveCrime в Telegram</strong>
-          <a href={event.data.telegram_channel_url} rel="noopener noreferrer" target="_blank">
-            Перейти в канал <span aria-hidden="true">→</span>
-          </a>
-        </section>
-      </aside>
-    </div>
-  </article>
+  <section class="shell moved-page">
+    <h1>Карточка перемещена</h1>
+    <p>Теперь материалы этого направления находятся в разделе «Криминал».</p>
+    <a class="primary-action" href={destination}>Открыть новый адрес</a>
+  </section>
+  <script is:inline define:vars={{ destination }}>
+    window.location.replace(destination);
+  </script>
 </BaseLayout>

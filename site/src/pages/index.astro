@@ -2,50 +2,97 @@
 import { getCollection } from "astro:content";
 import EventCard from "../components/EventCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { EVENT_STATUS_LABELS, formatDate, withBase } from "../lib/events";
 
 const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
   (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
 );
+const featured = events[0];
 ---
 
 <BaseLayout
-  title="LiveCrime — хроника криминальных событий"
-  description="Карточки значимых криминальных событий: проверенные источники, даты, места, статусы и обновления."
+  title="По факту — события, источники и обновления"
+  description="По факту собирает главное о событиях в понятных карточках с источниками, статусами и хронологией обновлений."
+  canonicalPath="/"
 >
-  <section class="hero">
-    <div class="shell hero-grid">
-      <div>
-        <p class="eyebrow">Не поток заголовков, а понятная хроника</p>
-        <h1>События, которые можно проверить</h1>
-        <p class="hero-copy">
-          Собираем в одной карточке основные факты, источники и последующие
-          обновления. Если данных недостаточно, страница не публикуется.
+  <section class="registry-hero">
+    <div class="shell registry-grid">
+      <div class="hero-intro">
+        <h1>Главное остаётся на своём месте.</h1>
+        <p>
+          Собираем факты, источники и важные обновления одной истории на
+          постоянной странице — чтобы к ней можно было вернуться после первой
+          новости.
         </p>
+        <div class="hero-actions">
+          <a class="primary-action" href={withBase("/crime/")}>Открыть криминальный раздел</a>
+          <a class="text-action" href={withBase("/about/")}>Как устроен проект</a>
+        </div>
       </div>
-      <aside class="principle-card">
-        <span>Редакционный принцип</span>
-        <strong>Лучше не выпустить карточку, чем опубликовать слабую.</strong>
-      </aside>
+
+      {featured && (
+        <article class="featured-register">
+          <div class="featured-topline">
+            <span>Запись №001</span>
+            <span>Обновлено {formatDate(featured.data.updated_at)}</span>
+          </div>
+          <div class="featured-status">
+            {EVENT_STATUS_LABELS[featured.data.status]}
+          </div>
+          <h2>{featured.data.title}</h2>
+          <p>{featured.data.summary}</p>
+          <dl>
+            <div>
+              <dt>Дата</dt>
+              <dd>{formatDate(featured.data.event_date)}</dd>
+            </div>
+            <div>
+              <dt>Место</dt>
+              <dd>{featured.data.location.locality}</dd>
+            </div>
+            <div>
+              <dt>Источники</dt>
+              <dd>{featured.data.sources.length}</dd>
+            </div>
+          </dl>
+          <a href={withBase(`/crime/${featured.id}/`)}>Перейти к записи</a>
+          {featured.data.demo && <span class="demo-stamp">учебный пример</span>}
+        </article>
+      )}
     </div>
   </section>
 
-  <section class="shell events-section" aria-labelledby="recent-events">
-    <div class="section-heading">
+  <section class="shell registry-section" aria-labelledby="latest-title">
+    <div class="section-title-row">
+      <h2 id="latest-title">Последние записи</h2>
+      <p>{events.length} {events.length === 1 ? "материал" : "материала"}</p>
+    </div>
+    <div class="demo-note">
+      Сейчас интерфейс проверяется на вымышленном примере. Реальные материалы
+      появятся только после подключения отдельного безопасного процесса.
+    </div>
+    <div class="registry-list">
+      {events.map((event, index) => <EventCard event={event} index={index} />)}
+    </div>
+  </section>
+
+  <section class="topic-ledger" aria-labelledby="hub-title">
+    <div class="shell topic-grid">
       <div>
-        <p class="eyebrow">Последние обновления</p>
-        <h2 id="recent-events">Карточки событий</h2>
+        <h2 id="hub-title">Один хаб. Несколько тем.</h2>
+        <p>
+          Начинаем с криминала, проверяем процесс и только потом открываем новые
+          направления с той же понятной системой материалов.
+        </p>
       </div>
-      <p>{events.length} {events.length === 1 ? "событие" : "событий"}</p>
-    </div>
-
-    <div class="notice">
-      <strong>Сайт находится в разработке.</strong>
-      Сейчас показана вымышленная демонстрационная карточка. Реальные данные и
-      связь с автопостером ещё не подключены.
-    </div>
-
-    <div class="event-list">
-      {events.map((event) => <EventCard event={event} />)}
+      <div class="topic-register" aria-label="Направления хаба">
+        <span class="current">Криминал <small>сейчас</small></span>
+        <span>Roblox <small>позже</small></span>
+        <span>Кошки <small>позже</small></span>
+        <span>MMA <small>позже</small></span>
+        <span>Авто <small>позже</small></span>
+        <span>Звёзды <small>позже</small></span>
+      </div>
     </div>
   </section>
 </BaseLayout>

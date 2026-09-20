@@ -1,4 +1,6 @@
 ---
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/unbounded";
 import "../styles/global.css";
 import { withBase } from "../lib/events";
 
@@ -6,9 +8,14 @@ interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  canonicalPath?: string;
 }
 
-const { title, description, noindex = false } = Astro.props;
+const { title, description, noindex = false, canonicalPath } = Astro.props;
+const currentPath = Astro.url.pathname;
+const canonical = canonicalPath
+  ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
+  : undefined;
 ---
 
 <!doctype html>
@@ -17,35 +24,51 @@ const { title, description, noindex = false } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#f1eadc" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
     <title>{title}</title>
   </head>
   <body>
+    <a class="skip-link" href="#content">Перейти к содержанию</a>
     <header class="site-header">
       <div class="shell header-inner">
-        <a class="brand" href={withBase("/")} aria-label="LiveCrime — главная">
-          <span class="brand-mark" aria-hidden="true">LC</span>
-          <span>
-            <strong>LiveCrime</strong>
-            <small>Хроника событий</small>
-          </span>
+        <a class="brand" href={withBase("/")} aria-label="По факту — главная">
+          <span class="brand-prefix">по</span>
+          <span class="brand-name">факту</span>
+          <span class="brand-note">тематический медиахаб</span>
         </a>
         <nav aria-label="Основная навигация">
-          <a href={withBase("/")}>События</a>
-          <a href={withBase("/about/")}>О проекте</a>
+          <a
+            class:list={{ active: currentPath.includes("/crime") }}
+            href={withBase("/crime/")}
+          >Криминал</a>
+          <a
+            class:list={{ active: currentPath.includes("/about") }}
+            href={withBase("/about/")}
+          >О проекте</a>
         </nav>
       </div>
     </header>
 
-    <main>
+    <main id="content">
       <slot />
     </main>
 
     <footer class="site-footer">
-      <div class="shell footer-inner">
-        <p>LiveCrime — проверяемая хроника значимых криминальных событий.</p>
-        <p>Факт публикации не означает доказанную виновность упомянутых лиц.</p>
+      <div class="shell footer-grid">
+        <div class="footer-brand">
+          <strong>По факту</strong>
+          <span>Главное остаётся на своём месте.</span>
+        </div>
+        <p>
+          Публикация информации о расследовании не означает доказанную
+          виновность упомянутых лиц.
+        </p>
+        <p class="footer-status">
+          Пилотное направление: <strong>Криминал</strong>
+        </p>
       </div>
     </footer>
   </body>
