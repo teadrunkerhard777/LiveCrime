@@ -4,3 +4,5 @@ dist/
 .impeccable/review/
 .impeccable/direction-options.json
 .impeccable/questions/
+data/inbox/*.json
+data/review/*.json
