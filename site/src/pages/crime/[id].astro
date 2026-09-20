@@ -3,24 +3,65 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import { CRIME_CHANNELS } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { isPublishableEvent } from "../../lib/content-quality";
-import { EVENT_STATUS_LABELS, LEGAL_STATUS_LABELS, formatDate } from "../../lib/events";
+import {
+  EVENT_STATUS_LABELS,
+  LEGAL_STATUS_LABELS,
+  formatDate,
+  withBase,
+} from "../../lib/events";
 
 export async function getStaticPaths() {
   const events = (await getCollection("events")).filter(isPublishableEvent);
-  return events.map((event) => ({ params: { id: event.id }, props: { event } }));
+  const eventsById = new Map(events.map((event) => [event.id, event]));
+
+  return events.map((event) => ({
+    params: { id: event.id },
+    props: {
+      event,
+      relatedEvents: event.data.related_events
+        .map((id) => eventsById.get(id))
+        .filter((related): related is CollectionEntry<"events"> => Boolean(related)),
+    },
+  }));
 }
 
 interface Props {
   event: CollectionEntry<"events">;
+  relatedEvents: CollectionEntry<"events">[];
 }
 
-const { event } = Astro.props;
+const { event, relatedEvents } = Astro.props;
 const { Content } = await render(event);
 const place = [
   event.data.location.locality,
   event.data.location.region,
   event.data.location.country,
 ].join(", ");
+const pageUrl = new URL(withBase(`/crime/${event.id}/`), Astro.site ?? Astro.url).toString();
+const homeUrl = new URL(withBase("/"), Astro.site ?? Astro.url).toString();
+const crimeUrl = new URL(withBase("/crime/"), Astro.site ?? Astro.url).toString();
+const structuredData = event.data.demo ? undefined : [
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: event.data.title,
+    description: event.data.summary,
+    datePublished: event.data.created_at.toISOString(),
+    dateModified: event.data.updated_at.toISOString(),
+    mainEntityOfPage: pageUrl,
+    author: { "@type": "Organization", name: "По факту", url: homeUrl },
+    publisher: { "@type": "Organization", name: "По факту", url: homeUrl },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Главная", item: homeUrl },
+      { "@type": "ListItem", position: 2, name: "Криминал", item: crimeUrl },
+      { "@type": "ListItem", position: 3, name: event.data.title, item: pageUrl },
+    ],
+  },
+];
 ---
 
 <BaseLayout
@@ -29,11 +70,16 @@ const place = [
   noindex={event.data.demo}
   canonicalPath={`/crime/${event.id}/`}
   ogType="article"
+  structuredData={structuredData}
 >
   <article class="event-page">
     <header class="event-sheet shell">
       <div class="event-sheet-topline">
-        <span>По факту · Криминал</span>
+        <nav class="event-breadcrumbs" aria-label="Хлебные крошки">
+          <a href={withBase("/")}>По факту</a>
+          <span aria-hidden="true">·</span>
+          <a href={withBase("/crime/")}>Криминал</a>
+        </nav>
         <span>Карточка {event.data.event_id}</span>
       </div>
       {event.data.demo && (
@@ -98,6 +144,22 @@ const place = [
             ))}
           </ol>
         </section>
+
+        {relatedEvents.length > 0 && (
+          <section class="content-section related-section">
+            <h2>Связанные материалы</h2>
+            <ul>
+              {relatedEvents.map((related) => (
+                <li>
+                  <a href={withBase(`/crime/${related.id}/`)}>
+                    {related.data.title}
+                  </a>
+                  <span>{formatDate(related.data.event_date)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
 
       <aside class="event-sidebar">

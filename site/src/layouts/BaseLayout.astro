@@ -11,6 +11,7 @@ interface Props {
   noindex?: boolean;
   canonicalPath?: string;
   ogType?: "website" | "article";
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   noindex = false,
   canonicalPath,
   ogType = "website",
+  structuredData,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const canonical = canonicalPath
@@ -52,6 +54,12 @@ const socialImage = new URL(withBase("/og-default.png"), Astro.site ?? Astro.url
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
     <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+    {structuredData && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(structuredData).replaceAll("<", "\\u003c")}
+      />
+    )}
     <title>{title}</title>
   </head>
   <body>
