@@ -1,0 +1,54 @@
+name: LiveCrime Site
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "site/**"
+      - ".github/workflows/site.yml"
+  workflow_dispatch:
+
+# Сайт только читает репозиторий и публикует отдельный Pages artifact.
+# Telegram secrets этому workflow не передаются.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Новая сборка сайта может безопасно заменить устаревшую незавершённую сборку.
+# Эта группа не пересекается с concurrency автопостера.
+concurrency:
+  group: livecrime-site-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build and upload Astro site
+        uses: withastro/action@v6
+        with:
+          path: site
+          node-version: 24
+        env:
+          # Временный бесплатный адрес GitHub Pages.
+          # При подключении домена изменятся только эти два значения.
+          SITE_URL: "https://teadrunkerhard777.github.io"
+          BASE_PATH: "/LiveCrime"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

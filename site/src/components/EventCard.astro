@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { EVENT_STATUS_LABELS, formatDate, withBase } from "../lib/events";
+
+interface Props {
+  event: CollectionEntry<"events">;
+}
+
+const { event } = Astro.props;
+const place = `${event.data.location.locality}, ${event.data.location.region}`;
+---
+
+<article class="event-card">
+  <div class="event-card__meta">
+    <time datetime={event.data.event_date.toISOString()}>
+      {formatDate(event.data.event_date)}
+    </time>
+    <span>{place}</span>
+  </div>
+  <h2>
+    <a href={withBase(`/events/${event.id}/`)}>{event.data.title}</a>
+  </h2>
+  <p>{event.data.summary}</p>
+  <div class="event-card__footer">
+    <span class="status">{EVENT_STATUS_LABELS[event.data.status]}</span>
+    <a class="read-link" href={withBase(`/events/${event.id}/`)}>
+      Открыть карточку <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</article>

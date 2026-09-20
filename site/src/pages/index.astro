@@ -1,0 +1,51 @@
+---
+import { getCollection } from "astro:content";
+import EventCard from "../components/EventCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const events = (await getCollection("events", ({ data }) => !data.draft)).sort(
+  (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
+);
+---
+
+<BaseLayout
+  title="LiveCrime — хроника криминальных событий"
+  description="Карточки значимых криминальных событий: проверенные источники, даты, места, статусы и обновления."
+>
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <p class="eyebrow">Не поток заголовков, а понятная хроника</p>
+        <h1>События, которые можно проверить</h1>
+        <p class="hero-copy">
+          Собираем в одной карточке основные факты, источники и последующие
+          обновления. Если данных недостаточно, страница не публикуется.
+        </p>
+      </div>
+      <aside class="principle-card">
+        <span>Редакционный принцип</span>
+        <strong>Лучше не выпустить карточку, чем опубликовать слабую.</strong>
+      </aside>
+    </div>
+  </section>
+
+  <section class="shell events-section" aria-labelledby="recent-events">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Последние обновления</p>
+        <h2 id="recent-events">Карточки событий</h2>
+      </div>
+      <p>{events.length} {events.length === 1 ? "событие" : "событий"}</p>
+    </div>
+
+    <div class="notice">
+      <strong>Сайт находится в разработке.</strong>
+      Сейчас показана вымышленная демонстрационная карточка. Реальные данные и
+      связь с автопостером ещё не подключены.
+    </div>
+
+    <div class="event-list">
+      {events.map((event) => <EventCard event={event} />)}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,52 @@
+---
+import "../styles/global.css";
+import { withBase } from "../lib/events";
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href={withBase("/")} aria-label="LiveCrime — главная">
+          <span class="brand-mark" aria-hidden="true">LC</span>
+          <span>
+            <strong>LiveCrime</strong>
+            <small>Хроника событий</small>
+          </span>
+        </a>
+        <nav aria-label="Основная навигация">
+          <a href={withBase("/")}>События</a>
+          <a href={withBase("/about/")}>О проекте</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <p>LiveCrime — проверяемая хроника значимых криминальных событий.</p>
+        <p>Факт публикации не означает доказанную виновность упомянутых лиц.</p>
+      </div>
+    </footer>
+  </body>
+</html>
