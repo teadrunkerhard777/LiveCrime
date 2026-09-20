@@ -9,13 +9,22 @@ interface Props {
   description: string;
   noindex?: boolean;
   canonicalPath?: string;
+  ogType?: "website" | "article";
 }
 
-const { title, description, noindex = false, canonicalPath } = Astro.props;
+const {
+  title,
+  description,
+  noindex = false,
+  canonicalPath,
+  ogType = "website",
+} = Astro.props;
 const currentPath = Astro.url.pathname;
 const canonical = canonicalPath
   ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
   : undefined;
+const socialUrl = canonical ?? new URL(currentPath, Astro.site ?? Astro.url).toString();
+const socialImage = new URL(withBase("/og-default.png"), Astro.site ?? Astro.url).toString();
 ---
 
 <!doctype html>
@@ -27,6 +36,20 @@ const canonical = canonicalPath
     <meta name="theme-color" content="#f1eadc" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="По факту" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={socialUrl} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="По факту — тематический медиахаб" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
     <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
     <title>{title}</title>
   </head>
