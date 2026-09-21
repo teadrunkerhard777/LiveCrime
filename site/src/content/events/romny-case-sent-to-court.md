@@ -1,7 +1,7 @@
 ---
 event_id: "romny-case-sent-to-court"
 section: "crime"
-publication_status: "ready"
+publication_status: "review"
 title: "Дело о смерти мужчины в Ромненском округе направили в суд"
 summary: "Следствие завершило дело в отношении жительницы села Дальневосточное: ей вменяют причинение тяжкого вреда здоровью, повлёкшее смерть сожителя по неосторожности."
 event_date: "2026-06"

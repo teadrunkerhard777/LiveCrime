@@ -7,9 +7,18 @@ import { isPublishableEvent } from "../../lib/content-quality";
 
 const publishableEvents = (await getCollection("events")).filter(isPublishableEvent);
 const realEvents = publishableEvents.filter(({ data }) => !data.demo);
-const events = (realEvents.length ? realEvents : publishableEvents).sort(
-  (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
+const chronologicalEvents = (realEvents.length ? realEvents : publishableEvents).sort(
+  (first, second) =>
+    first.data.created_at.valueOf() - second.data.created_at.valueOf()
+    || first.id.localeCompare(second.id),
 );
+const events = chronologicalEvents
+  .map((event, registryIndex) => ({ event, registryIndex }))
+  .sort(
+    (first, second) =>
+      second.event.data.updated_at.valueOf() - first.event.data.updated_at.valueOf()
+      || second.registryIndex - first.registryIndex,
+  );
 ---
 
 <BaseLayout
@@ -44,14 +53,16 @@ const events = (realEvents.length ? realEvents : publishableEvents).sort(
       <h2 id="crime-list-title">Реестр событий</h2>
       <p>Обновлено по мере появления существенных сведений</p>
     </div>
-    {events.every(({ data }) => data.demo) && (
+    {events.every(({ event }) => event.data.demo) && (
       <div class="demo-note">
         До подключения настоящих данных здесь отображается одна вымышленная
         карточка, закрытая от поисковой индексации.
       </div>
     )}
     <div class="registry-list">
-      {events.map((event, index) => <EventCard event={event} index={index} />)}
+      {events.map(({ event, registryIndex }) => (
+        <EventCard event={event} index={registryIndex} />
+      ))}
     </div>
   </section>
 </BaseLayout>

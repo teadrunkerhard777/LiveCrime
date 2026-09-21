@@ -41,6 +41,9 @@ const place = [
 const pageUrl = new URL(withBase(`/crime/${event.id}/`), Astro.site ?? Astro.url).toString();
 const homeUrl = new URL(withBase("/"), Astro.site ?? Astro.url).toString();
 const crimeUrl = new URL(withBase("/crime/"), Astro.site ?? Astro.url).toString();
+const sourceNameByUrl = new Map(event.data.sources.map((source) => [source.url, source.name]));
+const sourceName = (url: string) =>
+  sourceNameByUrl.get(url) ?? new URL(url).hostname.replace(/^www\./, "");
 const structuredData = event.data.demo ? undefined : [
   {
     "@context": "https://schema.org",
@@ -49,6 +52,7 @@ const structuredData = event.data.demo ? undefined : [
     description: event.data.summary,
     datePublished: event.data.created_at.toISOString(),
     dateModified: event.data.updated_at.toISOString(),
+    image: event.data.image ? [event.data.image.url] : undefined,
     mainEntityOfPage: pageUrl,
     author: { "@type": "Organization", name: "По факту", url: homeUrl },
     publisher: { "@type": "Organization", name: "По факту", url: homeUrl },
@@ -71,6 +75,8 @@ const structuredData = event.data.demo ? undefined : [
   noindex={event.data.demo}
   canonicalPath={`/crime/${event.id}/`}
   ogType="article"
+  socialImage={event.data.image?.url}
+  socialImageAlt={event.data.image?.alt}
   structuredData={structuredData}
 >
   <article class="event-page">
@@ -101,6 +107,24 @@ const structuredData = event.data.demo ? undefined : [
           <strong>{formatDate(event.data.updated_at)}</strong>
         </div>
       </div>
+      {event.data.image && (
+        <figure class="event-visual">
+          <div class="event-visual-frame">
+            <img
+              src={event.data.image.url}
+              alt={event.data.image.alt}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </div>
+          <figcaption>
+            Фото: <a href={event.data.image.source_url} rel="noopener noreferrer" target="_blank">
+              {event.data.image.credit}
+            </a>
+          </figcaption>
+        </figure>
+      )}
       <dl class="facts-ledger">
         <div>
           <dt>Дата события</dt>
@@ -142,6 +166,18 @@ const structuredData = event.data.demo ? undefined : [
                   <time datetime={update.date}>{formatEventDate(update.date)}</time>
                   <h3>{update.title}</h3>
                   <p>{update.summary}</p>
+                  <div class="timeline-sources">
+                    <span>{update.source_urls.length === 1 ? "Источник" : "Источники"}:</span>
+                    <ul>
+                      {update.source_urls.map((url) => (
+                        <li>
+                          <a href={url} rel="noopener noreferrer" target="_blank">
+                            {sourceName(url)}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </li>
             ))}

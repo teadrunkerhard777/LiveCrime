@@ -1,11 +1,14 @@
 import json
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 from generator.import_published import (
     GeneratorError,
     initialize_state,
+    is_multiple_homicide_candidate,
+    is_recent_candidate,
     scan_new_items,
 )
 
@@ -39,6 +42,7 @@ class PublishedHistoryImportTests(unittest.TestCase):
         self.history_path = self.root / "storage" / "published.json"
         self.state_path = self.root / "site" / "data" / "generator-state.json"
         self.inbox_path = self.root / "site" / "data" / "inbox"
+        self.content_path = self.root / "site" / "src" / "content" / "events"
 
     def tearDown(self):
         self.temporary_directory.cleanup()
@@ -216,6 +220,169 @@ class PublishedHistoryImportTests(unittest.TestCase):
         self.assertEqual(len(paths), 1)
         updated_state = json.loads(self.state_path.read_text(encoding="utf-8"))
         self.assertEqual(len(updated_state["seen_event_keys"]), 1)
+
+    def test_multiple_homicide_filter_skips_single_victim_and_finds_next_item(self):
+        old_item = make_item(1)
+        single_victim = make_item(2)
+        single_victim["title"] = "20-летняя женщина обвиняется в убийстве знакомого"
+        multiple_victims = make_item(3)
+        multiple_victims["title"] = "Мужчину обвинили в убийстве трех человек"
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(
+            self.history_path,
+            [old_item, single_victim, multiple_victims],
+        )
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            limit=1,
+            scan_limit=2,
+            multiple_homicide_only=True,
+        )
+
+        self.assertEqual(len(paths), 1)
+        candidate = json.loads(paths[0].read_text(encoding="utf-8"))
+        self.assertEqual(candidate["url"], multiple_victims["url"])
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["history_cursor"], 3)
+
+    def test_multiple_homicide_filter_requires_homicide_topic(self):
+        item = make_item(2)
+        item["title"] = "При пожаре погибли три человека"
+        item["event_fingerprint"]["topics"] = []
+
+        self.assertFalse(is_multiple_homicide_candidate(item))
+
+    def test_multiple_homicide_filter_rejects_age_as_victim_count(self):
+        item = make_item(2)
+        item["title"] = "20-летняя женщина обвиняется в убийстве ребенка"
+
+        self.assertFalse(is_multiple_homicide_candidate(item))
+
+    def test_multiple_homicide_filter_accepts_explicit_counts(self):
+        titles = [
+            "Убийцу трех девочек обвинили в нападениях",
+            "При нападении погибли 16 человек",
+            "Следователи раскрыли двойное убийство",
+        ]
+
+        for title in titles:
+            with self.subTest(title=title):
+                item = make_item(2)
+                item["title"] = title
+                self.assertTrue(is_multiple_homicide_candidate(item))
+
+    def test_multiple_homicide_filter_advances_past_rejected_items(self):
+        old_item = make_item(1)
+        rejected_items = [make_item(2), make_item(3)]
+        for item in rejected_items:
+            item["title"] = "Один человек погиб в результате конфликта"
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, *rejected_items])
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            limit=1,
+            scan_limit=2,
+            multiple_homicide_only=True,
+        )
+
+        self.assertEqual(paths, [])
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["history_cursor"], 3)
+        self.assertFalse(self.inbox_path.exists())
+
+    def test_freshness_filter_accepts_item_inside_seven_days(self):
+        item = make_item(20)
+        now = datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc)
+
+        self.assertTrue(is_recent_candidate(item, max_age_days=7, now=now))
+
+    def test_freshness_filter_rejects_old_and_undated_items(self):
+        old_item = make_item(1)
+        undated_item = make_item(2)
+        undated_item["published_at"] = None
+        now = datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc)
+
+        self.assertFalse(is_recent_candidate(old_item, max_age_days=7, now=now))
+        self.assertFalse(is_recent_candidate(undated_item, max_age_days=7, now=now))
+
+    def test_freshness_filter_skips_old_item_and_finds_fresh_candidate(self):
+        old_boundary = make_item(1)
+        old_candidate = make_item(2)
+        old_candidate["title"] = "Мужчину обвинили в убийстве двух человек"
+        fresh_candidate = make_item(20)
+        fresh_candidate["title"] = "Мужчину обвинили в убийстве трех человек"
+        write_json(self.history_path, [old_boundary])
+        initialize_state(self.history_path, self.state_path)
+        write_json(
+            self.history_path,
+            [old_boundary, old_candidate, fresh_candidate],
+        )
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            limit=1,
+            scan_limit=2,
+            multiple_homicide_only=True,
+            max_age_days=7,
+            now=datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc),
+        )
+
+        self.assertEqual(len(paths), 1)
+        candidate = json.loads(paths[0].read_text(encoding="utf-8"))
+        self.assertEqual(candidate["url"], fresh_candidate["url"])
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["history_cursor"], 3)
+
+    def test_freshness_filter_rejects_invalid_or_naive_dates(self):
+        now = datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc)
+        invalid_item = make_item(20)
+        invalid_item["published_at"] = "not-a-date"
+        naive_item = make_item(20)
+        naive_item["published_at"] = "2026-09-20T12:00:00"
+
+        with self.assertRaises(GeneratorError):
+            is_recent_candidate(invalid_item, max_age_days=7, now=now)
+        with self.assertRaises(GeneratorError):
+            is_recent_candidate(naive_item, max_age_days=7, now=now)
+
+    def test_existing_event_source_url_is_not_added_again(self):
+        old_item = make_item(1)
+        existing_item = make_item(20)
+        existing_item["title"] = "Мужчину обвинили в убийстве трех человек"
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, existing_item])
+        self.content_path.mkdir(parents=True)
+        (self.content_path / "existing.md").write_text(
+            f'---\nsources:\n  - name: "Источник"\n    url: "{existing_item["url"]}"\n---\n',
+            encoding="utf-8",
+        )
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            multiple_homicide_only=True,
+            max_age_days=7,
+            now=datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc),
+            content_path=self.content_path,
+        )
+
+        self.assertEqual(paths, [])
+        self.assertFalse(self.inbox_path.exists())
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["history_cursor"], 2)
+        self.assertEqual(len(state["seen_event_keys"]), 1)
 
 
 if __name__ == "__main__":

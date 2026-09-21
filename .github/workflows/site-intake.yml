@@ -1,0 +1,55 @@
+name: Site Editorial Intake
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 12:17 по Екатеринбургу; GitHub может начать запланированный запуск позже.
+    - cron: "17 7 * * *"
+
+# Очередь сайта меняет только собственную границу чтения истории.
+# Telegram secrets этому workflow не передаются.
+permissions:
+  contents: write
+
+concurrency:
+  group: site-editorial-intake
+  cancel-in-progress: false
+
+jobs:
+  prepare-candidate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Prepare one review candidate
+        working-directory: site
+        run: >-
+          python3 -m generator.import_published
+          --limit 1
+          --scan-limit 25
+          --multiple-homicide-only
+          --max-age-days 7
+
+      - name: Upload private review candidate
+        uses: actions/upload-artifact@v6
+        with:
+          name: site-review-candidate-${{ github.run_number }}
+          path: site/data/inbox/*.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Save site intake boundary
+        shell: bash
+        run: |
+          if git diff --quiet -- site/data/generator-state.json; then
+            echo "Site intake boundary did not change."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/generator-state.json
+          git commit -m "Advance site editorial intake"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

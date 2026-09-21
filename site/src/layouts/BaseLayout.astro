@@ -11,6 +11,8 @@ interface Props {
   noindex?: boolean;
   canonicalPath?: string;
   ogType?: "website" | "article";
+  socialImage?: string;
+  socialImageAlt?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -20,6 +22,8 @@ const {
   noindex = false,
   canonicalPath,
   ogType = "website",
+  socialImage,
+  socialImageAlt = "По факту — тематический медиахаб",
   structuredData,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
@@ -27,7 +31,8 @@ const canonical = canonicalPath
   ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
   : undefined;
 const socialUrl = canonical ?? new URL(currentPath, Astro.site ?? Astro.url).toString();
-const socialImage = new URL(withBase("/og-default.png"), Astro.site ?? Astro.url).toString();
+const resolvedSocialImage = socialImage
+  ?? new URL(withBase("/og-default.png"), Astro.site ?? Astro.url).toString();
 ---
 
 <!doctype html>
@@ -45,14 +50,12 @@ const socialImage = new URL(withBase("/og-default.png"), Astro.site ?? Astro.url
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={socialUrl} />
-    <meta property="og:image" content={socialImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="По факту — тематический медиахаб" />
+    <meta property="og:image" content={resolvedSocialImage} />
+    <meta property="og:image:alt" content={socialImageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image" content={resolvedSocialImage} />
     <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
     {structuredData && (
       <script
@@ -92,7 +95,7 @@ const socialImage = new URL(withBase("/og-default.png"), Astro.site ?? Astro.url
       <div class="shell footer-grid">
         <div class="footer-brand">
           <strong>По факту</strong>
-          <span>Главное остаётся на своём месте.</span>
+          <span>События, источники и обновления.</span>
         </div>
         <p>
           Публикация информации о расследовании не означает доказанную
