@@ -116,6 +116,22 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("git add .", self.workflow)
         self.assertNotIn("|| true", self.workflow)
 
+    def test_history_push_rebases_and_retries_without_force(self):
+        fetch_position = self.workflow.index(
+            'git fetch origin "${GITHUB_REF_NAME}"'
+        )
+        rebase_position = self.workflow.index(
+            'git rebase "origin/${GITHUB_REF_NAME}"'
+        )
+        push_position = self.workflow.index(
+            'git push origin "HEAD:${GITHUB_REF_NAME}"'
+        )
+
+        self.assertLess(fetch_position, rebase_position)
+        self.assertLess(rebase_position, push_position)
+        self.assertIn("for attempt in 1 2 3", self.workflow)
+        self.assertNotIn("--force", self.workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
