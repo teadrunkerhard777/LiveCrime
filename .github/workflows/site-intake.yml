@@ -25,7 +25,11 @@ jobs:
 
       - name: Prepare one review candidate
         working-directory: site
-        run: python3 -m generator.import_published --limit 1
+        run: >-
+          python3 -m generator.import_published
+          --limit 1
+          --scan-limit 25
+          --multiple-homicide-only
 
       - name: Upload private review candidate
         uses: actions/upload-artifact@v6

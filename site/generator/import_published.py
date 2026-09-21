@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,6 +24,23 @@ DEFAULT_STATE = SITE_ROOT / "data" / "generator-state.json"
 DEFAULT_INBOX = SITE_ROOT / "data" / "inbox"
 STATE_VERSION = 1
 CANDIDATE_VERSION = 1
+
+COUNT_WORDS = (
+    r"(?:дв(?:а|е|ое|ух|оих)|трое|троих|тр[её]х|четыре|четверо|четверых|"
+    r"четыр[её]х|пять|пятеро|пятерых|пяти|шесть|шестеро|шестерых|шести|"
+    r"семь|семеро|семерых|семи|восемь|восьмеро|восьмерых|восьми|девять|"
+    r"девятеро|девятерых|девяти|десять|десятеро|десятерых|десяти)"
+)
+VICTIM_WORDS = (
+    r"(?:человек(?:а)?|людей|женщин(?:ы)?|мужчин(?:ы)?|девоч(?:ек|ки)|"
+    r"мальчик(?:ов|а)|дет(?:ей|ей)|жертв(?:ы)?|погибш(?:их|ие)|убит(?:ых|ые))"
+)
+EXPLICIT_MULTIPLE_VICTIMS = re.compile(
+    rf"\b(?:[2-9]|[1-9]\d+)\s+{VICTIM_WORDS}\b|"
+    rf"\b{COUNT_WORDS}(?:\s+[а-яё-]+){{0,2}}\s+{VICTIM_WORDS}\b|"
+    rf"\bдвойн(?:ое|ого|ом)\s+убийств[оае]\b",
+    re.IGNORECASE,
+)
 
 
 class GeneratorError(RuntimeError):
@@ -141,6 +159,20 @@ def _event_key(item: dict) -> str | None:
     return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
+def is_multiple_homicide_candidate(item: dict) -> bool:
+    """Keep only headlines that explicitly describe at least two homicide victims."""
+
+    fingerprint = item.get("event_fingerprint")
+    if not isinstance(fingerprint, dict):
+        return False
+    topics = fingerprint.get("topics")
+    if not isinstance(topics, list) or "homicide" not in topics:
+        return False
+
+    title = item.get("title")
+    return isinstance(title, str) and bool(EXPLICIT_MULTIPLE_VICTIMS.search(title))
+
+
 def initialize_state(history_path: Path, state_path: Path) -> dict:
     """Record the current history boundary without importing the old archive."""
 
@@ -226,16 +258,22 @@ def scan_new_items(
     state_path: Path,
     inbox_path: Path,
     limit: int = 1,
+    scan_limit: int | None = None,
+    multiple_homicide_only: bool = False,
 ) -> list[Path]:
-    """Copy up to ``limit`` new confirmed publications into the review inbox."""
+    """Scan confirmed publications and copy eligible items into the review inbox."""
 
     if limit < 1 or limit > 10:
         raise GeneratorError("Лимит одного запуска должен быть от 1 до 10.")
+    if scan_limit is None:
+        scan_limit = limit
+    if scan_limit < limit or scan_limit > 100:
+        raise GeneratorError("Лимит просмотра должен быть от лимита кандидатов до 100.")
 
     history = _load_history(history_path)
     state = _load_state(state_path, history)
     cursor = state["history_cursor"]
-    selected = history[cursor : cursor + limit]
+    selected = history[cursor : cursor + scan_limit]
     validated = [
         _validate_item(item, cursor + offset)
         for offset, item in enumerate(selected)
@@ -243,7 +281,12 @@ def scan_new_items(
 
     written_paths: list[Path] = []
     seen_event_keys = set(state["seen_event_keys"])
+    processed_count = 0
     for item in validated:
+        processed_count += 1
+        if multiple_homicide_only and not is_multiple_homicide_candidate(item):
+            continue
+
         candidate_id = _candidate_id(item)
         candidate_path = inbox_path / f"{candidate_id}.json"
         event_key = _event_key(item)
@@ -262,8 +305,11 @@ def scan_new_items(
         if event_key is not None:
             seen_event_keys.add(event_key)
 
-    if validated:
-        new_cursor = cursor + len(validated)
+        if len(written_paths) >= limit:
+            break
+
+    if processed_count:
+        new_cursor = cursor + processed_count
         state["history_cursor"] = new_cursor
         state["last_history_url"] = history[new_cursor - 1]["url"]
         state["seen_event_keys"] = sorted(seen_event_keys)
@@ -283,6 +329,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Зафиксировать текущую границу истории без импорта старого архива.",
     )
     parser.add_argument("--limit", type=int, default=1)
+    parser.add_argument(
+        "--scan-limit",
+        type=int,
+        help="Сколько новых записей разрешено проверить в поиске подходящего кандидата.",
+    )
+    parser.add_argument(
+        "--multiple-homicide-only",
+        action="store_true",
+        help="Брать только сюжеты с явно указанными двумя или более жертвами убийства.",
+    )
     parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--inbox", type=Path, default=DEFAULT_INBOX)
@@ -305,6 +361,8 @@ def main() -> int:
             args.state,
             args.inbox,
             limit=args.limit,
+            scan_limit=args.scan_limit,
+            multiple_homicide_only=args.multiple_homicide_only,
         )
         if not paths:
             print("Новых подтверждённых публикаций нет.")

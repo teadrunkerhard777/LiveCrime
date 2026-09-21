@@ -17,7 +17,10 @@ class SiteIntakeWorkflowTests(unittest.TestCase):
         self.assertIn("cancel-in-progress: false", self.workflow)
 
     def test_workflow_prepares_only_one_private_candidate(self):
-        self.assertIn("generator.import_published --limit 1", self.workflow)
+        self.assertIn("generator.import_published", self.workflow)
+        self.assertIn("--limit 1", self.workflow)
+        self.assertIn("--scan-limit 25", self.workflow)
+        self.assertIn("--multiple-homicide-only", self.workflow)
         self.assertIn("actions/upload-artifact@v6", self.workflow)
         self.assertIn("site/data/inbox/*.json", self.workflow)
         self.assertLess(
