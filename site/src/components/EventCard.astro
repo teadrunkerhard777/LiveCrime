@@ -13,10 +13,21 @@ const place = `${event.data.location.locality}, ${event.data.location.region}`;
 const registryNumber = String(index + 1).padStart(3, "0");
 ---
 
-<article class:list={["event-row", { featured }]}>
+<article class:list={["event-row", { featured, "has-media": event.data.image }]}>
   <div class="event-number" aria-label={`Запись ${registryNumber}`}>
     <span>№</span>{registryNumber}
   </div>
+  {event.data.image && (
+    <a class="event-media" href={withBase(`/crime/${event.id}/`)} aria-label={`Открыть: ${event.data.title}`}>
+      <img
+        src={event.data.image.url}
+        alt={event.data.image.alt}
+        loading={featured ? "eager" : "lazy"}
+        decoding="async"
+      />
+      <span>{event.data.image.credit}</span>
+    </a>
+  )}
   <div class="event-copy">
     <div class="event-meta">
       <time datetime={event.data.event_date}>

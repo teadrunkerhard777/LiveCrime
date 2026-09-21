@@ -17,6 +17,11 @@ topics:
   - "массовое нападение"
   - "убийство детей"
   - "пожизненное заключение"
+image:
+  url: "https://www.cps.gov.uk/sites/default/files/inline-images/Alice-Bebe-Elsie.jpg"
+  alt: "Алиса да Силва Агиар, Биби Кинг и Элси Дот Стэнкомб"
+  credit: "Crown Prosecution Service"
+  source_url: "https://www.cps.gov.uk/mersey-cheshire/news/teenager-jailed-killing-three-children-dance-class-and-trying-kill-ten"
 sources:
   - name: "Судебная система Англии и Уэльса"
     url: "https://www.judiciary.uk/wp-content/uploads/2025/01/R-v-Axel-Rudakubana.pdf"

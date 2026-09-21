@@ -23,6 +23,13 @@ const updateSchema = z.object({
   source_urls: z.array(z.url()).min(1),
 });
 
+const imageSchema = z.object({
+  url: z.url(),
+  alt: z.string().min(1),
+  credit: z.string().min(1),
+  source_url: z.url(),
+});
+
 const events = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/events" }),
   schema: z.object({
@@ -58,6 +65,7 @@ const events = defineCollection({
     created_at: z.coerce.date(),
     updated_at: z.coerce.date(),
     topics: z.array(z.string().min(1)).min(1),
+    image: imageSchema.optional(),
     sources: z.array(sourceSchema).min(1),
     updates: z.array(updateSchema).default([]),
     related_events: z.array(z.string()).default([]),

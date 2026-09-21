@@ -49,6 +49,7 @@ const structuredData = event.data.demo ? undefined : [
     description: event.data.summary,
     datePublished: event.data.created_at.toISOString(),
     dateModified: event.data.updated_at.toISOString(),
+    image: event.data.image ? [event.data.image.url] : undefined,
     mainEntityOfPage: pageUrl,
     author: { "@type": "Organization", name: "По факту", url: homeUrl },
     publisher: { "@type": "Organization", name: "По факту", url: homeUrl },
@@ -71,6 +72,8 @@ const structuredData = event.data.demo ? undefined : [
   noindex={event.data.demo}
   canonicalPath={`/crime/${event.id}/`}
   ogType="article"
+  socialImage={event.data.image?.url}
+  socialImageAlt={event.data.image?.alt}
   structuredData={structuredData}
 >
   <article class="event-page">

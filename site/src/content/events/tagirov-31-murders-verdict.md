@@ -16,6 +16,11 @@ updated_at: "2026-09-21T14:55:00+05:00"
 topics:
   - "серийные убийства"
   - "пожизненное лишение свободы"
+image:
+  url: "https://im2.kommersant.ru/Issues.photo/REGIONS/KAZAN_News/2024/03/19/KKZ_003186_00001_1_t222_112327.jpg"
+  alt: "Радик Тагиров в зале Верховного суда Татарстана"
+  credit: "Степан Белоенко / Коммерсантъ"
+  source_url: "https://www.kommersant.ru/doc/6579795"
 sources:
   - name: "Верховный суд Российской Федерации"
     url: "https://vsrf.ru/lk/practice/cases/17-36412399"

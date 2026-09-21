@@ -266,6 +266,30 @@ nav a.active {
   box-shadow: 0 22px 52px rgba(65, 53, 39, 0.16);
 }
 
+.featured-media {
+  margin: 24px 0 0;
+}
+
+.featured-media img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #e6dfd2;
+}
+
+.featured-media figcaption {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.featured-media a {
+  color: var(--crime-dark);
+}
+
 .featured-status,
 .event-state {
   display: inline-block;
@@ -405,6 +429,38 @@ nav a.active {
   align-items: start;
   padding-block: 34px;
   border-bottom: 1px solid var(--line);
+}
+
+.event-row.has-media {
+  grid-template-columns: 72px 190px minmax(0, 1fr) 190px;
+  gap: 24px;
+}
+
+.event-media {
+  color: var(--muted);
+  font-size: 0.65rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.event-media img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #e6dfd2;
+  filter: saturate(0.78) contrast(1.03);
+  transition: filter 180ms ease-out;
+}
+
+.event-media span {
+  display: block;
+  margin-top: 7px;
+}
+
+.event-row:hover .event-media img {
+  filter: saturate(1) contrast(1.02);
 }
 
 .event-row:hover h2 a {
@@ -1066,6 +1122,14 @@ nav a.active {
     grid-template-columns: 72px minmax(0, 1fr);
   }
 
+  .event-row.has-media {
+    grid-template-columns: 72px 180px minmax(0, 1fr);
+  }
+
+  .event-row.has-media .event-action {
+    grid-column: 3;
+  }
+
   .event-action {
     grid-column: 2;
     grid-template-columns: 1fr auto;
@@ -1168,6 +1232,18 @@ nav a.active {
     grid-template-columns: 1fr;
     gap: 14px;
     padding-block: 28px;
+  }
+
+  .event-row.has-media {
+    grid-template-columns: 1fr;
+  }
+
+  .event-row.has-media .event-action {
+    grid-column: 1;
+  }
+
+  .event-media img {
+    aspect-ratio: 16 / 10;
   }
 
   .event-action {

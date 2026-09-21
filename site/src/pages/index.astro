@@ -39,6 +39,22 @@ const featured = events[0];
             <span>Запись №001</span>
             <span>Обновлено {formatDate(featured.data.updated_at)}</span>
           </div>
+          {featured.data.image && (
+            <figure class="featured-media">
+              <img
+                src={featured.data.image.url}
+                alt={featured.data.image.alt}
+                loading="eager"
+                decoding="async"
+                fetchpriority="high"
+              />
+              <figcaption>
+                Фото: <a href={featured.data.image.source_url} rel="noopener noreferrer" target="_blank">
+                  {featured.data.image.credit}
+                </a>
+              </figcaption>
+            </figure>
+          )}
           <div class="featured-status">
             {EVENT_STATUS_LABELS[featured.data.status]}
           </div>
