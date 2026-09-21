@@ -7,6 +7,7 @@ import {
   EVENT_STATUS_LABELS,
   LEGAL_STATUS_LABELS,
   formatDate,
+  formatEventDate,
   withBase,
 } from "../../lib/events";
 
@@ -101,7 +102,7 @@ const structuredData = event.data.demo ? undefined : [
       <dl class="facts-ledger">
         <div>
           <dt>Дата события</dt>
-          <dd>{formatDate(event.data.event_date)}</dd>
+          <dd>{formatEventDate(event.data.event_date)}</dd>
         </div>
         <div>
           <dt>Место</dt>
@@ -136,7 +137,7 @@ const structuredData = event.data.demo ? undefined : [
               <li>
                 <div class="timeline-index">{String(index + 1).padStart(2, "0")}</div>
                 <div>
-                  <time datetime={update.date.toISOString()}>{formatDate(update.date)}</time>
+                  <time datetime={update.date}>{formatEventDate(update.date)}</time>
                   <h3>{update.title}</h3>
                   <p>{update.summary}</p>
                 </div>
@@ -154,7 +155,7 @@ const structuredData = event.data.demo ? undefined : [
                   <a href={withBase(`/crime/${related.id}/`)}>
                     {related.data.title}
                   </a>
-                  <span>{formatDate(related.data.event_date)}</span>
+                  <span>{formatEventDate(related.data.event_date)}</span>
                 </li>
               ))}
             </ul>

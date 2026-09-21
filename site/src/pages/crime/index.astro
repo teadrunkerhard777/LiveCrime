@@ -42,10 +42,12 @@ const events = (await getCollection("events")).filter(isPublishableEvent).sort(
       <h2 id="crime-list-title">Реестр событий</h2>
       <p>Обновлено по мере появления существенных сведений</p>
     </div>
-    <div class="demo-note">
-      До подключения настоящих данных здесь отображается одна вымышленная
-      карточка, закрытая от поисковой индексации.
-    </div>
+    {events.every(({ data }) => data.demo) && (
+      <div class="demo-note">
+        До подключения настоящих данных здесь отображается одна вымышленная
+        карточка, закрытая от поисковой индексации.
+      </div>
+    )}
     <div class="registry-list">
       {events.map((event, index) => <EventCard event={event} index={index} />)}
     </div>

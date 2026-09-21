@@ -8,8 +8,16 @@ const sourceSchema = z.object({
   published_at: z.coerce.date().optional(),
 });
 
+const displayDateSchema = z.string().refine(
+  (value) =>
+    /^\d{4}$/.test(value) ||
+    /^\d{4}-(0[1-9]|1[0-2])$/.test(value) ||
+    !Number.isNaN(Date.parse(value)),
+  "Укажите год, год и месяц либо полную дату.",
+);
+
 const updateSchema = z.object({
-  date: z.coerce.date(),
+  date: displayDateSchema,
   title: z.string().min(1),
   summary: z.string().min(1),
   source_urls: z.array(z.url()).min(1),
@@ -23,7 +31,7 @@ const events = defineCollection({
     publication_status: z.enum(["draft", "review", "ready"]),
     title: z.string().min(10),
     summary: z.string().min(40),
-    event_date: z.coerce.date(),
+    event_date: displayDateSchema,
     location: z.object({
       country: z.string().min(1),
       region: z.string().min(1),

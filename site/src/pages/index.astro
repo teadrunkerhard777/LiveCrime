@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import EventCard from "../components/EventCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { isPublishableEvent } from "../lib/content-quality";
-import { EVENT_STATUS_LABELS, formatDate, withBase } from "../lib/events";
+import { EVENT_STATUS_LABELS, formatDate, formatEventDate, withBase } from "../lib/events";
 
 const events = (await getCollection("events")).filter(isPublishableEvent).sort(
   (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
@@ -45,7 +45,7 @@ const featured = events[0];
           <dl>
             <div>
               <dt>Дата</dt>
-              <dd>{formatDate(featured.data.event_date)}</dd>
+              <dd>{formatEventDate(featured.data.event_date)}</dd>
             </div>
             <div>
               <dt>Место</dt>
@@ -68,10 +68,12 @@ const featured = events[0];
       <h2 id="latest-title">Последние записи</h2>
       <p>{events.length} {events.length === 1 ? "материал" : "материала"}</p>
     </div>
-    <div class="demo-note">
-      Сейчас интерфейс проверяется на вымышленном примере. Реальные материалы
-      появятся только после подключения отдельного безопасного процесса.
-    </div>
+    {events.every(({ data }) => data.demo) && (
+      <div class="demo-note">
+        Сейчас интерфейс проверяется на вымышленном примере. Реальные материалы
+        появятся только после подключения отдельного безопасного процесса.
+      </div>
+    )}
     <div class="registry-list">
       {events.map((event, index) => <EventCard event={event} index={index} />)}
     </div>
