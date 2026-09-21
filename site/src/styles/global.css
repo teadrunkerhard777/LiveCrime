@@ -715,6 +715,36 @@ nav a.active {
   line-height: 1.72;
 }
 
+.event-visual {
+  margin: 0 0 34px;
+}
+
+.event-visual-frame {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #e6dfd2;
+}
+
+.event-visual img {
+  width: 100%;
+  max-height: 520px;
+  display: block;
+  object-fit: contain;
+}
+
+.event-visual figcaption {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.event-visual a {
+  color: var(--crime-dark);
+}
+
 .registry-stamp {
   margin-top: 32px;
   padding: 22px 18px;
@@ -1329,6 +1359,14 @@ nav a.active {
   .source-list a,
   .source-list small {
     overflow-wrap: anywhere;
+  }
+
+  .event-visual {
+    margin-bottom: 26px;
+  }
+
+  .event-visual-frame {
+    min-height: 180px;
   }
 
   .registry-stamp {

@@ -104,6 +104,24 @@ const structuredData = event.data.demo ? undefined : [
           <strong>{formatDate(event.data.updated_at)}</strong>
         </div>
       </div>
+      {event.data.image && (
+        <figure class="event-visual">
+          <div class="event-visual-frame">
+            <img
+              src={event.data.image.url}
+              alt={event.data.image.alt}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </div>
+          <figcaption>
+            Фото: <a href={event.data.image.source_url} rel="noopener noreferrer" target="_blank">
+              {event.data.image.credit}
+            </a>
+          </figcaption>
+        </figure>
+      )}
       <dl class="facts-ledger">
         <div>
           <dt>Дата события</dt>
