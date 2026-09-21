@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-20T17:26:40+05:00",
+  "generatedAt": "2026-09-21T10:30:07+05:00",
   "title": "Design System: По факту",
   "extensions": {
     "colorMeta": {
@@ -12,7 +12,9 @@
       "archive-rule-strong": { "role": "neutral", "displayName": "Усиленная линейка", "canonical": "#79766f", "tonalRamp": ["#1c1a17", "#393630", "#55524b", "#716e67", "#8e8b83", "#aaa79f", "#c9c6be", "#ece9e1"] },
       "crime-red": { "role": "primary", "displayName": "Криминальный красный", "canonical": "#b92d27", "tonalRamp": ["#320805", "#5a100d", "#811914", "#a9231e", "#ca3c35", "#df6e68", "#efa6a1", "#f9dfdc"] },
       "crime-red-deep": { "role": "primary", "displayName": "Глубокий криминальный красный", "canonical": "#84221e", "tonalRamp": ["#2d0705", "#500e0b", "#731713", "#96231e", "#b83b35", "#d06b65", "#e6a49f", "#f6dfdc"] },
+      "crime-red-light": { "role": "primary", "displayName": "Светлый криминальный красный", "canonical": "#ff958d", "tonalRamp": ["#350503", "#64100b", "#941e17", "#c33229", "#eb5048", "#ff7d75", "#ffada7", "#ffe2df"] },
       "archive-blue": { "role": "secondary", "displayName": "Архивный синий", "canonical": "#385a72", "tonalRamp": ["#081923", "#123246", "#204b67", "#326585", "#51809f", "#78a0bb", "#acc2d2", "#e0eaf0"] },
+      "dark-muted": { "role": "neutral", "displayName": "Приглушённый текст на тёмном", "canonical": "#c8c7c1", "tonalRamp": ["#1d1d1a", "#3a3a36", "#585852", "#77766f", "#96958e", "#b5b4ad", "#d4d3cc", "#f2f1eb"] },
       "topic-roblox": { "role": "tertiary", "displayName": "Roblox blue", "canonical": "#4b83ad", "tonalRamp": ["#0a1d2b", "#153b56", "#25597e", "#3a78a2", "#6096bd", "#87b4d2", "#b5d2e4", "#e2edf4"] },
       "topic-cats": { "role": "tertiary", "displayName": "Cats ochre", "canonical": "#d1813d", "tonalRamp": ["#2e1705", "#5a300e", "#844a1a", "#aa6429", "#ce8243", "#dfa26b", "#edc49c", "#f8e6d4"] },
       "topic-mma": { "role": "tertiary", "displayName": "MMA olive", "canonical": "#7b865c", "tonalRamp": ["#1a1d10", "#353b22", "#505934", "#6c7749", "#879465", "#a3b083", "#c1cba8", "#e6ead9"] },
@@ -32,7 +34,7 @@
     ],
     "motion": [
       { "name": "stamp-in", "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Единственное постановочное движение: штамп быстро проявляется и садится на лист." },
-      { "name": "reduced-motion", "value": "0.01ms, 1 iteration", "purpose": "Практически мгновенно завершает анимации и переходы при prefers-reduced-motion." }
+      { "name": "reduced-motion", "value": "animation: none", "purpose": "Убирает постановочное появление штампа, сохраняя его конечное положение и иерархию." }
     ],
     "breakpoints": [
       { "name": "stack", "value": "900px" },
@@ -77,7 +79,7 @@
       "kind": "card",
       "description": "Плоская строка реестра с номером, метаданными, заголовком и статусом.",
       "html": "<article class=\"ds-event-row\"><div class=\"ds-event-number\"><span>№</span>001</div><div><div class=\"ds-event-meta\">18 сентября 2026 г. · Екатеринбург</div><h2><a href=\"#\">Демонстрационная карточка события</a></h2><p>Краткое проверяемое описание записи.</p></div><a class=\"ds-event-open\" href=\"#\">Открыть карточку</a></article>",
-      "css": ".ds-event-row { display:grid; grid-template-columns:92px minmax(0,1fr) 180px; gap:28px; padding:34px 0; border-top:1px solid var(--line-strong, #79766f); border-bottom:1px solid var(--line, #bcb4a5); color:var(--ink, #191b1d); font-family:'Manrope Variable',sans-serif; } .ds-event-number { color:var(--crime, #b92d27); font:720 1.3rem/1.2 'Unbounded Variable',sans-serif; font-variant-numeric:tabular-nums; } .ds-event-number span { font-size:.66rem; vertical-align:top; } .ds-event-meta { color:var(--muted, #5d625f); font-size:.72rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; } .ds-event-row h2 { margin:12px 0 10px; font:760 1.45rem/1.05 'Unbounded Variable',sans-serif; letter-spacing:-.035em; } .ds-event-row h2 a { color:inherit; text-decoration:none; } .ds-event-row p { margin:0; color:#444846; line-height:1.65; } .ds-event-open { color:var(--crime-dark, #84221e); font-weight:850; align-self:start; text-underline-offset:.22em; } .ds-event-row a:hover { color:var(--crime-dark, #84221e); } .ds-event-row a:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:4px; }"
+      "css": ".ds-event-row { display:grid; grid-template-columns:92px minmax(0,1fr) 180px; gap:28px; padding:34px 0; border-top:1px solid var(--line-strong, #79766f); border-bottom:1px solid var(--line, #bcb4a5); color:var(--ink, #191b1d); font-family:'Manrope Variable',sans-serif; } .ds-event-number { color:var(--crime, #b92d27); font:720 1.3rem/1.2 'Unbounded Variable',sans-serif; font-variant-numeric:tabular-nums; } .ds-event-number span { font-size:.66rem; vertical-align:top; } .ds-event-meta { color:var(--muted, #5d625f); font-size:.72rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; } .ds-event-row h2 { margin:12px 0 10px; font:760 1.45rem/1.05 'Unbounded Variable',sans-serif; letter-spacing:-.035em; } .ds-event-row h2 a { color:inherit; text-decoration:none; } .ds-event-row p { margin:0; color:var(--muted, #5d625f); line-height:1.65; } .ds-event-open { color:var(--crime-dark, #84221e); font-weight:850; align-self:start; text-underline-offset:.22em; } .ds-event-row a:hover { color:var(--crime-dark, #84221e); } .ds-event-row a:focus-visible { outline:3px solid var(--archive-blue, #385a72); outline-offset:4px; }"
     },
     {
       "name": "Registry Sheet",
@@ -99,7 +101,7 @@
       "kind": "custom",
       "description": "Единственный выразительный motion-компонент: дата обновления как архивный штамп.",
       "html": "<div class=\"ds-stamp\"><span>обновлено</span><strong>19 сентября 2026 г.</strong></div>",
-      "css": ".ds-stamp { max-width:230px; padding:22px 18px; border:3px double var(--crime, #b92d27); color:var(--crime-dark, #84221e); text-align:center; transform:rotate(2deg); animation:ds-stamp-in 700ms cubic-bezier(.16,1,.3,1) both; font-family:'Manrope Variable',sans-serif; } .ds-stamp span,.ds-stamp strong { display:block; } .ds-stamp span { font-size:.65rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; } .ds-stamp strong { margin-top:6px; font-size:.9rem; } @keyframes ds-stamp-in { from { filter:blur(4px); opacity:.25; transform:scale(1.2) rotate(8deg); } to { filter:blur(0); opacity:1; transform:scale(1) rotate(2deg); } } @media (prefers-reduced-motion:reduce) { .ds-stamp { animation-duration:.01ms; animation-iteration-count:1; } }"
+      "css": ".ds-stamp { max-width:230px; padding:22px 18px; border:3px double var(--crime, #b92d27); color:var(--crime-dark, #84221e); text-align:center; transform:rotate(2deg); animation:ds-stamp-in 700ms cubic-bezier(.16,1,.3,1) both; font-family:'Manrope Variable',sans-serif; } .ds-stamp span,.ds-stamp strong { display:block; } .ds-stamp span { font-size:.65rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; } .ds-stamp strong { margin-top:6px; font-size:.9rem; } @keyframes ds-stamp-in { from { filter:blur(4px); opacity:.25; transform:scale(1.2) rotate(8deg); } to { filter:blur(0); opacity:1; transform:scale(1) rotate(2deg); } } @media (prefers-reduced-motion:reduce) { .ds-stamp { animation:none; filter:none; opacity:1; transform:rotate(2deg); } }"
     }
   ],
   "narrative": {
