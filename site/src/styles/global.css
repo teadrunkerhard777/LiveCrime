@@ -607,18 +607,28 @@ nav a.active {
 }
 
 .event-title-grid h1 {
-  max-width: 18ch;
-  margin: 20px 0;
-  font-size: clamp(2.5rem, 5.5vw, 5rem);
+  max-width: 23ch;
+  margin: 22px 0 20px;
+  font-family: "Manrope Variable", sans-serif;
+  font-size: clamp(2.05rem, 3.8vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
   hyphens: auto;
   overflow-wrap: break-word;
 }
 
-.lead {
+.event-sheet-topline,
+.event-state {
+  font-weight: 650;
+}
+
+.event-title-grid .lead {
   max-width: 68ch;
   margin: 0;
   color: var(--muted);
-  font-size: clamp(1.06rem, 1.8vw, 1.26rem);
+  font-size: clamp(1.02rem, 1.45vw, 1.16rem);
+  line-height: 1.72;
 }
 
 .registry-stamp {
@@ -638,7 +648,7 @@ nav a.active {
 
 .registry-stamp span {
   font-size: 0.65rem;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -646,6 +656,7 @@ nav a.active {
 .registry-stamp strong {
   margin-top: 6px;
   font-size: 0.9rem;
+  font-weight: 650;
 }
 
 @keyframes stamp-in {
@@ -676,6 +687,7 @@ nav a.active {
 
 .facts-ledger dd {
   overflow-wrap: anywhere;
+  font-weight: 600;
 }
 
 .facts-ledger > div + div {
@@ -692,6 +704,18 @@ nav a.active {
 
 .content-section + .content-section {
   margin-top: 76px;
+}
+
+.event-main .content-section h2,
+.event-sidebar h2 {
+  font-family: "Manrope Variable", sans-serif;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.event-main .content-section h2 {
+  font-size: clamp(1.55rem, 2.5vw, 2.15rem);
 }
 
 .related-section ul {
@@ -722,14 +746,19 @@ nav a.active {
 }
 
 .article-content {
-  max-width: 70ch;
+  max-width: 66ch;
   margin-top: 28px;
   color: var(--ink);
-  font-size: 1.08rem;
+  font-size: 1.04rem;
+  line-height: 1.78;
 }
 
 .article-content p:first-child {
-  font-size: 1.2rem;
+  font-size: inherit;
+}
+
+.article-content p + p {
+  margin-top: 1.35em;
 }
 
 .timeline {
@@ -751,23 +780,28 @@ nav a.active {
   color: var(--crime);
   font-family: "Unbounded Variable", sans-serif;
   font-variant-numeric: tabular-nums;
-  font-weight: 720;
+  font-weight: 600;
 }
 
 .timeline time {
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
 .timeline h3 {
   margin: 7px 0 10px;
-  font-size: 1.15rem;
+  font-family: "Manrope Variable", sans-serif;
+  font-size: 1.08rem;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .timeline p {
   margin: 0;
+  line-height: 1.7;
 }
 
 .event-sidebar {
@@ -782,7 +816,7 @@ nav a.active {
 }
 
 .event-sidebar h2 {
-  font-size: 1.35rem;
+  font-size: 1.24rem;
 }
 
 .source-sheet {
@@ -807,12 +841,13 @@ nav a.active {
   color: var(--archive-blue);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
-  font-weight: 850;
+  font-weight: 650;
 }
 
 .source-list a {
   color: var(--crime-dark);
-  font-weight: 800;
+  font-weight: 650;
+  line-height: 1.45;
 }
 
 .source-list small {
@@ -829,7 +864,7 @@ nav a.active {
 .channel-sheet > span {
   color: var(--dark-muted);
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -845,7 +880,7 @@ nav a.active {
 
 .channel-sheet a {
   color: var(--crime-light);
-  font-weight: 850;
+  font-weight: 700;
 }
 
 .channel-links {
