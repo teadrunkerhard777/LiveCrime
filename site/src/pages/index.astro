@@ -5,7 +5,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { isPublishableEvent } from "../lib/content-quality";
 import { EVENT_STATUS_LABELS, formatDate, formatEventDate, withBase } from "../lib/events";
 
-const events = (await getCollection("events")).filter(isPublishableEvent).sort(
+const publishableEvents = (await getCollection("events")).filter(isPublishableEvent);
+const realEvents = publishableEvents.filter(({ data }) => !data.demo);
+const events = (realEvents.length ? realEvents : publishableEvents).sort(
   (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
 );
 const featured = events[0];

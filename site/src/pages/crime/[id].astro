@@ -81,7 +81,9 @@ const structuredData = event.data.demo ? undefined : [
           <span aria-hidden="true">·</span>
           <a href={withBase("/crime/")}>Криминал</a>
         </nav>
-        <span>Карточка {event.data.event_id}</span>
+        <span>
+          Источников: {event.data.sources.length} · обновлений: {event.data.updates.length}
+        </span>
       </div>
       {event.data.demo && (
         <div class="demo-banner">
