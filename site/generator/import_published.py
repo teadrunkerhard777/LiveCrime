@@ -22,6 +22,7 @@ PROJECT_ROOT = SITE_ROOT.parent
 DEFAULT_HISTORY = PROJECT_ROOT / "storage" / "published.json"
 DEFAULT_STATE = SITE_ROOT / "data" / "generator-state.json"
 DEFAULT_INBOX = SITE_ROOT / "data" / "inbox"
+DEFAULT_CONTENT = SITE_ROOT / "src" / "content" / "events"
 STATE_VERSION = 1
 CANDIDATE_VERSION = 1
 
@@ -41,6 +42,7 @@ EXPLICIT_MULTIPLE_VICTIMS = re.compile(
     rf"\bдвойн(?:ое|ого|ом)\s+убийств[оае]\b",
     re.IGNORECASE,
 )
+CONTENT_SOURCE_URL = re.compile(r'^\s+url:\s*["\']?(https?://[^"\'\s]+)', re.MULTILINE)
 
 
 class GeneratorError(RuntimeError):
@@ -87,6 +89,25 @@ def _load_history(path: Path) -> list[dict]:
     if not isinstance(history, list):
         raise GeneratorError("История публикаций должна быть JSON-массивом.")
     return history
+
+
+def _load_existing_source_urls(content_path: Path) -> set[str]:
+    """Read source URLs already represented by public or draft event cards."""
+
+    if not content_path.exists():
+        return set()
+
+    source_urls: set[str] = set()
+    for pattern in ("*.md", "*.mdx"):
+        for event_path in content_path.rglob(pattern):
+            try:
+                content = event_path.read_text(encoding="utf-8")
+            except OSError as error:
+                raise GeneratorError(
+                    f"Не удалось прочитать существующую карточку: {event_path}",
+                ) from error
+            source_urls.update(CONTENT_SOURCE_URL.findall(content))
+    return source_urls
 
 
 def _validate_item(item: object, index: int) -> dict:
@@ -294,6 +315,7 @@ def scan_new_items(
     multiple_homicide_only: bool = False,
     max_age_days: int | None = None,
     now: datetime | None = None,
+    content_path: Path = DEFAULT_CONTENT,
 ) -> list[Path]:
     """Scan confirmed publications and copy eligible items into the review inbox."""
 
@@ -315,9 +337,15 @@ def scan_new_items(
 
     written_paths: list[Path] = []
     seen_event_keys = set(state["seen_event_keys"])
+    existing_source_urls = _load_existing_source_urls(content_path)
     processed_count = 0
     for item in validated:
         processed_count += 1
+        event_key = _event_key(item)
+        if item["url"] in existing_source_urls:
+            if event_key is not None:
+                seen_event_keys.add(event_key)
+            continue
         if max_age_days is not None and not is_recent_candidate(item, max_age_days, now):
             continue
         if multiple_homicide_only and not is_multiple_homicide_candidate(item):
@@ -325,7 +353,6 @@ def scan_new_items(
 
         candidate_id = _candidate_id(item)
         candidate_path = inbox_path / f"{candidate_id}.json"
-        event_key = _event_key(item)
         if candidate_path.exists():
             existing = _read_json(candidate_path)
             if not isinstance(existing, dict) or existing.get("url") != item["url"]:
@@ -383,6 +410,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--inbox", type=Path, default=DEFAULT_INBOX)
+    parser.add_argument("--content", type=Path, default=DEFAULT_CONTENT)
     return parser
 
 
@@ -405,6 +433,7 @@ def main() -> int:
             scan_limit=args.scan_limit,
             multiple_homicide_only=args.multiple_homicide_only,
             max_age_days=args.max_age_days,
+            content_path=args.content,
         )
         if not paths:
             print("Новых подтверждённых публикаций нет.")

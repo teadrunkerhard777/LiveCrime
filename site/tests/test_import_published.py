@@ -42,6 +42,7 @@ class PublishedHistoryImportTests(unittest.TestCase):
         self.history_path = self.root / "storage" / "published.json"
         self.state_path = self.root / "site" / "data" / "generator-state.json"
         self.inbox_path = self.root / "site" / "data" / "inbox"
+        self.content_path = self.root / "site" / "src" / "content" / "events"
 
     def tearDown(self):
         self.temporary_directory.cleanup()
@@ -353,6 +354,35 @@ class PublishedHistoryImportTests(unittest.TestCase):
             is_recent_candidate(invalid_item, max_age_days=7, now=now)
         with self.assertRaises(GeneratorError):
             is_recent_candidate(naive_item, max_age_days=7, now=now)
+
+    def test_existing_event_source_url_is_not_added_again(self):
+        old_item = make_item(1)
+        existing_item = make_item(20)
+        existing_item["title"] = "Мужчину обвинили в убийстве трех человек"
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, existing_item])
+        self.content_path.mkdir(parents=True)
+        (self.content_path / "existing.md").write_text(
+            f'---\nsources:\n  - name: "Источник"\n    url: "{existing_item["url"]}"\n---\n',
+            encoding="utf-8",
+        )
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            multiple_homicide_only=True,
+            max_age_days=7,
+            now=datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc),
+            content_path=self.content_path,
+        )
+
+        self.assertEqual(paths, [])
+        self.assertFalse(self.inbox_path.exists())
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["history_cursor"], 2)
+        self.assertEqual(len(state["seen_event_keys"]), 1)
 
 
 if __name__ == "__main__":
