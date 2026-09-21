@@ -12,7 +12,7 @@ import json
 import os
 import re
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -173,6 +173,38 @@ def is_multiple_homicide_candidate(item: dict) -> bool:
     return isinstance(title, str) and bool(EXPLICIT_MULTIPLE_VICTIMS.search(title))
 
 
+def is_recent_candidate(
+    item: dict,
+    max_age_days: int,
+    now: datetime | None = None,
+) -> bool:
+    """Keep only items with a reliable publication date inside the freshness window."""
+
+    if max_age_days < 1 or max_age_days > 30:
+        raise GeneratorError("Период свежести должен быть от 1 до 30 дней.")
+
+    published_at = item.get("published_at")
+    if not isinstance(published_at, str) or not published_at.strip():
+        return False
+
+    try:
+        publication_date = datetime.fromisoformat(
+            published_at.strip().replace("Z", "+00:00"),
+        )
+    except ValueError as error:
+        raise GeneratorError("У кандидата некорректная дата публикации.") from error
+
+    if publication_date.tzinfo is None:
+        raise GeneratorError("Дата публикации кандидата должна содержать часовой пояс.")
+
+    reference_time = now or datetime.now(timezone.utc)
+    if reference_time.tzinfo is None:
+        raise GeneratorError("Время проверки свежести должно содержать часовой пояс.")
+
+    age = reference_time.astimezone(timezone.utc) - publication_date.astimezone(timezone.utc)
+    return timedelta(0) <= age <= timedelta(days=max_age_days)
+
+
 def initialize_state(history_path: Path, state_path: Path) -> dict:
     """Record the current history boundary without importing the old archive."""
 
@@ -260,6 +292,8 @@ def scan_new_items(
     limit: int = 1,
     scan_limit: int | None = None,
     multiple_homicide_only: bool = False,
+    max_age_days: int | None = None,
+    now: datetime | None = None,
 ) -> list[Path]:
     """Scan confirmed publications and copy eligible items into the review inbox."""
 
@@ -284,6 +318,8 @@ def scan_new_items(
     processed_count = 0
     for item in validated:
         processed_count += 1
+        if max_age_days is not None and not is_recent_candidate(item, max_age_days, now):
+            continue
         if multiple_homicide_only and not is_multiple_homicide_candidate(item):
             continue
 
@@ -339,6 +375,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Брать только сюжеты с явно указанными двумя или более жертвами убийства.",
     )
+    parser.add_argument(
+        "--max-age-days",
+        type=int,
+        help="Брать только публикации не старше указанного количества суток.",
+    )
     parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--inbox", type=Path, default=DEFAULT_INBOX)
@@ -363,6 +404,7 @@ def main() -> int:
             limit=args.limit,
             scan_limit=args.scan_limit,
             multiple_homicide_only=args.multiple_homicide_only,
+            max_age_days=args.max_age_days,
         )
         if not paths:
             print("Новых подтверждённых публикаций нет.")

@@ -21,6 +21,7 @@ class SiteIntakeWorkflowTests(unittest.TestCase):
         self.assertIn("--limit 1", self.workflow)
         self.assertIn("--scan-limit 25", self.workflow)
         self.assertIn("--multiple-homicide-only", self.workflow)
+        self.assertIn("--max-age-days 7", self.workflow)
         self.assertIn("actions/upload-artifact@v6", self.workflow)
         self.assertIn("site/data/inbox/*.json", self.workflow)
         self.assertLess(

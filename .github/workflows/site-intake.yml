@@ -30,6 +30,7 @@ jobs:
           --limit 1
           --scan-limit 25
           --multiple-homicide-only
+          --max-age-days 7
 
       - name: Upload private review candidate
         uses: actions/upload-artifact@v6
