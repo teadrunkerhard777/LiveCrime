@@ -213,10 +213,13 @@ nav a.active {
 }
 
 .hero-intro h1 {
-  max-width: 780px;
+  max-width: 14ch;
   margin: 32px 0 26px;
-  font-size: clamp(3.15rem, 7.2vw, 5.9rem);
-  font-weight: 760;
+  font-family: "Manrope Variable", sans-serif;
+  font-size: clamp(2.7rem, 5.2vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
 }
 
 .hero-intro > p {
@@ -224,6 +227,7 @@ nav a.active {
   margin: 0;
   color: var(--muted);
   font-size: clamp(1.06rem, 1.8vw, 1.28rem);
+  line-height: 1.72;
 }
 
 .hero-actions {
@@ -242,7 +246,7 @@ nav a.active {
   padding: 12px 18px;
   background: var(--crime);
   color: white;
-  font-weight: 800;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -252,7 +256,7 @@ nav a.active {
 
 .text-action {
   color: var(--crime-dark);
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .featured-register {
@@ -273,13 +277,23 @@ nav a.active {
   font-weight: 800;
 }
 
+.featured-topline,
+.featured-status {
+  font-weight: 650;
+}
+
 .featured-register h2 {
   margin: 22px 0 16px;
-  font-size: clamp(1.65rem, 3vw, 2.65rem);
+  font-family: "Manrope Variable", sans-serif;
+  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
 }
 
 .featured-register > p {
   color: var(--muted);
+  line-height: 1.68;
 }
 
 .featured-register dl {
@@ -297,7 +311,7 @@ nav a.active {
 .facts-ledger dt {
   color: var(--muted);
   font-size: 0.64rem;
-  font-weight: 800;
+  font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -305,13 +319,13 @@ nav a.active {
 .featured-register dd,
 .facts-ledger dd {
   margin: 4px 0 0;
-  font-weight: 750;
+  font-weight: 600;
   line-height: 1.35;
 }
 
 .featured-register > a {
   color: var(--crime-dark);
-  font-weight: 850;
+  font-weight: 650;
 }
 
 .demo-stamp {
@@ -347,6 +361,15 @@ nav a.active {
 .prose-ledger h2 {
   margin: 0;
   font-size: clamp(1.7rem, 3.5vw, 3rem);
+}
+
+.section-title-row h2,
+.topic-grid h2 {
+  font-family: "Manrope Variable", sans-serif;
+  font-size: clamp(1.7rem, 2.8vw, 2.45rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
 }
 
 .section-title-row p {
@@ -393,7 +416,7 @@ nav a.active {
   font-family: "Unbounded Variable", sans-serif;
   font-size: 1.3rem;
   font-variant-numeric: tabular-nums;
-  font-weight: 720;
+  font-weight: 600;
 }
 
 .event-number span {
@@ -408,14 +431,18 @@ nav a.active {
   gap: 8px 20px;
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 650;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .event-copy h2 {
   margin: 12px 0 10px;
-  font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+  font-family: "Manrope Variable", sans-serif;
+  font-size: clamp(1.3rem, 2.2vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
 }
 
 .event-copy h2 a {
@@ -426,6 +453,7 @@ nav a.active {
   max-width: 70ch;
   margin: 0;
   color: var(--muted);
+  line-height: 1.68;
 }
 
 .event-action {
@@ -437,12 +465,12 @@ nav a.active {
 .status-label {
   color: var(--archive-blue);
   font-size: 0.74rem;
-  font-weight: 850;
+  font-weight: 650;
 }
 
 .event-action a {
   color: var(--crime-dark);
-  font-weight: 850;
+  font-weight: 650;
 }
 
 .topic-ledger {
@@ -478,7 +506,7 @@ nav a.active {
   gap: 16px;
   padding: 17px 0;
   border-bottom: 1px solid var(--line-strong);
-  font-weight: 760;
+  font-weight: 600;
 }
 
 .topic-register > span::before {
@@ -1099,7 +1127,7 @@ nav a.active {
 
   .hero-intro h1 {
     margin-top: 26px;
-    font-size: clamp(2.7rem, 14vw, 4rem);
+    font-size: clamp(2.35rem, 11vw, 3.25rem);
   }
 
   .featured-topline,
