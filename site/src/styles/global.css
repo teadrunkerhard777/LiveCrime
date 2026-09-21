@@ -908,7 +908,7 @@ nav a.active {
   list-style: none;
 }
 
-.timeline li {
+.timeline > li {
   display: grid;
   grid-template-columns: 64px 1fr;
   gap: 24px;
@@ -1388,8 +1388,8 @@ nav a.active {
   .content-section,
   .article-content,
   .timeline,
-  .timeline li,
-  .timeline li > div,
+  .timeline > li,
+  .timeline > li > div,
   .event-sidebar,
   .event-sidebar > section,
   .source-sheet,
@@ -1473,7 +1473,7 @@ nav a.active {
     padding-top: 52px;
   }
 
-  .timeline li {
+  .timeline > li {
     grid-template-columns: 42px minmax(0, 1fr);
     gap: 12px;
   }
