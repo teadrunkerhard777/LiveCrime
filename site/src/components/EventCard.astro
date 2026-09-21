@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { EVENT_STATUS_LABELS, formatEventDate, withBase } from "../lib/events";
+import { EVENT_STATUS_LABELS, formatDate, formatEventDate, withBase } from "../lib/events";
 
 interface Props {
   event: CollectionEntry<"events">;
@@ -30,8 +30,13 @@ const registryNumber = String(index + 1).padStart(3, "0");
   )}
   <div class="event-copy">
     <div class="event-meta">
+      <span>
+        Опубликовано <time datetime={event.data.created_at.toISOString()}>
+          {formatDate(event.data.created_at)}
+        </time>
+      </span>
       <time datetime={event.data.event_date}>
-        {formatEventDate(event.data.event_date)}
+        Событие: {formatEventDate(event.data.event_date)}
       </time>
       <span>{place}</span>
     </div>
