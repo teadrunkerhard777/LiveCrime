@@ -26,7 +26,7 @@ def make_item(number: int) -> dict:
         "source": "Тестовый источник",
         "event_fingerprint": {
             "topics": ["homicide"],
-            "tokens": ["пример"],
+            "tokens": ["пример", f"событие-{number}"],
             "locations": ["екатеринбург"],
         },
     }
@@ -52,6 +52,7 @@ class PublishedHistoryImportTests(unittest.TestCase):
 
         self.assertEqual(state["history_cursor"], 2)
         self.assertEqual(state["last_history_url"], history[-1]["url"])
+        self.assertEqual(state["seen_event_keys"], [])
         self.assertFalse(self.inbox_path.exists())
         self.assertEqual(self.history_path.read_bytes(), before)
 
@@ -78,6 +79,7 @@ class PublishedHistoryImportTests(unittest.TestCase):
         self.assertEqual(self.history_path.read_bytes(), before)
         state = json.loads(self.state_path.read_text(encoding="utf-8"))
         self.assertEqual(state["history_cursor"], 2)
+        self.assertEqual(len(state["seen_event_keys"]), 1)
 
     def test_existing_candidate_makes_retry_idempotent(self):
         old_item = make_item(1)
@@ -137,6 +139,83 @@ class PublishedHistoryImportTests(unittest.TestCase):
 
         self.assertEqual(self.state_path.read_bytes(), before_state)
         self.assertFalse(self.inbox_path.exists())
+
+    def test_same_event_fingerprint_creates_only_one_candidate(self):
+        old_item = make_item(1)
+        first_report = make_item(2)
+        second_report = make_item(3)
+        second_report["event_fingerprint"] = first_report["event_fingerprint"]
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, first_report, second_report])
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            limit=2,
+        )
+
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(len(list(self.inbox_path.glob("*.json"))), 1)
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(state["history_cursor"], 3)
+        self.assertEqual(len(state["seen_event_keys"]), 1)
+
+    def test_different_event_fingerprints_create_separate_candidates(self):
+        old_item = make_item(1)
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, make_item(2), make_item(3)])
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            limit=2,
+        )
+
+        self.assertEqual(len(paths), 2)
+        self.assertEqual(len(list(self.inbox_path.glob("*.json"))), 2)
+
+    def test_missing_fingerprint_does_not_merge_different_urls(self):
+        old_item = make_item(1)
+        first_report = make_item(2)
+        second_report = make_item(3)
+        first_report.pop("event_fingerprint")
+        second_report.pop("event_fingerprint")
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, first_report, second_report])
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            limit=2,
+        )
+
+        self.assertEqual(len(paths), 2)
+
+    def test_legacy_state_without_seen_event_keys_remains_valid(self):
+        old_item = make_item(1)
+        new_item = make_item(2)
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        state.pop("seen_event_keys")
+        write_json(self.state_path, state)
+        write_json(self.history_path, [old_item, new_item])
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+        )
+
+        self.assertEqual(len(paths), 1)
+        updated_state = json.loads(self.state_path.read_text(encoding="utf-8"))
+        self.assertEqual(len(updated_state["seen_event_keys"]), 1)
 
 
 if __name__ == "__main__":

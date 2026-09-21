@@ -108,6 +108,39 @@ def _candidate_id(item: dict) -> str:
     return f"{date_prefix}-{url_hash}"
 
 
+def _event_key(item: dict) -> str | None:
+    """Return a stable key only for a complete, trustworthy event fingerprint."""
+
+    fingerprint = item.get("event_fingerprint")
+    if not isinstance(fingerprint, dict):
+        return None
+
+    canonical_fingerprint: dict[str, list[str]] = {}
+    for field in ("topics", "tokens", "locations"):
+        values = fingerprint.get(field)
+        if not isinstance(values, list):
+            return None
+
+        normalized_values = sorted(
+            {
+                value.strip().casefold()
+                for value in values
+                if isinstance(value, str) and value.strip()
+            }
+        )
+        if not normalized_values:
+            return None
+        canonical_fingerprint[field] = normalized_values
+
+    serialized = json.dumps(
+        canonical_fingerprint,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
 def initialize_state(history_path: Path, state_path: Path) -> dict:
     """Record the current history boundary without importing the old archive."""
 
@@ -126,6 +159,7 @@ def initialize_state(history_path: Path, state_path: Path) -> dict:
         "version": STATE_VERSION,
         "history_cursor": len(history),
         "last_history_url": last_url,
+        "seen_event_keys": [],
         "initialized_at": _now_iso(),
         "updated_at": _now_iso(),
     }
@@ -148,6 +182,13 @@ def _load_state(state_path: Path, history: list[dict]) -> dict:
         if boundary_item["url"] != state.get("last_history_url"):
             raise GeneratorError("История изменилась до сохранённой границы; импорт остановлен.")
 
+    seen_event_keys = state.get("seen_event_keys", [])
+    if not isinstance(seen_event_keys, list) or any(
+        not isinstance(key, str) for key in seen_event_keys
+    ):
+        raise GeneratorError("В состоянии генератора некорректный список событий.")
+    state["seen_event_keys"] = seen_event_keys
+
     return state
 
 
@@ -164,6 +205,7 @@ def _candidate_payload(item: dict, candidate_id: str) -> dict:
         "published_at": item.get("published_at"),
         "source": item.get("source"),
         "event_fingerprint": item.get("event_fingerprint"),
+        "event_key": _event_key(item),
         "quality_gate": {
             "publishable": False,
             "reason": "Недостаточно данных для самостоятельной индексируемой страницы.",
@@ -200,24 +242,31 @@ def scan_new_items(
     ]
 
     written_paths: list[Path] = []
+    seen_event_keys = set(state["seen_event_keys"])
     for item in validated:
         candidate_id = _candidate_id(item)
         candidate_path = inbox_path / f"{candidate_id}.json"
+        event_key = _event_key(item)
         if candidate_path.exists():
             existing = _read_json(candidate_path)
             if not isinstance(existing, dict) or existing.get("url") != item["url"]:
                 raise GeneratorError(f"Конфликт файла кандидата: {candidate_path}")
-        else:
+            written_paths.append(candidate_path)
+        elif event_key is None or event_key not in seen_event_keys:
             _atomic_write_json(
                 candidate_path,
                 _candidate_payload(item, candidate_id),
             )
-        written_paths.append(candidate_path)
+            written_paths.append(candidate_path)
+
+        if event_key is not None:
+            seen_event_keys.add(event_key)
 
     if validated:
         new_cursor = cursor + len(validated)
         state["history_cursor"] = new_cursor
         state["last_history_url"] = history[new_cursor - 1]["url"]
+        state["seen_event_keys"] = sorted(seen_event_keys)
         state["updated_at"] = _now_iso()
         _atomic_write_json(state_path, state)
 
