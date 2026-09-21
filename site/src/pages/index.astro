@@ -4,14 +4,13 @@ import EventCard from "../components/EventCard.astro";
 import { CRIME_CHANNELS } from "../config/channels";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { isPublishableEvent } from "../lib/content-quality";
-import { EVENT_STATUS_LABELS, formatDate, formatEventDate, withBase } from "../lib/events";
+import { withBase } from "../lib/events";
 
 const publishableEvents = (await getCollection("events")).filter(isPublishableEvent);
 const realEvents = publishableEvents.filter(({ data }) => !data.demo);
 const events = (realEvents.length ? realEvents : publishableEvents).sort(
   (first, second) => second.data.updated_at.valueOf() - first.data.updated_at.valueOf(),
 );
-const featured = events[0];
 ---
 
 <BaseLayout
@@ -19,10 +18,10 @@ const featured = events[0];
   description="По факту собирает главное о событиях в понятных карточках с источниками, статусами и хронологией обновлений."
   canonicalPath="/"
 >
-  <section class="registry-hero">
-    <div class="shell registry-grid">
-      <div class="hero-intro">
-        <h1>Главное остаётся на своём месте.</h1>
+  <section class="home-intro">
+    <div class="shell home-intro-grid">
+      <h1>Главное остаётся на своём месте.</h1>
+      <div>
         <p>
           Собираем факты, источники и важные обновления одной истории на
           постоянной странице — чтобы к ней можно было вернуться после первой
@@ -32,58 +31,7 @@ const featured = events[0];
           <a class="primary-action" href={withBase("/crime/")}>Открыть криминальный раздел</a>
           <a class="text-action" href={withBase("/about/")}>Как устроен проект</a>
         </div>
-        <ul class="hero-points" aria-label="Что есть в каждой истории">
-          <li><strong>Главное</strong><span>без длинной новостной ленты</span></li>
-          <li><strong>Хронология</strong><span>существенных обновлений</span></li>
-          <li><strong>Источники</strong><span>у фактов и каждого этапа</span></li>
-        </ul>
       </div>
-
-      {featured && (
-        <article class="featured-register">
-          <div class="featured-topline">
-            <span>Запись №001</span>
-            <span>Обновлено {formatDate(featured.data.updated_at)}</span>
-          </div>
-          {featured.data.image && (
-            <figure class="featured-media">
-              <img
-                src={featured.data.image.url}
-                alt={featured.data.image.alt}
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-              />
-              <figcaption>
-                Фото: <a href={featured.data.image.source_url} rel="noopener noreferrer" target="_blank">
-                  {featured.data.image.credit}
-                </a>
-              </figcaption>
-            </figure>
-          )}
-          <div class="featured-status">
-            {EVENT_STATUS_LABELS[featured.data.status]}
-          </div>
-          <h2>{featured.data.title}</h2>
-          <p>{featured.data.summary}</p>
-          <dl>
-            <div>
-              <dt>Дата</dt>
-              <dd>{formatEventDate(featured.data.event_date)}</dd>
-            </div>
-            <div>
-              <dt>Место</dt>
-              <dd>{featured.data.location.locality}</dd>
-            </div>
-            <div>
-              <dt>Источники</dt>
-              <dd>{featured.data.sources.length}</dd>
-            </div>
-          </dl>
-          <a href={withBase(`/crime/${featured.id}/`)}>Перейти к записи</a>
-          {featured.data.demo && <span class="demo-stamp">учебный пример</span>}
-        </article>
-      )}
     </div>
   </section>
 
