@@ -41,6 +41,9 @@ const place = [
 const pageUrl = new URL(withBase(`/crime/${event.id}/`), Astro.site ?? Astro.url).toString();
 const homeUrl = new URL(withBase("/"), Astro.site ?? Astro.url).toString();
 const crimeUrl = new URL(withBase("/crime/"), Astro.site ?? Astro.url).toString();
+const sourceNameByUrl = new Map(event.data.sources.map((source) => [source.url, source.name]));
+const sourceName = (url: string) =>
+  sourceNameByUrl.get(url) ?? new URL(url).hostname.replace(/^www\./, "");
 const structuredData = event.data.demo ? undefined : [
   {
     "@context": "https://schema.org",
@@ -163,6 +166,18 @@ const structuredData = event.data.demo ? undefined : [
                   <time datetime={update.date}>{formatEventDate(update.date)}</time>
                   <h3>{update.title}</h3>
                   <p>{update.summary}</p>
+                  <div class="timeline-sources">
+                    <span>{update.source_urls.length === 1 ? "Источник" : "Источники"}:</span>
+                    <ul>
+                      {update.source_urls.map((url) => (
+                        <li>
+                          <a href={url} rel="noopener noreferrer" target="_blank">
+                            {sourceName(url)}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </li>
             ))}

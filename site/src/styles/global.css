@@ -918,6 +918,34 @@ nav a.active {
   line-height: 1.7;
 }
 
+.timeline-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  margin-top: 14px;
+  font-size: 0.78rem;
+}
+
+.timeline-sources > span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.timeline-sources ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-sources a {
+  color: var(--crime-dark);
+  font-weight: 650;
+}
+
 .event-sidebar {
   display: grid;
   align-content: start;
