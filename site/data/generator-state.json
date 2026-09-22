@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "history_cursor": 567,
-  "last_history_url": "https://peterburgmedia.ru/news/2627952/",
+  "history_cursor": 570,
+  "last_history_url": "https://www.mk.ru/incident/2026/09/22/tayfun-duczyuan-ubil-dvukh-chelovek-i-obestochil-50-tysyach-domov.html",
   "initialized_at": "2026-09-20T13:03:42.288098+00:00",
-  "updated_at": "2026-09-21T18:53:03.194282+00:00",
+  "updated_at": "2026-09-22T12:35:09.737602+00:00",
   "seen_event_keys": [
     "1feb42422ac3a46c9721fc4cca8ab269df89da4cdfca61685d9e07003da1cc2c",
     "44c3d0926983b616112757248d3efcde4e66c2673927f28fcdb0ce402ce1da73",
+    "5b5b263399c8892711133eddfae7e7a3f361eb1658db3428b41136db941fbd2c",
     "6cb5ac85897282bd005d09d1a4c11be4fdd32a88a3523b2ad4834ebb99b8095a"
   ]
 }
