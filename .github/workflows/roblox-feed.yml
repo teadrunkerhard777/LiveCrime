@@ -38,7 +38,7 @@ jobs:
       - name: Save new Roblox posts
         shell: bash
         run: |
-          if git diff --quiet -- site/src/content/roblox; then
+          if [ -z "$(git status --porcelain -- site/src/content/roblox)" ]; then
             echo "No new Roblox photo posts."
             exit 0
           fi
