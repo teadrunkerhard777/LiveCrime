@@ -8,3 +8,8 @@ export const CRIME_CHANNELS = {
     url: "https://max.ru/channel_truecrime_news",
   },
 } as const;
+
+export const ROBLOX_CHANNEL = {
+  label: "Roblox Hub",
+  url: "https://t.me/RobloxHubRU",
+} as const;

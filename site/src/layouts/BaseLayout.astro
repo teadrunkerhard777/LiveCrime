@@ -2,7 +2,7 @@
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/unbounded";
 import "../styles/global.css";
-import { CRIME_CHANNELS } from "../config/channels";
+import { CRIME_CHANNELS, ROBLOX_CHANNEL } from "../config/channels";
 import { withBase } from "../lib/events";
 
 interface Props {
@@ -27,6 +27,7 @@ const {
   structuredData,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
+const isRoblox = currentPath.includes("/roblox");
 const canonical = canonicalPath
   ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
   : undefined;
@@ -80,6 +81,10 @@ const resolvedSocialImage = socialImage
             href={withBase("/crime/")}
           >Криминал</a>
           <a
+            class:list={{ active: isRoblox }}
+            href={withBase("/roblox/")}
+          >Roblox</a>
+          <a
             class:list={{ active: currentPath.includes("/about") }}
             href={withBase("/about/")}
           >О проекте</a>
@@ -97,22 +102,34 @@ const resolvedSocialImage = socialImage
           <strong>По факту</strong>
           <span>События, источники и обновления.</span>
         </div>
-        <p>
-          Публикация информации о расследовании не означает доказанную
-          виновность упомянутых лиц.
-        </p>
+        {isRoblox ? (
+          <p>Публикации перенесены из публичного канала Roblox Hub без пересказа.</p>
+        ) : (
+          <p>
+            Публикация информации о расследовании не означает доказанную
+            виновность упомянутых лиц.
+          </p>
+        )}
         <div class="footer-follow">
           <p class="footer-status">
-            Пилотное направление: <strong>Криминал</strong>
+            Раздел: <strong>{isRoblox ? "Roblox" : "Криминал"}</strong>
           </p>
-          <div class="footer-channels" aria-label="Каналы криминального направления">
-            <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
-              Telegram
-            </a>
-            <a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">
-              MAX
-            </a>
-          </div>
+          {isRoblox ? (
+            <div class="footer-channels" aria-label="Канал Roblox">
+              <a href={ROBLOX_CHANNEL.url} rel="noopener noreferrer" target="_blank">
+                Telegram
+              </a>
+            </div>
+          ) : (
+            <div class="footer-channels" aria-label="Каналы криминального направления">
+              <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
+                Telegram
+              </a>
+              <a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">
+                MAX
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </footer>
