@@ -7,9 +7,10 @@ WORKFLOW = (PROJECT_ROOT / ".github/workflows/roblox-feed.yml").read_text(encodi
 
 
 class RobloxFeedWorkflowTests(unittest.TestCase):
-    def test_feed_runs_twice_hourly_and_can_run_manually(self):
+    def test_feed_runs_once_in_the_evening_and_can_run_manually(self):
         self.assertIn("workflow_dispatch:", WORKFLOW)
-        self.assertIn('cron: "7,37 * * * *"', WORKFLOW)
+        self.assertIn('cron: "0 15 * * *"', WORKFLOW)
+        self.assertNotIn('cron: "7,37 * * * *"', WORKFLOW)
         self.assertIn("cancel-in-progress: false", WORKFLOW)
 
     def test_feed_imports_public_channel_without_telegram_secrets(self):

@@ -3,8 +3,8 @@ name: Roblox Site Feed
 on:
   workflow_dispatch:
   schedule:
-    # Проверяем публичную ленту дважды в час.
-    - cron: "7,37 * * * *"
+    # Один вечерний запуск: 20:00 по Екатеринбургу (15:00 UTC).
+    - cron: "0 15 * * *"
 
 permissions:
   contents: write
