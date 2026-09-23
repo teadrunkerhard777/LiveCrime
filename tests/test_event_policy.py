@@ -112,6 +112,14 @@ class StaleEventPolicyTests(unittest.TestCase):
             "совершенных в 2002 году"
         ))
 
+    def test_real_furgal_associate_search_about_2004_murder_is_rejected(self):
+        self.assert_rejected_stale(make_news(
+            "Россия объявила в розыск соратника Фургала",
+            "Россия объявила в международный розыск Михаила Тимофеева. "
+            "Его подозревают в организации убийства предпринимателя "
+            "Евгения Зори в 2004 году. По этому делу Фургал уже осуждён.",
+        ))
+
     def test_old_crime_with_fresh_sentence_is_rejected(self):
         self.assert_rejected_stale(make_news(
             "Суд вынес свежий приговор",
