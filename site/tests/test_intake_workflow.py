@@ -39,6 +39,14 @@ class SiteIntakeWorkflowTests(unittest.TestCase):
         self.assertIn('git rebase "origin/${GITHUB_REF_NAME}"', self.workflow)
         self.assertNotIn("--force", self.workflow)
 
+    def test_workflow_builds_and_deploys_the_latest_site(self):
+        self.assertIn("pages: write", self.workflow)
+        self.assertIn("id-token: write", self.workflow)
+        self.assertIn("needs: publish-card", self.workflow)
+        self.assertIn("withastro/action@v6", self.workflow)
+        self.assertIn("actions/deploy-pages@v5", self.workflow)
+        self.assertIn("ref: ${{ github.ref_name }}", self.workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

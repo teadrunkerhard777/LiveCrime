@@ -10,6 +10,8 @@ on:
 # Telegram secrets этому workflow не передаются.
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: site-daily-publication
@@ -62,3 +64,37 @@ jobs:
 
           echo "Failed to persist site publication after 3 attempts."
           exit 1
+
+  build-site:
+    needs: publish-card
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout latest repository state
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Test independent site intake
+        run: python3 -m unittest discover -s site/tests -t site -v
+
+      - name: Build and upload Astro site
+        uses: withastro/action@v6
+        with:
+          path: site
+          node-version: 24
+        env:
+          SITE_URL: "https://teadrunkerhard777.github.io"
+          BASE_PATH: "/LiveCrime"
+
+  deploy-site:
+    needs: build-site
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
