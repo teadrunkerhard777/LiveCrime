@@ -36,7 +36,8 @@ const registryNumber = String(index + 1).padStart(3, "0");
         </time>
       </span>
       <time datetime={event.data.event_date}>
-        Событие: {formatEventDate(event.data.event_date)}
+        {event.data.date_basis === "source_publication" ? "Источник" : "Событие"}:
+        {formatEventDate(event.data.event_date)}
       </time>
       <span>{place}</span>
     </div>

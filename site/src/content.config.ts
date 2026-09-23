@@ -39,6 +39,7 @@ const events = defineCollection({
     title: z.string().min(10),
     summary: z.string().min(40),
     event_date: displayDateSchema,
+    date_basis: z.enum(["event", "source_publication"]).default("event"),
     location: z.object({
       country: z.string().min(1),
       region: z.string().min(1),
@@ -61,6 +62,7 @@ const events = defineCollection({
       "convicted",
       "acquitted",
       "case_closed",
+      "not_assessed",
     ]),
     created_at: z.coerce.date(),
     updated_at: z.coerce.date(),

@@ -1,4 +1,4 @@
-"""Import confirmed LiveCrime publications into the site's review inbox.
+"""Import confirmed LiveCrime publications into the site.
 
 This module is intentionally read-only with respect to the autoposter. It never
 writes to ``storage/published.json`` and it never calls Telegram or news sites.
@@ -43,6 +43,13 @@ EXPLICIT_MULTIPLE_VICTIMS = re.compile(
     re.IGNORECASE,
 )
 CONTENT_SOURCE_URL = re.compile(r'^\s+url:\s*["\']?(https?://[^"\'\s]+)', re.MULTILINE)
+STALE_EVENT_TITLE = re.compile(
+    r"\b(?:убийств|преступлен)[а-яё-]*[^.!?]{0,80}"
+    r"(?:\d{1,3}[- ]?летн[а-яё-]*\s+давност[а-яё-]*|"
+    r"\d{1,3}\s+(?:лет|год[а-яё-]*)\s+(?:назад|давност[а-яё-]*))",
+    re.IGNORECASE,
+)
+ROUNDUP_TITLE = re.compile(r"\b(?:картина|итоги|обзор)\s+(?:дня|недели)\b", re.IGNORECASE)
 
 
 class GeneratorError(RuntimeError):
@@ -74,6 +81,30 @@ def _atomic_write_json(path: Path, payload: object) -> None:
         ) as temporary_file:
             json.dump(payload, temporary_file, ensure_ascii=False, indent=2)
             temporary_file.write("\n")
+            temporary_file.flush()
+            os.fsync(temporary_file.fileno())
+            temporary_path = Path(temporary_file.name)
+
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path and temporary_path.exists():
+            temporary_path.unlink()
+
+
+def _atomic_write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path: Path | None = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary_file:
+            temporary_file.write(content)
             temporary_file.flush()
             os.fsync(temporary_file.fileno())
             temporary_path = Path(temporary_file.name)
@@ -226,6 +257,15 @@ def is_recent_candidate(
     return timedelta(0) <= age <= timedelta(days=max_age_days)
 
 
+def is_current_event_candidate(item: dict) -> bool:
+    """Reject headlines that explicitly describe an old event or a roundup."""
+
+    title = item.get("title")
+    if not isinstance(title, str):
+        return False
+    return not STALE_EVENT_TITLE.search(title) and not ROUNDUP_TITLE.search(title)
+
+
 def initialize_state(history_path: Path, state_path: Path) -> dict:
     """Record the current history boundary without importing the old archive."""
 
@@ -306,6 +346,64 @@ def _candidate_payload(item: dict, candidate_id: str) -> dict:
     }
 
 
+def _yaml_string(value: str) -> str:
+    """Encode a scalar as a JSON string, which is also valid YAML."""
+
+    return json.dumps(value, ensure_ascii=False)
+
+
+def _automatic_event_content(item: dict, event_id: str) -> str:
+    published_at = datetime.fromisoformat(item["published_at"].replace("Z", "+00:00"))
+    publication_date = published_at.date().isoformat()
+    source = (item.get("source") or urlparse(item["url"]).netloc).strip()
+    title = item["title"].strip()
+    summary = (
+        f"Источник «{source}» опубликовал сообщение: «{title}». "
+        "В карточке сохранены дата публикации и прямая ссылка на исходный материал."
+    )
+    body = (
+        f"{summary}\n\n"
+        "Карточка создана автоматически по подтверждённой публикации LiveCrime. "
+        "Она не добавляет обстоятельств, которых нет в сохранённых данных, и ведёт "
+        "к первоисточнику для ознакомления с подробностями.\n"
+    )
+    now = _now_iso()
+
+    return f"""---
+event_id: {_yaml_string(event_id)}
+section: "crime"
+publication_status: "ready"
+title: {_yaml_string(title)}
+summary: {_yaml_string(summary)}
+event_date: {_yaml_string(publication_date)}
+date_basis: "source_publication"
+location:
+  country: "Не указано"
+  region: "Не указано"
+  locality: "Место уточняется"
+status: "reported"
+legal_status: "not_assessed"
+created_at: {_yaml_string(now)}
+updated_at: {_yaml_string(now)}
+topics:
+  - "убийство двух и более человек"
+sources:
+  - name: {_yaml_string(source)}
+    url: {_yaml_string(item["url"].strip())}
+    published_at: {_yaml_string(item["published_at"].strip())}
+updates:
+  - date: {_yaml_string(publication_date)}
+    title: "Опубликовано сообщение источника"
+    summary: {_yaml_string(summary)}
+    source_urls:
+      - {_yaml_string(item["url"].strip())}
+related_events: []
+demo: false
+---
+
+{body}"""
+
+
 def scan_new_items(
     history_path: Path,
     state_path: Path,
@@ -316,8 +414,10 @@ def scan_new_items(
     max_age_days: int | None = None,
     now: datetime | None = None,
     content_path: Path = DEFAULT_CONTENT,
+    publish: bool = False,
+    current_event_only: bool = False,
 ) -> list[Path]:
-    """Scan confirmed publications and copy eligible items into the review inbox."""
+    """Scan confirmed publications and create review files or public cards."""
 
     if limit < 1 or limit > 10:
         raise GeneratorError("Лимит одного запуска должен быть от 1 до 10.")
@@ -348,22 +448,38 @@ def scan_new_items(
             continue
         if max_age_days is not None and not is_recent_candidate(item, max_age_days, now):
             continue
+        if current_event_only and not is_current_event_candidate(item):
+            continue
         if multiple_homicide_only and not is_multiple_homicide_candidate(item):
             continue
 
         candidate_id = _candidate_id(item)
-        candidate_path = inbox_path / f"{candidate_id}.json"
-        if candidate_path.exists():
-            existing = _read_json(candidate_path)
-            if not isinstance(existing, dict) or existing.get("url") != item["url"]:
-                raise GeneratorError(f"Конфликт файла кандидата: {candidate_path}")
-            written_paths.append(candidate_path)
+        output_path = (
+            content_path / f"{candidate_id}.md"
+            if publish
+            else inbox_path / f"{candidate_id}.json"
+        )
+        if output_path.exists():
+            if publish:
+                if item["url"] not in output_path.read_text(encoding="utf-8"):
+                    raise GeneratorError(f"Конфликт файла карточки: {output_path}")
+            else:
+                existing = _read_json(output_path)
+                if not isinstance(existing, dict) or existing.get("url") != item["url"]:
+                    raise GeneratorError(f"Конфликт файла кандидата: {output_path}")
+            written_paths.append(output_path)
         elif event_key is None or event_key not in seen_event_keys:
-            _atomic_write_json(
-                candidate_path,
-                _candidate_payload(item, candidate_id),
-            )
-            written_paths.append(candidate_path)
+            if publish:
+                _atomic_write_text(
+                    output_path,
+                    _automatic_event_content(item, candidate_id),
+                )
+            else:
+                _atomic_write_json(
+                    output_path,
+                    _candidate_payload(item, candidate_id),
+                )
+            written_paths.append(output_path)
 
         if event_key is not None:
             seen_event_keys.add(event_key)
@@ -411,6 +527,16 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--inbox", type=Path, default=DEFAULT_INBOX)
     parser.add_argument("--content", type=Path, default=DEFAULT_CONTENT)
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="Сразу создать готовую карточку сайта без ручной проверки.",
+    )
+    parser.add_argument(
+        "--current-event-only",
+        action="store_true",
+        help="Не публиковать явно старые события и новостные дайджесты.",
+    )
     return parser
 
 
@@ -434,12 +560,17 @@ def main() -> int:
             multiple_homicide_only=args.multiple_homicide_only,
             max_age_days=args.max_age_days,
             content_path=args.content,
+            publish=args.publish,
+            current_event_only=args.current_event_only,
         )
         if not paths:
             print("Новых подтверждённых публикаций нет.")
         else:
             for path in paths:
-                print(f"Кандидат ожидает проверки: {path}")
+                if args.publish:
+                    print(f"Карточка опубликована: {path}")
+                else:
+                    print(f"Кандидат ожидает проверки: {path}")
         return 0
     except GeneratorError as error:
         print(f"Импорт остановлен: {error}")

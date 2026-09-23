@@ -16,26 +16,28 @@ class SiteIntakeWorkflowTests(unittest.TestCase):
         self.assertIn('cron: "17 7 * * *"', self.workflow)
         self.assertIn("cancel-in-progress: false", self.workflow)
 
-    def test_workflow_prepares_only_one_private_candidate(self):
+    def test_workflow_publishes_only_one_card(self):
         self.assertIn("generator.import_published", self.workflow)
         self.assertIn("--limit 1", self.workflow)
         self.assertIn("--scan-limit 25", self.workflow)
         self.assertIn("--multiple-homicide-only", self.workflow)
         self.assertIn("--max-age-days 7", self.workflow)
-        self.assertIn("actions/upload-artifact@v6", self.workflow)
-        self.assertIn("site/data/inbox/*.json", self.workflow)
-        self.assertLess(
-            self.workflow.index("Upload private review candidate"),
-            self.workflow.index("Save site intake boundary"),
-        )
+        self.assertIn("--current-event-only", self.workflow)
+        self.assertIn("--publish", self.workflow)
+        self.assertNotIn("actions/upload-artifact", self.workflow)
 
-    def test_workflow_commits_only_site_state(self):
+    def test_workflow_commits_only_site_state_and_cards(self):
         self.assertIn("contents: write", self.workflow)
-        self.assertIn("git add site/data/generator-state.json", self.workflow)
+        self.assertIn(
+            "git add site/data/generator-state.json site/src/content/events",
+            self.workflow,
+        )
         self.assertNotIn("git add storage/published.json", self.workflow)
         self.assertNotIn("python main.py", self.workflow)
         self.assertNotIn("TELEGRAM_BOT_TOKEN", self.workflow)
         self.assertNotIn("TELEGRAM_CHAT_ID", self.workflow)
+        self.assertIn('git rebase "origin/${GITHUB_REF_NAME}"', self.workflow)
+        self.assertNotIn("--force", self.workflow)
 
 
 if __name__ == "__main__":

@@ -127,7 +127,7 @@ const structuredData = event.data.demo ? undefined : [
       )}
       <dl class="facts-ledger">
         <div>
-          <dt>Дата события</dt>
+          <dt>{event.data.date_basis === "source_publication" ? "Дата публикации источника" : "Дата события"}</dt>
           <dd>{formatEventDate(event.data.event_date)}</dd>
         </div>
         <div>

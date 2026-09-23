@@ -16,6 +16,7 @@ export const LEGAL_STATUS_LABELS = {
   convicted: "Лицо признано виновным судом",
   acquitted: "Лицо оправдано судом",
   case_closed: "Дело прекращено",
+  not_assessed: "Статус указан в первоисточнике",
 } as const;
 
 export function formatDate(date: Date) {

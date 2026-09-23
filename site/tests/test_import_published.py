@@ -7,6 +7,7 @@ from pathlib import Path
 from generator.import_published import (
     GeneratorError,
     initialize_state,
+    is_current_event_candidate,
     is_multiple_homicide_candidate,
     is_recent_candidate,
     scan_new_items,
@@ -383,6 +384,45 @@ class PublishedHistoryImportTests(unittest.TestCase):
         state = json.loads(self.state_path.read_text(encoding="utf-8"))
         self.assertEqual(state["history_cursor"], 2)
         self.assertEqual(len(state["seen_event_keys"]), 1)
+
+    def test_publish_mode_creates_ready_event_without_review_file(self):
+        old_item = make_item(1)
+        new_item = make_item(20)
+        new_item["title"] = "Мужчину обвинили в убийстве трех человек"
+        write_json(self.history_path, [old_item])
+        initialize_state(self.history_path, self.state_path)
+        write_json(self.history_path, [old_item, new_item])
+
+        paths = scan_new_items(
+            self.history_path,
+            self.state_path,
+            self.inbox_path,
+            multiple_homicide_only=True,
+            max_age_days=7,
+            now=datetime(2026, 9, 21, 12, 0, tzinfo=timezone.utc),
+            content_path=self.content_path,
+            publish=True,
+        )
+
+        self.assertEqual(len(paths), 1)
+        content = paths[0].read_text(encoding="utf-8")
+        self.assertIn('publication_status: "ready"', content)
+        self.assertIn('date_basis: "source_publication"', content)
+        self.assertIn('legal_status: "not_assessed"', content)
+        self.assertIn(new_item["url"], content)
+        self.assertFalse(self.inbox_path.exists())
+
+    def test_current_event_filter_rejects_old_events_and_roundups(self):
+        stale = make_item(20)
+        stale["title"] = "В Приморье раскрыли двойное убийство 23-летней давности"
+        roundup = make_item(20)
+        roundup["title"] = "Двойное убийство и другие события: картина дня"
+        current = make_item(20)
+        current["title"] = "В результате нападения погибли три человека"
+
+        self.assertFalse(is_current_event_candidate(stale))
+        self.assertFalse(is_current_event_candidate(roundup))
+        self.assertTrue(is_current_event_candidate(current))
 
 
 if __name__ == "__main__":
