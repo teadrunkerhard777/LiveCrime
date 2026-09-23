@@ -16,6 +16,7 @@ from config import (
     DRY_RUN,
     EXCLUDE_KEYWORDS,
     MAX_NEWS_PER_RUN,
+    MAX_EVENT_AGE_DAYS,
     MIN_PUBLICATION_SCORE,
     NEWS_LOOKBACK_DAYS,
     POST_MODE,
@@ -30,6 +31,7 @@ from processing.filters import (
     calculate_score,
     filter_by_date,
     filter_by_minimum_score,
+    filter_by_event_policy,
     filter_by_topics,
     sort_by_score,
 )
@@ -592,7 +594,11 @@ def run():
     # Загружаем hard-filter кандидатов до дедупликации; выбранная статья
     # затем использует уже сохранённые article_text/image_url без повтора.
     load_selected_article_text(ranked_news)
-    unique_news = remove_duplicates(ranked_news, debug=DRY_RUN)
+    editorial_news = filter_by_event_policy(
+        ranked_news,
+        MAX_EVENT_AGE_DAYS,
+    )
+    unique_news = remove_duplicates(editorial_news, debug=DRY_RUN)
     history = load_history()
 
     # В DRY_RUN история не ограничивает повторные тесты.
@@ -613,6 +619,20 @@ def run():
         "После MIN_PUBLICATION_SCORE "
         f"({MIN_PUBLICATION_SCORE}): {len(publication_news)}"
     )
+    attempt_rejections = sum(
+        item.get("event_policy_rejection") == "standalone_attempt"
+        for item in ranked_news
+    )
+    stale_rejections = sum(
+        item.get("event_policy_rejection") == "stale_event"
+        for item in ranked_news
+    )
+    print(f"Исключено standalone attempts: {attempt_rejections}")
+    print(f"Исключено stale events: {stale_rejections}")
+    print(
+        f"После event freshness policy ({MAX_EVENT_AGE_DAYS} дней): "
+        f"{len(editorial_news)}"
+    )
     print(f"После удаления дублей: {len(unique_news)}")
     print(f"Новых новостей: {len(new_news)}")
     print(f"Выбрано для публикации: {len(selected_news)}")
@@ -622,7 +642,13 @@ def run():
 
     # В безопасном режиме показываем только несколько полезных отказов.
     if DRY_RUN:
-        print_ranked_diagnostics(ranked_news)
+        print_ranked_diagnostics(editorial_news)
+        for news_item in ranked_news:
+            if news_item.get("event_policy_rejection"):
+                print("EVENT POLICY REJECTED:")
+                print(f"Заголовок: {news_item['title']}")
+                print(f"Причина: {news_item['rejection_reason']}")
+                print()
         print_rejected_diagnostics(fresh_news, SCORE_RULES)
 
     history_changed = publish_selected_news(

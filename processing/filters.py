@@ -5,6 +5,36 @@ from datetime import datetime, timedelta, timezone
 CONTEXTUAL_SCORE_BONUS_LIMIT = 3
 
 
+# Эти формулировки явно описывают незавершённое преступление.
+# Одно слово "покушение" не блокируем: рядом может быть завершённое убийство.
+ATTEMPT_PATTERNS = (
+    r"\bпокуш\w*\s+(?:на\s+)?(?:совершени\w*\s+)?(?:убийств\w*|изнасилован\w*|насильственн\w+\s+действ\w+\s+сексуальн\w+\s+характер\w*)",
+    r"\bпопыт\w*\s+(?:совершени\w*\s+)?(?:убийств\w*|изнасилован\w*|насильственн\w+\s+действ\w+\s+сексуальн\w+\s+характер\w*)",
+    r"\bпытал(?:ся|ась|ись)\s+(?:совершить\s+)?(?:убить|изнасиловать)",
+    r"\b(?:обвиня\w*|осужд\w*|приговор\w*|предъяв\w*\s+обвинен\w*)[^.!?\n]{0,40}\bпокуш\w*",
+    r"\bч\.?\s*3\s+ст\.?\s*30\s+ук\s+рф\b",
+)
+
+# Завершённое hard-событие сохраняет материал, даже если рядом описано
+# покушение на ещё одного потерпевшего.
+COMPLETED_HARD_EVENT_PATTERNS = (
+    r"\bубил(?:а|и)?\b",
+    r"\bубит(?!ь)(?:а|о|ы)?\b",
+    r"\bизнасиловал(?:а|и)?\b",
+    r"\bизнасилован(?:а|о|ы)?\b",
+    r"\b(?:за|рас)стрелил(?:а|и)?\b",
+    r"\b(?:за|рас)стрелян(?:а|о|ы)?\b",
+    r"\b(?:совершил\w*|произошл\w*|раскрыл\w*|расследу\w*)[^.!?\n]{0,40}\b(?:убийств\w*|изнасилован\w*)\b",
+    r"\b(?:самоубий\w*|суицид\w*|покончил(?:а)?\s+с\s+собой)\b",
+    r"\b(?:нападен\w*|стрельб\w*|избиен\w*|избит\w*)[^.!?\n]{0,100}\b(?:погиб\w*|скончал\w*|умер(?:ла|ли)?|до\s+смерти)\b",
+    r"\b(?:погиб\w*|скончал\w*|умер(?:ла|ли)?)\b[^.!?\n]{0,100}\b(?:нападен\w*|стрельб\w*|избиен\w*|избит\w*)\b",
+)
+
+HARD_EVENT_WORD_PATTERN = (
+    r"(?:убийств\w*|изнасилован\w*|самоубийств\w*|суицид\w*|"
+    r"застрел\w*|расстрел\w*|преступлен\w*)"
+)
+
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
@@ -46,6 +76,119 @@ def filter_by_date(news_items, lookback_days):
             fresh_news.append(news_item)
 
     return fresh_news
+
+
+def _contains_standalone_attempt(full_text):
+    """Отличает самостоятельное покушение от завершённого hard-события."""
+
+    has_attempt = any(
+        re.search(pattern, full_text, re.IGNORECASE)
+        for pattern in ATTEMPT_PATTERNS
+    )
+    has_completed_event = any(
+        re.search(pattern, full_text, re.IGNORECASE)
+        for pattern in COMPLETED_HARD_EVENT_PATTERNS
+    )
+    return has_attempt and not has_completed_event
+
+
+def _explicit_old_event_year(full_text, published_at, max_age_days):
+    """Возвращает год, только если старый год явно относится к hard-event."""
+
+    if published_at is None:
+        return None
+
+    event_year_patterns = (
+        rf"\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,100}}\b((?:19|20)\d{{2}})\s+год",
+        rf"\b(?:дел\w*\s+(?:об?|по)|раскрыл\w*|расследу\w*)[^.!?\n]{{0,60}}\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,50}}\b((?:19|20)\d{{2}})\s+год",
+        rf"\b(?:убил\w*|изнасиловал\w*)[^.!?\n]{{0,100}}\b((?:19|20)\d{{2}})\s+год",
+        rf"\bпреступлен\w*[^.!?\n]{{0,50}}\b(?:совершен\w*|произошл\w*)[^.!?\n]{{0,40}}\b((?:19|20)\d{{2}})\s+год",
+    )
+
+    for pattern in event_year_patterns:
+        match = re.search(pattern, full_text, re.IGNORECASE)
+        if not match:
+            continue
+
+        event_year = int(match.group(1))
+        # Для одного года берём самый поздний возможный день. Так материал
+        # отклоняется лишь тогда, когда событие точно старше порога.
+        latest_possible_event = datetime(
+            event_year, 12, 31, tzinfo=published_at.tzinfo or timezone.utc
+        )
+        if published_at - latest_possible_event > timedelta(days=max_age_days):
+            return event_year
+
+    return None
+
+
+def _has_explicit_old_event_age(full_text, max_age_days):
+    """Распознаёт явную многолетнюю давность рядом с преступлением."""
+
+    age_patterns = (
+        rf"\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,80}}\b(\d{{1,3}})(?:[- ]?летн\w*\s+давност\w*|\s+лет\s+назад|\s+год\w*\s+назад|\s+год\w*\s+давност\w*)",
+        rf"\bспустя\s+(\d{{1,3}})\s+(?:лет|год\w*)[^.!?\n]{{0,60}}\b{HARD_EVENT_WORD_PATTERN}",
+    )
+    minimum_old_years = max_age_days / 365
+
+    for pattern in age_patterns:
+        match = re.search(pattern, full_text, re.IGNORECASE)
+        if match and int(match.group(1)) > minimum_old_years:
+            return int(match.group(1))
+
+    # Частая редакционная форма без цифр: "убийство двадцатилетней давности".
+    word_age_pattern = (
+        rf"\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,80}}\b"
+        r"(?:десяти|двадцати|тридцати|сорока|пятидесяти)летн\w*\s+давност\w*"
+    )
+    if re.search(word_age_pattern, full_text, re.IGNORECASE):
+        return "many"
+
+    return None
+
+
+def filter_by_event_policy(news_items, max_event_age_days):
+    """Исключает standalone-покушения и явно старые hard-события."""
+
+    filtered_news = []
+
+    for news_item in news_items:
+        # После article loading все признаки читаются из того же news_item.
+        full_text = " ".join(
+            str(news_item.get(field, ""))
+            for field in ("title", "description", "article_text")
+        ).casefold()
+
+        rejection = None
+        if _contains_standalone_attempt(full_text):
+            rejection = "standalone_attempt"
+            reason = "attempt without a completed hard event"
+        else:
+            old_year = _explicit_old_event_year(
+                full_text,
+                news_item.get("published_at"),
+                max_event_age_days,
+            )
+            old_age = _has_explicit_old_event_age(
+                full_text,
+                max_event_age_days,
+            )
+            if old_year is not None:
+                rejection = "stale_event"
+                reason = f"hard event explicitly tied to year {old_year}"
+            elif old_age is not None:
+                rejection = "stale_event"
+                reason = f"hard event explicitly described as {old_age} years old"
+
+        news_item["event_policy_passed"] = rejection is None
+        news_item["event_policy_rejection"] = rejection
+
+        if rejection is None:
+            filtered_news.append(news_item)
+        else:
+            news_item["rejection_reason"] = reason
+
+    return filtered_news
 
 
 def filter_by_topics(

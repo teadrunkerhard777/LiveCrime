@@ -51,12 +51,13 @@ The current `main.py` order is:
 6. Add scores and require `MIN_PUBLICATION_SCORE`.
 7. Rank candidates by score, preserving source order for ties.
 8. Fetch article HTML once per ranked candidate and attach both `article_text` and `image_url`.
-9. Run URL, title, and cross-source event deduplication in `remove_duplicates()`.
-10. Load history; bypass its selection restriction only in `DRY_RUN`.
-11. Slice `selected_news` to `MAX_NEWS_PER_RUN`.
-12. Generate exactly one independent post per selected item.
-13. Publish or print the post according to `DRY_RUN`.
-14. Add only confirmed publications to history and save history once if it changed.
+9. Reject standalone attempts and explicitly stale hard events using the loaded article text.
+10. Run URL, title, and cross-source event deduplication in `remove_duplicates()`.
+11. Load history; bypass its selection restriction only in `DRY_RUN`.
+12. Slice `selected_news` to `MAX_NEWS_PER_RUN`.
+13. Generate exactly one independent post per selected item.
+14. Publish or print the post according to `DRY_RUN`.
+15. Add only confirmed publications to history and save history once if it changed.
 
 - Do not move article loading after event dedup without redesigning that algorithm: event comparison uses the beginning of `article_text`.
 - Do not silently reorder filter, score, ranking, deduplication, history, selection, and publication stages.
@@ -89,6 +90,8 @@ The current `main.py` order is:
 - The special `убит` guard must not turn the infinitive `убить` into a completed homicide.
 - `matched_topics`, `strong_topics`, `contextual_topics`, `admission_reason`, and `rejection_reason` are diagnostic contracts; preserve them.
 - Score cannot compensate for failure of the hard filter.
+- A standalone attempted crime is rejected unless the same story contains a completed hard event.
+- An explicitly old hard event is rejected when it exceeds `MAX_EVENT_AGE_DAYS`; an unknown event date remains eligible.
 - `MIN_PUBLICATION_SCORE = 4`.
 - Contextual score bonus is capped at 3.
 - Do not change strong topics, conditional topics, severe outcomes, exclusions, scoring, or threshold in an unrelated task.
