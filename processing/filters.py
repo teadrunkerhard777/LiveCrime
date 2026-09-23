@@ -35,6 +35,27 @@ HARD_EVENT_WORD_PATTERN = (
     r"застрел\w*|расстрел\w*|преступлен\w*)"
 )
 
+# Животные могут быть участниками происшествия, но это не true crime.
+# Проверяем только явную связь животного с убийством, ранением или гибелью,
+# а не запрещаем любое случайное упоминание животного в статье.
+ANIMAL_PATTERN = (
+    r"(?:медвед\w*|волк\w*|собак\w*|тигр\w*|леопард\w*|"
+    r"кабан\w*|звер\w*|животн\w*|хищник\w*)"
+)
+ANIMAL_OBJECT_MODIFIER_PATTERN = (
+    r"(?:(?:одн\w*|дв\w*|тр\w*|четыр\w*|пят\w*|шест\w*|"
+    r"дик\w*|бур\w*|бездомн\w*|опасн\w*|агрессивн\w*)\s+){0,2}"
+)
+ANIMAL_EVENT_PATTERNS = (
+    # Животное прямо убило человека или смертельно напало на него.
+    rf"\b{ANIMAL_PATTERN}\b[^.!?\n]{{0,80}}\b(?:убил\w*|загрыз\w*|растерзал\w*|смертельно\s+напал\w*)\b",
+    rf"\b(?:нападен\w*|атак\w*)\s+{ANIMAL_PATTERN}\b[^.!?\n]{{0,100}}\b(?:погиб\w*|скончал\w*|умер\w*)\b",
+    rf"\b(?:погиб\w*|гибел\w*|скончал\w*|умер\w*)[^.!?\n]{{0,80}}\b(?:от\s+)?(?:нападен\w*\s+)?{ANIMAL_PATTERN}\b",
+    # Человек убил животное: сильный глагол не должен имитировать homicide.
+    rf"\b(?:убил\w*|застрелил\w*|расстрелял\w*)\s+{ANIMAL_OBJECT_MODIFIER_PATTERN}{ANIMAL_PATTERN}\b",
+    rf"(?<!владельца\s)(?<!хозяина\s)\b{ANIMAL_PATTERN}\b\s+(?:были?\s+)?(?:убиты|застрелены|расстреляны|убили|застрелили|расстреляли)\b",
+)
+
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
@@ -90,6 +111,15 @@ def _contains_standalone_attempt(full_text):
         for pattern in COMPLETED_HARD_EVENT_PATTERNS
     )
     return has_attempt and not has_completed_event
+
+
+def _contains_animal_event(full_text):
+    """Находит явное насилие между человеком и животным."""
+
+    return any(
+        re.search(pattern, full_text, re.IGNORECASE)
+        for pattern in ANIMAL_EVENT_PATTERNS
+    )
 
 
 def _explicit_old_event_year(full_text, published_at, max_age_days):
@@ -148,7 +178,7 @@ def _has_explicit_old_event_age(full_text, max_age_days):
 
 
 def filter_by_event_policy(news_items, max_event_age_days):
-    """Исключает standalone-покушения и явно старые hard-события."""
+    """Исключает animal events, покушения и явно старые hard-события."""
 
     filtered_news = []
 
@@ -160,7 +190,10 @@ def filter_by_event_policy(news_items, max_event_age_days):
         ).casefold()
 
         rejection = None
-        if _contains_standalone_attempt(full_text):
+        if _contains_animal_event(full_text):
+            rejection = "animal_event"
+            reason = "animal violence is not a human true-crime event"
+        elif _contains_standalone_attempt(full_text):
             rejection = "standalone_attempt"
             reason = "attempt without a completed hard event"
         else:

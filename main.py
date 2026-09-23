@@ -627,6 +627,11 @@ def run():
         item.get("event_policy_rejection") == "stale_event"
         for item in ranked_news
     )
+    animal_rejections = sum(
+        item.get("event_policy_rejection") == "animal_event"
+        for item in ranked_news
+    )
+    print(f"Исключено animal events: {animal_rejections}")
     print(f"Исключено standalone attempts: {attempt_rejections}")
     print(f"Исключено stale events: {stale_rejections}")
     print(

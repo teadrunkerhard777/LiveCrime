@@ -98,6 +98,57 @@ class StandaloneAttemptPolicyTests(unittest.TestCase):
         )
 
 
+class AnimalEventPolicyTests(unittest.TestCase):
+    def assert_rejected_animal(self, news_item):
+        self.assertEqual(
+            filter_by_event_policy([news_item], MAX_EVENT_AGE_DAYS),
+            [],
+        )
+        self.assertEqual(news_item["event_policy_rejection"], "animal_event")
+
+    def test_bear_killed_logger_is_rejected(self):
+        self.assert_rejected_animal(make_news(
+            "Медведь убил лесоруба в Красноярском крае"
+        ))
+
+    def test_police_officer_shot_bears_is_rejected(self):
+        self.assert_rejected_animal(make_news(
+            "В Кузбассе сотрудница полиции застрелила двух медведей"
+        ))
+
+    def test_people_killed_by_bear_attacks_are_rejected(self):
+        self.assert_rejected_animal(make_news(
+            "Сколько человек погибли от нападений медведей, рассказали в СК"
+        ))
+
+    def test_procedural_story_based_on_bear_deaths_is_rejected(self):
+        self.assert_rejected_animal(make_news(
+            "В Красноярском крае завели дело о халатности",
+            "Дело возбуждено после гибели шести человек от медведей.",
+        ))
+
+    def test_hunter_shooting_human_by_mistake_is_preserved(self):
+        item = make_news(
+            "Охотник застрелил мужчину, приняв его за животное"
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [item],
+        )
+
+    def test_human_murder_with_dog_mention_is_preserved(self):
+        item = make_news(
+            "Мужчина убил владельца собаки",
+            "Собаку после преступления передали родственникам погибшего.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [item],
+        )
+
+
 class StaleEventPolicyTests(unittest.TestCase):
     def assert_rejected_stale(self, news_item):
         self.assertEqual(
