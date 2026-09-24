@@ -1,14 +1,15 @@
 {
   "version": 1,
-  "history_cursor": 599,
-  "last_history_url": "https://www.fontanka.ru/2026/09/23/76657315/",
+  "history_cursor": 605,
+  "last_history_url": "https://116.ru/text/incidents/2026/09/24/76659054/",
   "initialized_at": "2026-09-20T13:03:42.288098+00:00",
-  "updated_at": "2026-09-23T13:25:33.453493+00:00",
+  "updated_at": "2026-09-24T12:42:42.571475+00:00",
   "seen_event_keys": [
     "1d069def888cf5b443ac4b667af7660f437ccb4e2fd59534a182294e6e09a9c6",
     "1feb42422ac3a46c9721fc4cca8ab269df89da4cdfca61685d9e07003da1cc2c",
     "44c3d0926983b616112757248d3efcde4e66c2673927f28fcdb0ce402ce1da73",
     "5b5b263399c8892711133eddfae7e7a3f361eb1658db3428b41136db941fbd2c",
-    "6cb5ac85897282bd005d09d1a4c11be4fdd32a88a3523b2ad4834ebb99b8095a"
+    "6cb5ac85897282bd005d09d1a4c11be4fdd32a88a3523b2ad4834ebb99b8095a",
+    "9cc1d8604db08b343757e80b3080b8493fc12e9732285ebc59d31e7fc64468a2"
   ]
 }
