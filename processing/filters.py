@@ -169,6 +169,19 @@ def _explicit_old_event_year(full_text, published_at, max_age_days):
             continue
 
         event_year = int(match.group(1))
+
+        # В полицейских сводках после события часто указывают год рождения:
+        # "убийство мужчины, 1978 года рождения". Это не дата преступления.
+        year_context = full_text[
+            match.start(1):match.end(1) + 30
+        ]
+        if re.match(
+            rf"{event_year}\s+года\s+рождени\w*",
+            year_context,
+            re.IGNORECASE,
+        ):
+            continue
+
         # Для одного года берём самый поздний возможный день. Так материал
         # отклоняется лишь тогда, когда событие точно старше порога.
         latest_possible_event = datetime(

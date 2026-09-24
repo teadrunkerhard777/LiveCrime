@@ -255,6 +255,17 @@ class StaleEventPolicyTests(unittest.TestCase):
             [item],
         )
 
+    def test_victim_birth_year_is_not_event_year(self):
+        item = make_news(
+            "Убийство зарегистрировано за прошедшие сутки",
+            "В поселке совершено убийство мужчины, 1978 года рождения.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [item],
+        )
+
     def test_old_murder_named_after_case_is_rejected(self):
         self.assert_rejected_stale(make_news(
             "Сегодня задержали подозреваемого в убийстве 2002 года"
