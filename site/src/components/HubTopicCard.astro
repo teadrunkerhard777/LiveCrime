@@ -12,9 +12,7 @@ const className = `hub-card hub-card-${topic.theme}${topic.size === "wide" ? " h
 
 {topic.url ? (
   <a class={className} href={withBase(topic.url)} aria-label={`${topic.title}: ${topic.subtitle}`}>
-    <span class="hub-card-art" aria-hidden="true">
-      <i></i><i></i><i></i><i></i>
-    </span>
+    <img class="hub-card-logo" src={withBase(topic.image)} alt="" width="1000" height="1000" decoding="async" />
     <span class="hub-card-copy">
       <span class="hub-card-status">Открыть раздел</span>
       <strong>{topic.title}</strong>
@@ -26,9 +24,7 @@ const className = `hub-card hub-card-${topic.theme}${topic.size === "wide" ? " h
   </a>
 ) : (
   <article class={`${className} hub-card-upcoming`} aria-label={`${topic.title}: скоро`}>
-    <span class="hub-card-art" aria-hidden="true">
-      <i></i><i></i><i></i><i></i>
-    </span>
+    <img class="hub-card-logo" src={withBase(topic.image)} alt="" width="1000" height="1000" loading="lazy" decoding="async" />
     <span class="hub-card-copy">
       <span class="hub-card-status">Скоро</span>
       <strong>{topic.title}</strong>

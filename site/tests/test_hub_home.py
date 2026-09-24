@@ -38,6 +38,13 @@ class HubHomeTests(unittest.TestCase):
         self.assertIn("Криминал", LAYOUT)
         self.assertIn("Roblox", LAYOUT)
 
+    def test_every_topic_uses_a_local_channel_logo(self):
+        images = re.findall(r'image: "(/channel-logos/[^"]+)"', TOPICS)
+        self.assertEqual(len(images), 7)
+        self.assertEqual(len(set(images)), 7)
+        for image in images:
+            self.assertTrue((SITE_ROOT / "public" / image.removeprefix("/")).is_file())
+
 
 if __name__ == "__main__":
     unittest.main()
