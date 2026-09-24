@@ -889,7 +889,8 @@ a.hub-card:hover .hub-card-logo {
 
 .roblox-masthead {
   border-bottom: 1px solid var(--line-strong);
-  background: var(--sheet);
+  background: var(--ledger);
+  color: var(--ledger-text);
 }
 
 .roblox-masthead-grid {
@@ -915,13 +916,13 @@ a.hub-card:hover .hub-card-logo {
 .roblox-masthead h1 {
   margin: 0;
   font-size: clamp(4.2rem, 12vw, 8.2rem);
-  color: var(--ink);
+  color: var(--ledger-text);
 }
 
 .roblox-masthead h1 span {
   display: block;
   margin-top: 0.24em;
-  color: var(--roblox-dark);
+  color: var(--roblox);
   font-family: "Manrope Variable", sans-serif;
   font-size: clamp(1.35rem, 3vw, 2.35rem);
   font-weight: 800;
@@ -931,16 +932,15 @@ a.hub-card:hover .hub-card-logo {
 
 .roblox-intro {
   padding-left: 24px;
-  border-left: 1px solid var(--line);
+  border-left: 1px solid var(--line-strong);
 }
 
 .roblox-intro p {
   margin: 0;
-  color: var(--muted);
+  color: var(--dark-muted);
   font-size: 1.08rem;
 }
 
-.roblox-intro a,
 .roblox-empty a {
   min-height: 48px;
   display: inline-flex;
@@ -964,7 +964,6 @@ a.hub-card:hover .hub-card-logo {
   margin-top: 0;
 }
 
-.roblox-intro a:hover,
 .roblox-empty a:hover {
   background: var(--ink);
 }
@@ -1134,7 +1133,8 @@ a.hub-card:hover .hub-card-logo {
   margin-top: 28px;
 }
 
-.masthead-actions a {
+.masthead-actions a,
+.roblox-channel-actions a {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -1146,7 +1146,8 @@ a.hub-card:hover .hub-card-logo {
   text-decoration: none;
 }
 
-.masthead-actions a:hover {
+.masthead-actions a:hover,
+.roblox-channel-actions a:hover {
   background: var(--ledger-text);
   color: var(--ledger);
 }
@@ -1876,7 +1877,7 @@ a.hub-card:hover .hub-card-logo {
   .roblox-intro {
     padding-left: 0;
     padding-top: 24px;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--line-strong);
     border-left: 0;
   }
 
@@ -2125,7 +2126,7 @@ a.hub-card:hover .hub-card-logo {
   }
 
   .masthead-grid h1 {
-    font-size: clamp(3rem, 17vw, 4.6rem);
+    font-size: clamp(2.55rem, 12.5vw, 3.2rem);
   }
 
   .event-page {
