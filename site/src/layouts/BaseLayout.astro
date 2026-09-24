@@ -30,6 +30,7 @@ const {
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const isRoblox = currentPath.includes("/roblox");
+const isAbout = currentPath.includes("/about");
 const canonical = canonicalPath
   ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
   : undefined;
@@ -140,7 +141,9 @@ const resolvedSocialImage = socialImage
           <strong>По факту</strong>
           <span>События, источники и обновления.</span>
         </div>
-        {isRoblox ? (
+        {isAbout ? (
+          <p>Тематические материалы, источники и удобный переход в наши каналы.</p>
+        ) : isRoblox ? (
           <p>Новости, обновления и полезные материалы по Roblox и Brawl Stars.</p>
         ) : (
           <p>
@@ -150,9 +153,11 @@ const resolvedSocialImage = socialImage
         )}
         <div class="footer-follow">
           <p class="footer-status">
-            Раздел: <strong>{isRoblox ? "Roblox" : "Криминал"}</strong>
+            Раздел: <strong>{isAbout ? "О проекте" : isRoblox ? "Roblox" : "Криминал"}</strong>
           </p>
-          {isRoblox ? (
+          {isAbout ? (
+            <a class="text-action" href={withBase("/")}>Все темы</a>
+          ) : isRoblox ? (
             <div class="footer-channels" aria-label="Канал Roblox">
               <a href={ROBLOX_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
                 Telegram

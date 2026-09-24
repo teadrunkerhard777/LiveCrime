@@ -1,55 +1,100 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { CRIME_CHANNELS } from "../config/channels";
+import { CRIME_CHANNELS, ROBLOX_CHANNEL } from "../config/channels";
 import { withBase } from "../lib/events";
+
+const title = "О медиахабе «По факту» — темы, материалы и поиск";
+const description =
+  "«По факту» — тематический медиахаб о криминальных событиях, Roblox и Brawl Stars. Полезные страницы, источники и ссылки на наши каналы.";
+const pageUrl = new URL(withBase("/about/"), Astro.site ?? Astro.url).toString();
+const homeUrl = new URL(withBase("/"), Astro.site ?? Astro.url).toString();
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "О медиахабе «По факту»",
+  description,
+  url: pageUrl,
+  inLanguage: "ru-RU",
+  isPartOf: { "@type": "WebSite", name: "По факту", url: homeUrl },
+};
 ---
 
 <BaseLayout
-  title="О проекте — По факту"
-  description="По факту — тематический медиахаб с понятными постоянными страницами событий и переходами в Telegram и MAX."
+  title={title}
+  description={description}
   canonicalPath="/about/"
+  structuredData={structuredData}
 >
-  <article class="shell prose-page">
+  <article class="shell about-page">
     <header class="about-header">
-      <h1>Чтобы важная история не терялась в ленте</h1>
+      <h1>О медиахабе<br />«По факту»</h1>
       <p class="lead">
-        «По факту» собирает главное о событии на одной странице: что произошло,
-        что стало известно позже и откуда взялась информация.
+        Здесь собраны новости, истории и полезные материалы из разных тематик —
+        с понятной навигацией, постоянными страницами и переходами в наши каналы.
       </p>
     </header>
 
-    <div class="prose-ledger">
-      <section>
-        <h2>Всё важное — в одном месте</h2>
+    <section class="about-live" aria-labelledby="about-live-title">
+      <div class="about-section-heading">
+        <h2 id="about-live-title">Что уже можно читать</h2>
         <p>
-          Новость быстро уходит вниз, а сама история продолжается. Поэтому мы
-          объединяем её основные факты и дальнейшие обновления на одной странице.
+          Два действующих направления устроены по-разному, потому что решают
+          разные задачи читателя.
         </p>
-      </section>
-      <section>
-        <h2>Можно проверить самостоятельно</h2>
-        <p>
-          Рядом с фактами и этапами истории стоят ссылки на источники. Так можно
-          сразу увидеть, на чём основана публикация, и перейти к первоисточнику.
-        </p>
-      </section>
-      <section>
-        <h2>Свежие публикации — в каналах</h2>
-        <p>
-          Сейчас «По факту» начинается с криминальных историй. Новые сообщения
-          выходят в Telegram и MAX, а на сайте остаётся собранная картина события.
-        </p>
-      </section>
-    </div>
+      </div>
+      <div class="about-route-list">
+        <a class="about-route about-route-crime" href={withBase("/crime/")}>
+          <span class="about-route-name">Криминал</span>
+          <span class="about-route-copy">Истории серьёзных преступлений: главное о событии, даты, места, источники и существенные обновления.</span>
+          <span class="about-route-action">Смотреть истории <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="about-route about-route-roblox" href={withBase("/roblox/")}>
+          <span class="about-route-name">Roblox и Brawl Stars</span>
+          <span class="about-route-copy">Новости игр, обновления, события, промокоды и полезные материалы для игроков.</span>
+          <span class="about-route-action">Перейти в раздел <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </section>
 
-    <div class="about-actions">
-      <a class="primary-action" href={withBase("/crime/")}>Смотреть истории</a>
-      <a
-        class="text-action"
-        href={CRIME_CHANNELS.telegram.url}
-        rel="noopener noreferrer"
-        target="_blank"
-      >Читать в Telegram</a>
-    </div>
+    <section class="about-principles" aria-labelledby="about-principles-title">
+      <div class="about-section-heading">
+        <h2 id="about-principles-title">Как устроен проект</h2>
+        <p>Сайт дополняет наши каналы: помогает найти нужную тему через поиск, разобраться в ней и продолжить чтение там, где удобнее.</p>
+      </div>
+      <div class="about-principle-list">
+        <div><h3>Самостоятельная польза</h3><p>Каждая индексируемая страница должна отвечать на вопрос читателя, а не существовать только ради перехода в мессенджер.</p></div>
+        <div><h3>Понятные источники</h3><p>В криминальных материалах важные факты и этапы истории сопровождаются ссылками, а юридические статусы не смешиваются между собой.</p></div>
+        <div><h3>Темы вместо общей ленты</h3><p>У каждого направления своя аудитория и подача, но единая навигация и общий стандарт качества медиахаба.</p></div>
+      </div>
+    </section>
+
+    <section class="about-seo" aria-labelledby="about-seo-title">
+      <div class="about-seo-intro">
+        <h2 id="about-seo-title">SEO изучаем на реальном сайте</h2>
+        <p>«По факту» — ещё и практический учебный проект. Мы проверяем, как полезный контент, ясная структура и техническая аккуратность помогают новым страницам появляться в поиске.</p>
+      </div>
+      <ol class="about-seo-list">
+        <li><strong>Отвечаем на конкретный запрос</strong><span>Одна страница — одна понятная тема и реальная польза.</span></li>
+        <li><strong>Помогаем поисковику понять страницу</strong><span>Используем точные заголовки, описания, адреса и разметку.</span></li>
+        <li><strong>Связываем материалы между собой</strong><span>Внутренние ссылки ведут к разделам и связанным публикациям.</span></li>
+        <li><strong>Измеряем результат</strong><span>Будем следить за индексацией, показами, переходами и удобством страниц.</span></li>
+      </ol>
+    </section>
+
+    <section class="about-next" aria-labelledby="about-next-title">
+      <div>
+        <h2 id="about-next-title">Хаб будет расти</h2>
+        <p>Следом готовятся направления про MMA, автомобили, животных, гаджеты и звёзд. Они появятся только тогда, когда смогут быть полезными сами по себе, а не просто дублировать ленту канала.</p>
+      </div>
+      <a class="primary-action" href={withBase("/")}>Выбрать тему</a>
+    </section>
+
+    <section class="about-channels" aria-labelledby="about-channels-title">
+      <h2 id="about-channels-title">Продолжить в каналах</h2>
+      <div class="about-channel-groups">
+        <div><strong>Криминал</strong><a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">Telegram</a><a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">MAX</a></div>
+        <div><strong>Roblox и Brawl Stars</strong><a href={ROBLOX_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">Telegram</a><a href={ROBLOX_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">MAX</a></div>
+      </div>
+    </section>
   </article>
 </BaseLayout>
