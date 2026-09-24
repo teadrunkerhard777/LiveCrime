@@ -19,3 +19,14 @@ export const ROBLOX_CHANNEL = {
     url: "https://max.ru/channel_RobloxHUB",
   },
 } as const;
+
+export const CARS_CHANNEL = {
+  telegram: {
+    label: "Telegram",
+    url: "https://t.me/auto_moto_gear",
+  },
+  max: {
+    label: "MAX",
+    url: "https://max.ru/channel_auto_moto_gear",
+  },
+} as const;

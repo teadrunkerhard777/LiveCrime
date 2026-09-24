@@ -40,6 +40,7 @@ export const HUB_TOPIC_GROUPS: HubTopicGroup[] = [
         title: "АВТО",
         subtitle: "Автомобили • новости",
         image: "/channel-logos/auto.jpg",
+        url: "/cars/",
         theme: "cars",
       },
       {

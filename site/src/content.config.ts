@@ -97,4 +97,15 @@ const crimeFeed = defineCollection({
   }),
 });
 
-export const collections = { events, roblox, crimeFeed };
+const cars = defineCollection({
+  loader: glob({ pattern: "**/*.json", base: "./src/content/cars" }),
+  schema: z.object({
+    message_id: z.string().regex(/^\d+$/),
+    text: z.string().min(1),
+    published_at: z.coerce.date(),
+    image_url: z.url(),
+    telegram_url: z.url(),
+  }),
+});
+
+export const collections = { events, roblox, crimeFeed, cars };

@@ -2,7 +2,7 @@
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/unbounded";
 import "../styles/global.css";
-import { CRIME_CHANNELS, ROBLOX_CHANNEL } from "../config/channels";
+import { CARS_CHANNEL, CRIME_CHANNELS, ROBLOX_CHANNEL } from "../config/channels";
 import { withBase } from "../lib/events";
 
 interface Props {
@@ -30,6 +30,7 @@ const {
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const isRoblox = currentPath.includes("/roblox");
+const isCars = currentPath.includes("/cars");
 const isAbout = currentPath.includes("/about");
 const canonical = canonicalPath
   ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
@@ -108,6 +109,10 @@ const resolvedSocialImage = socialImage
                 href={withBase("/roblox/")}
               >Roblox</a>
               <a
+                class:list={{ active: isCars }}
+                href={withBase("/cars/")}
+              >Авто</a>
+              <a
                 class:list={{ active: currentPath.includes("/about") }}
                 href={withBase("/about/")}
               >О проекте</a>
@@ -145,6 +150,8 @@ const resolvedSocialImage = socialImage
           <p>Тематические материалы, источники и удобный переход в наши каналы.</p>
         ) : isRoblox ? (
           <p>Новости, обновления и полезные материалы по Roblox и Brawl Stars.</p>
+        ) : isCars ? (
+          <p>Автомобильные новости, новинки, технологии и материалы для водителей.</p>
         ) : (
           <p>
             Публикация информации о расследовании не означает доказанную
@@ -153,7 +160,7 @@ const resolvedSocialImage = socialImage
         )}
         <div class="footer-follow">
           <p class="footer-status">
-            Раздел: <strong>{isAbout ? "О проекте" : isRoblox ? "Roblox" : "Криминал"}</strong>
+            Раздел: <strong>{isAbout ? "О проекте" : isRoblox ? "Roblox" : isCars ? "Авто" : "Криминал"}</strong>
           </p>
           {isAbout ? (
             <a class="text-action" href={withBase("/")}>Все темы</a>
@@ -163,6 +170,15 @@ const resolvedSocialImage = socialImage
                 Telegram
               </a>
               <a href={ROBLOX_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+                MAX
+              </a>
+            </div>
+          ) : isCars ? (
+            <div class="footer-channels" aria-label="Автомобильный канал">
+              <a href={CARS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+                Telegram
+              </a>
+              <a href={CARS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
                 MAX
               </a>
             </div>

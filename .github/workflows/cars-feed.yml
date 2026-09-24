@@ -1,0 +1,101 @@
+name: Auto Site Feed
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Один вечерний запуск: 20:10 по Екатеринбургу (15:10 UTC).
+    - cron: "10 15 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: auto-site-feed
+  cancel-in-progress: false
+
+jobs:
+  import-posts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install feed dependencies
+        run: pip install -r requirements.txt
+
+      - name: Import public auto photo posts
+        working-directory: site
+        run: >-
+          python3 -m generator.import_roblox_telegram
+          --channel auto_moto_gear
+          --content src/content/cars
+          --limit 20
+
+      - name: Save new auto posts
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- site/src/content/cars)" ]; then
+            echo "No new auto photo posts."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/src/content/cars
+          git commit -m "Import auto Telegram posts"
+
+          for attempt in 1 2 3; do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+
+            echo "Auto feed push race on attempt ${attempt}; retrying."
+          done
+
+          echo "Failed to persist auto feed after 3 attempts."
+          exit 1
+
+  build-site:
+    needs: import-posts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout latest repository state
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Test site importers
+        run: python3 -m unittest discover -s site/tests -t site -v
+
+      - name: Build and upload Astro site
+        uses: withastro/action@v6
+        with:
+          path: site
+          node-version: 24
+        env:
+          SITE_URL: "https://teadrunkerhard777.github.io"
+          BASE_PATH: "/LiveCrime"
+
+  deploy-site:
+    needs: build-site
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
