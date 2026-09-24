@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { CRIME_CHANNELS, ROBLOX_CHANNEL } from "../config/channels";
 import { withBase } from "../lib/events";
 
-const title = "О медиахабе «По факту» — темы, материалы и поиск";
+const title = "О проекте «По факту» — тематический медиахаб";
 const description =
   "«По факту» — тематический медиахаб о криминальных событиях, Roblox и Brawl Stars. Полезные страницы, источники и ссылки на наши каналы.";
 const pageUrl = new URL(withBase("/about/"), Astro.site ?? Astro.url).toString();
@@ -59,26 +59,26 @@ const structuredData = {
     <section class="about-principles" aria-labelledby="about-principles-title">
       <div class="about-section-heading">
         <h2 id="about-principles-title">Как устроен проект</h2>
-        <p>Сайт дополняет наши каналы: помогает найти нужную тему через поиск, разобраться в ней и продолжить чтение там, где удобнее.</p>
+        <p>Сайт дополняет наши каналы: помогает выбрать интересующую тему, разобраться в ней и продолжить чтение там, где удобнее.</p>
       </div>
       <div class="about-principle-list">
-        <div><h3>Самостоятельная польза</h3><p>Каждая индексируемая страница должна отвечать на вопрос читателя, а не существовать только ради перехода в мессенджер.</p></div>
+        <div><h3>Самостоятельная польза</h3><p>Каждая страница должна отвечать на вопрос читателя, а не существовать только ради перехода в мессенджер.</p></div>
         <div><h3>Понятные источники</h3><p>В криминальных материалах важные факты и этапы истории сопровождаются ссылками, а юридические статусы не смешиваются между собой.</p></div>
         <div><h3>Темы вместо общей ленты</h3><p>У каждого направления своя аудитория и подача, но единая навигация и общий стандарт качества медиахаба.</p></div>
       </div>
     </section>
 
-    <section class="about-seo" aria-labelledby="about-seo-title">
-      <div class="about-seo-intro">
-        <h2 id="about-seo-title">SEO изучаем на реальном сайте</h2>
-        <p>«По факту» — ещё и практический учебный проект. Мы проверяем, как полезный контент, ясная структура и техническая аккуратность помогают новым страницам появляться в поиске.</p>
+    <section class="about-connection" aria-labelledby="about-connection-title">
+      <div class="about-connection-intro">
+        <h2 id="about-connection-title">Сайт и каналы дополняют друг друга</h2>
+        <p>В мессенджерах удобно следить за свежими публикациями. На сайте — выбирать темы, возвращаться к важным материалам и видеть всю историю целиком.</p>
       </div>
-      <ol class="about-seo-list">
-        <li><strong>Отвечаем на конкретный запрос</strong><span>Одна страница — одна понятная тема и реальная польза.</span></li>
-        <li><strong>Помогаем поисковику понять страницу</strong><span>Используем точные заголовки, описания, адреса и разметку.</span></li>
-        <li><strong>Связываем материалы между собой</strong><span>Внутренние ссылки ведут к разделам и связанным публикациям.</span></li>
-        <li><strong>Измеряем результат</strong><span>Будем следить за индексацией, показами, переходами и удобством страниц.</span></li>
-      </ol>
+      <ul class="about-connection-list">
+        <li><strong>Свежие публикации</strong><span>Оперативные сообщения выходят в Telegram и MAX.</span></li>
+        <li><strong>Материалы по темам</strong><span>На сайте всё разложено по понятным направлениям.</span></li>
+        <li><strong>История целиком</strong><span>Важные события можно дополнить фактами, источниками и обновлениями.</span></li>
+        <li><strong>Удобное продолжение</strong><span>Из каждого раздела легко перейти в соответствующий канал.</span></li>
+      </ul>
     </section>
 
     <section class="about-next" aria-labelledby="about-next-title">

@@ -14,6 +14,9 @@ class AboutPageTests(unittest.TestCase):
         self.assertIn("Roblox и Brawl Stars", PAGE)
         self.assertIn("MMA, автомобили, животных, гаджеты", PAGE)
         self.assertNotIn("Сейчас «По факту» начинается с криминальных историй", PAGE)
+        self.assertNotIn("SEO изучаем", PAGE)
+        self.assertNotIn("учебный проект", PAGE)
+        self.assertNotIn("индексац", PAGE.lower())
 
     def test_about_page_links_to_live_sections_and_channels(self):
         self.assertIn('withBase("/crime/")', PAGE)

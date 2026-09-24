@@ -1570,7 +1570,7 @@ a.hub-card:hover .hub-card-logo {
 
 .about-live,
 .about-principles,
-.about-seo,
+.about-connection,
 .about-next,
 .about-channels {
   padding-block: clamp(52px, 7vw, 84px);
@@ -1586,7 +1586,7 @@ a.hub-card:hover .hub-card-logo {
 }
 
 .about-section-heading h2,
-.about-seo h2,
+.about-connection h2,
 .about-next h2,
 .about-channels h2 {
   margin: 0;
@@ -1598,7 +1598,7 @@ a.hub-card:hover .hub-card-logo {
 }
 
 .about-section-heading p,
-.about-seo-intro p,
+.about-connection-intro p,
 .about-next p {
   max-width: 58ch;
   margin: 0;
@@ -1690,7 +1690,7 @@ a.hub-card:hover .hub-card-logo {
   line-height: 1.65;
 }
 
-.about-seo {
+.about-connection {
   display: grid;
   grid-template-columns: minmax(280px, .82fr) minmax(0, 1.18fr);
   gap: clamp(54px, 9vw, 132px);
@@ -1700,43 +1700,31 @@ a.hub-card:hover .hub-card-logo {
   clip-path: inset(0 -100vmax);
 }
 
-.about-seo-intro p {
+.about-connection-intro p {
   margin-top: 22px;
   color: var(--dark-muted);
 }
 
-.about-seo-list {
+.about-connection-list {
   margin: 0;
   padding: 0;
   list-style: none;
-  counter-reset: seo-step;
   border-top: 1px solid rgba(255, 255, 255, .28);
 }
 
-.about-seo-list li {
+.about-connection-list li {
   display: grid;
-  grid-template-columns: 36px 1fr;
-  gap: 12px 18px;
+  gap: 8px;
   padding: 22px 0;
   border-bottom: 1px solid rgba(255, 255, 255, .28);
-  counter-increment: seo-step;
 }
 
-.about-seo-list li::before {
-  grid-row: 1 / span 2;
-  color: var(--crime-light);
-  font-size: .78rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  content: counter(seo-step, decimal-leading-zero);
-}
-
-.about-seo-list strong,
-.about-seo-list span {
+.about-connection-list strong,
+.about-connection-list span {
   display: block;
 }
 
-.about-seo-list span {
+.about-connection-list span {
   color: var(--dark-muted);
   line-height: 1.55;
 }
@@ -2250,7 +2238,7 @@ a.hub-card:hover .hub-card-logo {
 
   .about-header,
   .about-section-heading,
-  .about-seo,
+  .about-connection,
   .about-next,
   .about-channels {
     grid-template-columns: 1fr;
@@ -2293,7 +2281,7 @@ a.hub-card:hover .hub-card-logo {
     border-top: 1px solid var(--line);
   }
 
-  .about-seo {
+  .about-connection {
     gap: 38px;
   }
 
