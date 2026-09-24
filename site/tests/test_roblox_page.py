@@ -7,6 +7,7 @@ PAGE = (SITE_ROOT / "src/pages/roblox/index.astro").read_text(encoding="utf-8")
 CHANNELS = (SITE_ROOT / "src/config/channels.ts").read_text(encoding="utf-8")
 LAYOUT = (SITE_ROOT / "src/layouts/BaseLayout.astro").read_text(encoding="utf-8")
 STYLES = (SITE_ROOT / "src/styles/global.css").read_text(encoding="utf-8")
+CARD = (SITE_ROOT / "src/components/TelegramPostCard.astro").read_text(encoding="utf-8")
 
 
 class RobloxPageTests(unittest.TestCase):
@@ -24,6 +25,9 @@ class RobloxPageTests(unittest.TestCase):
         self.assertIn("ROBLOX_CHANNEL.telegram.url", PAGE)
         self.assertIn("ROBLOX_CHANNEL.max.url", PAGE)
         self.assertIn("ROBLOX_CHANNEL.max.url", LAYOUT)
+        self.assertIn("maxUrl={ROBLOX_CHANNEL.max.url}", PAGE)
+        self.assertIn("Открыть пост в Telegram", CARD)
+        self.assertIn("Читать канал в MAX", CARD)
 
     def test_masthead_and_channel_actions_share_the_hub_style(self):
         self.assertIn(".masthead-actions a,\n.roblox-channel-actions a", STYLES)

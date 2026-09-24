@@ -1,29 +1,17 @@
 ---
 import { getCollection } from "astro:content";
-import EventCard from "../../components/EventCard.astro";
+import TelegramPostCard from "../../components/TelegramPostCard.astro";
 import { CRIME_CHANNELS } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { isPublishableEvent } from "../../lib/content-quality";
 
-const publishableEvents = (await getCollection("events")).filter(isPublishableEvent);
-const realEvents = publishableEvents.filter(({ data }) => !data.demo);
-const chronologicalEvents = (realEvents.length ? realEvents : publishableEvents).sort(
-  (first, second) =>
-    first.data.created_at.valueOf() - second.data.created_at.valueOf()
-    || first.id.localeCompare(second.id),
+const posts = (await getCollection("crimeFeed")).sort(
+  (first, second) => second.data.published_at.valueOf() - first.data.published_at.valueOf(),
 );
-const events = chronologicalEvents
-  .map((event, registryIndex) => ({ event, registryIndex }))
-  .sort(
-    (first, second) =>
-      second.event.data.updated_at.valueOf() - first.event.data.updated_at.valueOf()
-      || second.registryIndex - first.registryIndex,
-  );
 ---
 
 <BaseLayout
-  title="Криминальные события — По факту"
-  description="Карточки криминальных событий с датами, местами, источниками, статусами и существенными обновлениями."
+  title="Криминальные новости — свежие публикации | По факту"
+  description="Свежие криминальные новости и происшествия из Telegram-канала «Новости преступления 24/7» с фотографиями и ссылками на оригинальные публикации."
   canonicalPath="/crime/"
 >
   <header class="section-masthead">
@@ -33,8 +21,8 @@ const events = chronologicalEvents
       </div>
       <div class="masthead-copy">
         <p>
-          Не поток одинаковых заголовков, а постоянные страницы событий. Здесь
-          видно, что известно, на чём основана информация и как история менялась.
+          Свежие криминальные новости, происшествия и важные обновления. Каждый
+          материал можно открыть в Telegram или продолжить чтение в MAX.
         </p>
         <div class="masthead-actions" aria-label="Криминал в мессенджерах">
           <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
@@ -48,21 +36,34 @@ const events = chronologicalEvents
     </div>
   </header>
 
-  <section class="shell registry-section" aria-labelledby="crime-list-title">
-    <div class="section-title-row">
-      <h2 id="crime-list-title">Реестр событий</h2>
-      <p>Обновлено по мере появления существенных сведений</p>
+  <section class="shell roblox-feed crime-feed" aria-labelledby="crime-list-title">
+    <div class="roblox-feed-heading">
+      <div>
+        <span>Криминальные новости</span>
+        <h2 id="crime-list-title">Последние публикации</h2>
+      </div>
+      <p>{posts.length} {posts.length === 1 ? "пост" : "постов"}</p>
     </div>
-    {events.every(({ event }) => event.data.demo) && (
-      <div class="demo-note">
-        До подключения настоящих данных здесь отображается одна вымышленная
-        карточка, закрытая от поисковой индексации.
+
+    {posts.length ? (
+      <div class="roblox-posts">
+        {posts.map((post) => (
+          <TelegramPostCard
+            post={post}
+            channelName="Новости преступления 24/7"
+            imageAlt="Изображение из криминальной публикации"
+            maxUrl={CRIME_CHANNELS.max.url}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="roblox-empty">
+        <strong>Лента подключена</strong>
+        <p>Первые публикации появятся здесь после ближайшего обновления.</p>
+        <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
+          Пока открыть канал в Telegram
+        </a>
       </div>
     )}
-    <div class="registry-list">
-      {events.map(({ event, registryIndex }) => (
-        <EventCard event={event} index={registryIndex} />
-      ))}
-    </div>
   </section>
 </BaseLayout>

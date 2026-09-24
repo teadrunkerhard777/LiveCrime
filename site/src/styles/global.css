@@ -1072,6 +1072,34 @@ a.hub-card:hover .hub-card-logo {
   font-weight: 800;
 }
 
+.telegram-post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  align-items: center;
+}
+
+.telegram-post-actions a {
+  color: var(--link);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-underline-offset: 4px;
+}
+
+.crime-feed .roblox-feed-heading span,
+.crime-feed .roblox-signal span,
+.crime-feed .telegram-post-actions a {
+  color: var(--crime-dark);
+}
+
+.crime-feed .roblox-signal {
+  border-right-color: var(--crime);
+}
+
+.crime-feed .roblox-post-copy {
+  border-top-color: var(--crime);
+}
+
 .roblox-empty {
   max-width: 740px;
   margin-top: 42px;

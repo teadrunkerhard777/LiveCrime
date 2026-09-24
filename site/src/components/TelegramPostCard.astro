@@ -3,17 +3,20 @@ import type { CollectionEntry } from "astro:content";
 import { formatDate } from "../lib/events";
 
 interface Props {
-  post: CollectionEntry<"roblox">;
+  post: CollectionEntry<"roblox"> | CollectionEntry<"crimeFeed">;
+  channelName: string;
+  imageAlt: string;
+  maxUrl: string;
 }
 
-const { post } = Astro.props;
+const { post, channelName, imageAlt, maxUrl } = Astro.props;
 const publicationTime = new Intl.DateTimeFormat("ru-RU", {
   hour: "2-digit",
   minute: "2-digit",
 }).format(post.data.published_at);
 ---
 
-<article class="roblox-post">
+<article class="roblox-post telegram-feed-post">
   <aside class="roblox-signal" aria-label={`Telegram-пост ${post.data.message_id}`}>
     <span>post</span>
     <strong>{post.data.message_id}</strong>
@@ -27,17 +30,22 @@ const publicationTime = new Intl.DateTimeFormat("ru-RU", {
       target="_blank"
       aria-label={`Открыть пост ${post.data.message_id} в Telegram`}
     >
-      <img src={post.data.image_url} alt="Изображение из публикации Roblox Hub" loading="lazy" decoding="async" />
+      <img src={post.data.image_url} alt={imageAlt} loading="lazy" decoding="async" />
     </a>
     <div class="roblox-post-copy">
       <div class="roblox-post-meta">
-        <span>Roblox Hub</span>
+        <span>{channelName}</span>
         <time datetime={post.data.published_at.toISOString()}>{formatDate(post.data.published_at)}</time>
       </div>
       <p>{post.data.text}</p>
-      <a href={post.data.telegram_url} rel="noopener noreferrer" target="_blank">
-        Открыть оригинал в Telegram ↗
-      </a>
+      <div class="telegram-post-actions">
+        <a href={post.data.telegram_url} rel="noopener noreferrer" target="_blank">
+          Открыть пост в Telegram ↗
+        </a>
+        <a href={maxUrl} rel="noopener noreferrer" target="_blank">
+          Читать канал в MAX ↗
+        </a>
+      </div>
     </div>
   </div>
 </article>

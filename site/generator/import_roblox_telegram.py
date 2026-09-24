@@ -1,4 +1,4 @@
-"""Import public photo posts from the Roblox Hub Telegram web feed."""
+"""Import public photo posts from a Telegram channel web feed."""
 
 from __future__ import annotations
 
@@ -25,8 +25,9 @@ class RobloxImportError(RuntimeError):
 class TelegramFeedParser(HTMLParser):
     """Extract the small public contract needed from Telegram's widget HTML."""
 
-    def __init__(self) -> None:
+    def __init__(self, channel_name: str = CHANNEL_NAME) -> None:
         super().__init__(convert_charrefs=True)
+        self.channel_name = channel_name
         self.posts: list[dict] = []
         self.current: dict | None = None
         self.message_depth = 0
@@ -85,7 +86,7 @@ class TelegramFeedParser(HTMLParser):
 
         if (
             separator
-            and channel.casefold() == CHANNEL_NAME.casefold()
+            and channel.casefold() == self.channel_name.casefold()
             and message_id.isdigit()
             and text
             and isinstance(image_url, str)
@@ -98,7 +99,7 @@ class TelegramFeedParser(HTMLParser):
                     "text": text,
                     "published_at": published_at,
                     "image_url": image_url,
-                    "telegram_url": f"https://t.me/{CHANNEL_NAME}/{message_id}",
+                    "telegram_url": f"https://t.me/{self.channel_name}/{message_id}",
                 }
             )
 
@@ -129,10 +130,10 @@ def _atomic_write_json(path: Path, payload: object) -> None:
             temporary_path.unlink()
 
 
-def parse_public_feed(feed_html: str) -> list[dict]:
+def parse_public_feed(feed_html: str, channel_name: str = CHANNEL_NAME) -> list[dict]:
     """Return photo posts while preserving Telegram text and message identity."""
 
-    parser = TelegramFeedParser()
+    parser = TelegramFeedParser(channel_name)
     parser.feed(feed_html)
     return parser.posts
 
@@ -152,11 +153,20 @@ def fetch_public_feed(url: str = DEFAULT_FEED_URL) -> str:
         raise RobloxImportError(f"Публичная лента Telegram недоступна: {error}") from error
 
 
-def import_posts(content_path: Path, limit: int = 20, feed_html: str | None = None) -> list[Path]:
+def import_posts(
+    content_path: Path,
+    limit: int = 20,
+    feed_html: str | None = None,
+    channel_name: str = CHANNEL_NAME,
+) -> list[Path]:
     if limit < 1 or limit > 100:
         raise RobloxImportError("Лимит импорта должен быть от 1 до 100.")
 
-    posts = parse_public_feed(feed_html if feed_html is not None else fetch_public_feed())
+    feed_url = f"https://t.me/s/{channel_name}"
+    posts = parse_public_feed(
+        feed_html if feed_html is not None else fetch_public_feed(feed_url),
+        channel_name,
+    )
 
     written: list[Path] = []
     for post in posts[-limit:]:
@@ -169,22 +179,23 @@ def import_posts(content_path: Path, limit: int = 20, feed_html: str | None = No
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Переносит фото-посты Roblox Hub на сайт.")
+    parser = argparse.ArgumentParser(description="Переносит фото-посты публичного Telegram-канала на сайт.")
     parser.add_argument("--content", type=Path, default=DEFAULT_CONTENT)
     parser.add_argument("--limit", type=int, default=20)
+    parser.add_argument("--channel", default=CHANNEL_NAME)
     args = parser.parse_args()
 
     try:
-        paths = import_posts(args.content, args.limit)
+        paths = import_posts(args.content, args.limit, channel_name=args.channel)
     except RobloxImportError as error:
-        print(f"Импорт Roblox остановлен: {error}")
+        print(f"Импорт @{args.channel} остановлен: {error}")
         return 1
 
     if not paths:
-        print("Новых фото-постов Roblox нет.")
+        print(f"Новых фото-постов @{args.channel} нет.")
     else:
         for path in paths:
-            print(f"Добавлен Roblox-пост: {path}")
+            print(f"Добавлен пост @{args.channel}: {path}")
     return 0
 
 

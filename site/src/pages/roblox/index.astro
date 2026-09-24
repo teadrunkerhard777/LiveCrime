@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import RobloxPostCard from "../../components/RobloxPostCard.astro";
+import TelegramPostCard from "../../components/TelegramPostCard.astro";
 import { ROBLOX_CHANNEL } from "../../config/channels";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
@@ -47,7 +47,14 @@ const posts = (await getCollection("roblox")).sort(
 
     {posts.length ? (
       <div class="roblox-posts">
-        {posts.map((post) => <RobloxPostCard post={post} />)}
+        {posts.map((post) => (
+          <TelegramPostCard
+            post={post}
+            channelName="Roblox Hub"
+            imageAlt="Изображение из публикации Roblox Hub"
+            maxUrl={ROBLOX_CHANNEL.max.url}
+          />
+        ))}
       </div>
     ) : (
       <div class="roblox-empty">

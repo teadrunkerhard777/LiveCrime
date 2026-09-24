@@ -46,6 +46,14 @@ class RobloxTelegramImportTests(unittest.TestCase):
             payload = json.loads(first[0].read_text(encoding="utf-8"))
             self.assertEqual(payload["message_id"], "501")
 
+    def test_same_parser_supports_the_crime_channel(self):
+        crime_html = FEED_HTML.replace("RobloxHubRU", "truecrime_news")
+
+        posts = parse_public_feed(crime_html, "truecrime_news")
+
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(posts[0]["telegram_url"], "https://t.me/truecrime_news/501")
+
 
 if __name__ == "__main__":
     unittest.main()
