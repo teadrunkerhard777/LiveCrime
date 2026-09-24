@@ -1,90 +1,39 @@
 ---
-import { getCollection } from "astro:content";
-import EventCard from "../components/EventCard.astro";
-import { CRIME_CHANNELS } from "../config/channels";
+import HubTopicCard from "../components/HubTopicCard.astro";
+import { HUB_TOPIC_GROUPS } from "../config/hub-topics";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { isPublishableEvent } from "../lib/content-quality";
 import { withBase } from "../lib/events";
-
-const publishableEvents = (await getCollection("events")).filter(isPublishableEvent);
-const realEvents = publishableEvents.filter(({ data }) => !data.demo);
-const chronologicalEvents = (realEvents.length ? realEvents : publishableEvents).sort(
-  (first, second) =>
-    first.data.created_at.valueOf() - second.data.created_at.valueOf()
-    || first.id.localeCompare(second.id),
-);
-const events = chronologicalEvents
-  .map((event, registryIndex) => ({ event, registryIndex }))
-  .sort(
-    (first, second) =>
-      second.event.data.updated_at.valueOf() - first.event.data.updated_at.valueOf()
-      || second.registryIndex - first.registryIndex,
-  );
 ---
 
 <BaseLayout
-  title="По факту — события, источники и обновления"
-  description="По факту собирает главное о событиях в понятных карточках с источниками, статусами и хронологией обновлений."
+  title="По факту — тематический медиахаб"
+  description="Выбирайте интересующую тему: события, спорт, автомобили, игры, животные, технологии и звёзды — в одном медиахабе."
   canonicalPath="/"
+  hubHome
 >
-  <section class="home-intro">
-    <div class="shell home-intro-grid">
-      <h1>История целиком — на одной странице.</h1>
-      <div>
-        <p>
-          Собираем факты, источники и важные обновления одной истории на
-          постоянной странице — чтобы к ней можно было вернуться после первой
-          новости.
-        </p>
-        <div class="hero-actions">
-          <a class="primary-action" href={withBase("/crime/")}>Все криминальные истории</a>
-          <a class="text-action" href={withBase("/about/")}>Как устроен проект</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <div class="hub-home">
+    <header class="hub-hero shell">
+      <h1>Выбирай, что интересно.</h1>
+      <p>Новости, истории и развлечения из разных миров — в одном месте.</p>
+    </header>
 
-  <section class="shell registry-section" aria-labelledby="latest-title">
-    <div class="section-title-row">
-      <h2 id="latest-title">Последние записи</h2>
-      <p>{events.length} {events.length === 1 ? "материал" : "материала"}</p>
-    </div>
-    {events.every(({ event }) => event.data.demo) && (
-      <div class="demo-note">
-        Сейчас интерфейс проверяется на вымышленном примере. Реальные материалы
-        появятся только после подключения отдельного безопасного процесса.
-      </div>
-    )}
-    <div class="registry-list">
-      {events.map(({ event, registryIndex }) => (
-        <EventCard event={event} index={registryIndex} />
+    <div class="hub-directory shell" id="themes">
+      {HUB_TOPIC_GROUPS.map((group) => (
+        <section class={`hub-group hub-group-${group.id}`} aria-labelledby={`hub-${group.id}`}>
+          <div class="hub-group-heading">
+            <h2 id={`hub-${group.id}`}>{group.title}</h2>
+            <span>{group.topics.length} темы</span>
+          </div>
+          <div class="hub-card-grid">
+            {group.topics.map((topic) => <HubTopicCard topic={topic} />)}
+          </div>
+        </section>
       ))}
     </div>
-  </section>
 
-  <section class="topic-ledger" aria-labelledby="channels-title">
-    <div class="shell topic-grid">
-      <div>
-        <h2 id="channels-title">Продолжение — в каналах</h2>
-        <p>
-          На сайте история остаётся собранной, а свежие публикации выходят там,
-          где вам удобнее читать.
-        </p>
-      </div>
-      <div class="channel-register" aria-label="Каналы криминального направления">
-        <a href={CRIME_CHANNELS.telegram.url} rel="noopener noreferrer" target="_blank">
-          <span><strong>Telegram</strong><small>Оперативные публикации</small></span>
-          <b aria-hidden="true">↗</b>
-        </a>
-        <a href={CRIME_CHANNELS.max.url} rel="noopener noreferrer" target="_blank">
-          <span><strong>MAX</strong><small>Тот же канал в приложении</small></span>
-          <b aria-hidden="true">↗</b>
-        </a>
-      </div>
-    </div>
-    <div class="shell hub-future">
-      <span>«По факту» растёт как тематический хаб</span>
-      <p><a href={withBase("/roblox/")}>Roblox уже открыт →</a> · дальше кошки, MMA, авто и звёзды</p>
-    </div>
-  </section>
+    <footer class="hub-closing shell">
+      <p>Каждая тема живёт своим характером. Всё важное собрано в одном месте.</p>
+      <a href={withBase("/about/")}>Как устроен «По факту»</a>
+    </footer>
+  </div>
 </BaseLayout>

@@ -14,6 +14,7 @@ interface Props {
   socialImage?: string;
   socialImageAlt?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
+  hubHome?: boolean;
 }
 
 const {
@@ -25,6 +26,7 @@ const {
   socialImage,
   socialImageAlt = "По факту — тематический медиахаб",
   structuredData,
+  hubHome = false,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const isRoblox = currentPath.includes("/roblox");
@@ -79,7 +81,7 @@ const resolvedSocialImage = socialImage
     )}
     <title>{title}</title>
   </head>
-  <body>
+  <body class:list={{ "is-hub-home": hubHome }}>
     <a class="skip-link" href="#content">Перейти к содержанию</a>
     <header class="site-header">
       <div class="shell header-inner">
@@ -89,20 +91,27 @@ const resolvedSocialImage = socialImage
           <span class="brand-note">тематический медиахаб</span>
         </a>
         <div class="header-actions">
-          <nav aria-label="Основная навигация">
-            <a
-              class:list={{ active: currentPath.includes("/crime") }}
-              href={withBase("/crime/")}
-            >Криминал</a>
-            <a
-              class:list={{ active: isRoblox }}
-              href={withBase("/roblox/")}
-            >Roblox</a>
-            <a
-              class:list={{ active: currentPath.includes("/about") }}
-              href={withBase("/about/")}
-            >О проекте</a>
-          </nav>
+          {hubHome ? (
+            <nav aria-label="Основная навигация">
+              <a href="#themes">Все темы</a>
+              <a href={withBase("/about/")}>О проекте</a>
+            </nav>
+          ) : (
+            <nav aria-label="Основная навигация">
+              <a
+                class:list={{ active: currentPath.includes("/crime") }}
+                href={withBase("/crime/")}
+              >Криминал</a>
+              <a
+                class:list={{ active: isRoblox }}
+                href={withBase("/roblox/")}
+              >Roblox</a>
+              <a
+                class:list={{ active: currentPath.includes("/about") }}
+                href={withBase("/about/")}
+              >О проекте</a>
+            </nav>
+          )}
           <button
             class="theme-toggle"
             type="button"
@@ -125,7 +134,7 @@ const resolvedSocialImage = socialImage
       <slot />
     </main>
 
-    <footer class="site-footer">
+    {!hubHome && <footer class="site-footer">
       <div class="shell footer-grid">
         <div class="footer-brand">
           <strong>По факту</strong>
@@ -161,7 +170,7 @@ const resolvedSocialImage = socialImage
           )}
         </div>
       </div>
-    </footer>
+    </footer>}
     <script is:inline>
       (() => {
         const root = document.documentElement;
