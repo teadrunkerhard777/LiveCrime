@@ -141,7 +141,7 @@ const resolvedSocialImage = socialImage
           <span>События, источники и обновления.</span>
         </div>
         {isRoblox ? (
-          <p>Публикации перенесены из публичного канала Roblox Hub без пересказа.</p>
+          <p>Новости, обновления и полезные материалы по Roblox и Brawl Stars.</p>
         ) : (
           <p>
             Публикация информации о расследовании не означает доказанную
@@ -154,8 +154,11 @@ const resolvedSocialImage = socialImage
           </p>
           {isRoblox ? (
             <div class="footer-channels" aria-label="Канал Roblox">
-              <a href={ROBLOX_CHANNEL.url} rel="noopener noreferrer" target="_blank">
+              <a href={ROBLOX_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
                 Telegram
+              </a>
+              <a href={ROBLOX_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+                MAX
               </a>
             </div>
           ) : (

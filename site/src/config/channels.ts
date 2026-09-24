@@ -10,6 +10,12 @@ export const CRIME_CHANNELS = {
 } as const;
 
 export const ROBLOX_CHANNEL = {
-  label: "Roblox Hub",
-  url: "https://t.me/RobloxHubRU",
+  telegram: {
+    label: "Telegram",
+    url: "https://t.me/RobloxHubRU",
+  },
+  max: {
+    label: "MAX",
+    url: "https://max.ru/channel_RobloxHUB",
+  },
 } as const;

@@ -10,24 +10,28 @@ const posts = (await getCollection("roblox")).sort(
 ---
 
 <BaseLayout
-  title="Roblox — свежие посты Roblox Hub | По факту"
-  description="Публикации Roblox Hub с изображениями и текстом: обновления игр, полезные советы, новинки и находки сообщества."
+  title="Roblox и Brawl Stars — новости и гайды | По факту"
+  description="Свежие новости Roblox и Brawl Stars: обновления, события, режимы, промокоды, полезные советы и материалы игрового сообщества."
   canonicalPath="/roblox/"
 >
   <header class="roblox-masthead">
     <div class="shell roblox-masthead-grid">
       <div>
-        <span class="roblox-kicker">второй раздел хаба</span>
-        <h1>Roblox</h1>
+        <h1>Roblox <span>и Brawl Stars</span></h1>
       </div>
       <div class="roblox-intro">
         <p>
-          Свежие публикации Roblox Hub — здесь в том же виде, в котором они
-          выходят в Telegram: изображение, текст и ссылка на оригинал.
+          Новости, обновления, события и полезные материалы о Roblox и Brawl Stars.
+          Следите за новыми режимами, игровыми находками и важными изменениями.
         </p>
-        <a href={ROBLOX_CHANNEL.url} rel="noopener noreferrer" target="_blank">
-          Читать канал в Telegram ↗
-        </a>
+        <div class="roblox-channel-actions" aria-label="Игровые каналы в мессенджерах">
+          <a href={ROBLOX_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+            Читать в Telegram ↗
+          </a>
+          <a href={ROBLOX_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+            Читать в MAX ↗
+          </a>
+        </div>
       </div>
     </div>
   </header>
@@ -35,8 +39,8 @@ const posts = (await getCollection("roblox")).sort(
   <section class="shell roblox-feed" aria-labelledby="roblox-feed-title">
     <div class="roblox-feed-heading">
       <div>
-        <span>Прямая лента</span>
-        <h2 id="roblox-feed-title">Последние публикации</h2>
+        <span>Игровые новости</span>
+        <h2 id="roblox-feed-title">Roblox и Brawl Stars</h2>
       </div>
       <p>{posts.length} {posts.length === 1 ? "пост" : "постов"}</p>
     </div>
@@ -48,8 +52,8 @@ const posts = (await getCollection("roblox")).sort(
     ) : (
       <div class="roblox-empty">
         <strong>Лента подключена</strong>
-        <p>Первые публикации появятся здесь после ближайшей синхронизации с Telegram.</p>
-        <a href={ROBLOX_CHANNEL.url} rel="noopener noreferrer" target="_blank">
+        <p>Первые материалы появятся здесь после ближайшего обновления.</p>
+        <a href={ROBLOX_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
           Пока открыть Roblox Hub
         </a>
       </div>
