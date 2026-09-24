@@ -7,6 +7,7 @@ SITE_ROOT = Path(__file__).resolve().parents[1]
 HOME = (SITE_ROOT / "src/pages/index.astro").read_text(encoding="utf-8")
 TOPICS = (SITE_ROOT / "src/config/hub-topics.ts").read_text(encoding="utf-8")
 LAYOUT = (SITE_ROOT / "src/layouts/BaseLayout.astro").read_text(encoding="utf-8")
+CARD = (SITE_ROOT / "src/components/HubTopicCard.astro").read_text(encoding="utf-8")
 
 
 class HubHomeTests(unittest.TestCase):
@@ -44,6 +45,11 @@ class HubHomeTests(unittest.TestCase):
         self.assertEqual(len(set(images)), 7)
         for image in images:
             self.assertTrue((SITE_ROOT / "public" / image.removeprefix("/")).is_file())
+
+    def test_cards_keep_topic_labels_without_repeating_channel_names(self):
+        self.assertIn("{topic.subtitle}", CARD)
+        self.assertNotIn("<strong>{topic.title}</strong>", CARD)
+        self.assertIn("topic.title", CARD)
 
 
 if __name__ == "__main__":

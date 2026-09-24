@@ -15,7 +15,6 @@ const className = `hub-card hub-card-${topic.theme}${topic.size === "wide" ? " h
     <img class="hub-card-logo" src={withBase(topic.image)} alt="" width="1000" height="1000" decoding="async" />
     <span class="hub-card-copy">
       <span class="hub-card-status">Открыть раздел</span>
-      <strong>{topic.title}</strong>
       <small>{topic.subtitle}</small>
     </span>
     <svg class="hub-card-arrow" viewBox="0 0 32 32" aria-hidden="true">
@@ -27,7 +26,6 @@ const className = `hub-card hub-card-${topic.theme}${topic.size === "wide" ? " h
     <img class="hub-card-logo" src={withBase(topic.image)} alt="" width="1000" height="1000" loading="lazy" decoding="async" />
     <span class="hub-card-copy">
       <span class="hub-card-status">Скоро</span>
-      <strong>{topic.title}</strong>
       <small>{topic.subtitle}</small>
     </span>
     <span class="hub-card-dot" aria-hidden="true"></span>
