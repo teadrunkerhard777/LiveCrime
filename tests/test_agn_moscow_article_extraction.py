@@ -86,7 +86,6 @@ class AgnMoscowArticleExtractionTests(unittest.TestCase):
         for source in (
             "Lenta.ru",
             "PeterburgMedia: происшествия",
-            "E1.ru: происшествия",
             "vtomske.ru: происшествия",
         ):
             with self.subTest(source=source):

@@ -83,9 +83,10 @@ def fetch_article_html(url):
     # Сразу сообщаем об HTTP-ошибках вроде 404 или 500.
     response.raise_for_status()
 
-    # Fontanka отдаёт UTF-8 HTML без charset в HTTP-заголовке.
+    # Эти сайты отдают UTF-8 HTML без charset в HTTP-заголовке.
     # requests иначе ошибочно декодирует кириллицу как Latin-1.
-    if urlparse(url).netloc.casefold().removeprefix("www.") == "fontanka.ru":
+    utf8_domain = urlparse(url).netloc.casefold().removeprefix("www.")
+    if utf8_domain in {"fontanka.ru", "116.ru", "e1.ru"}:
         response.encoding = "utf-8"
 
     return response.text
@@ -157,6 +158,28 @@ def extract_vn_article_text(soup):
     # На VN.ru абзацы статьи — прямые дочерние div, а не теги <p>.
     for block in article_body.find_all(["div", "p"], recursive=False):
         text = block.get_text(" ", strip=True)
+
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
+def extract_116_e1_article_text(soup):
+    """Извлекает статью общей платформы 116.ru/E1.ru без погоды."""
+
+    headline = soup.find("h1")
+    current_article = headline.find_parent("article") if headline else None
+
+    if current_article is None:
+        return ""
+
+    paragraphs = []
+
+    # Lead, подзаголовок и основной текст находятся внутри одного article.
+    # Погода и карточки соседних материалов расположены за его границами.
+    for paragraph in current_article.find_all("p"):
+        text = paragraph.get_text(" ", strip=True)
 
         if text:
             paragraphs.append(text)
@@ -377,6 +400,8 @@ def extract_fontanka_article_text(soup):
 
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
+    "116.ru: происшествия": extract_116_e1_article_text,
+    "E1.ru: происшествия": extract_116_e1_article_text,
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
     "VN.ru: происшествия": extract_vn_article_text,
     "KrasnoyarskMedia: происшествия": extract_media_family_article_text,

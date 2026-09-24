@@ -149,6 +149,34 @@ class AnimalEventPolicyTests(unittest.TestCase):
         )
 
 
+class NonfatalShootingPolicyTests(unittest.TestCase):
+    def test_real_dzhigan_nonfatal_shooting_is_rejected(self):
+        item = make_news(
+            "Джиган расстрелял персонал у себя дома",
+            "Он выстрелил в охранника. Мужчина получил ранения руки и ноги.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [],
+        )
+        self.assertEqual(
+            item["event_policy_rejection"],
+            "nonfatal_shooting",
+        )
+
+    def test_fatal_rasstrel_is_preserved(self):
+        item = make_news(
+            "Нападавший расстрелял двух человек",
+            "Оба потерпевших погибли на месте.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [item],
+        )
+
+
 class StaleEventPolicyTests(unittest.TestCase):
     def assert_rejected_stale(self, news_item):
         self.assertEqual(
@@ -163,6 +191,14 @@ class StaleEventPolicyTests(unittest.TestCase):
             "совершенных в 2002 году"
         ))
 
+    def test_real_india_acquittal_about_2024_child_deaths_is_rejected(self):
+        self.assert_rejected_stale(make_news(
+            "В Индии мать приговорили к казни за убийство троих детей, "
+            "но оправдали",
+            "По версии следствия, в июне 2024 года обвиняемые сбросили "
+            "четверых сыновей в реку. В результате трое детей утонули.",
+        ))
+
     def test_real_furgal_associate_search_about_2004_murder_is_rejected(self):
         self.assert_rejected_stale(make_news(
             "Россия объявила в розыск соратника Фургала",
@@ -175,6 +211,13 @@ class StaleEventPolicyTests(unittest.TestCase):
         self.assert_rejected_stale(make_news(
             "Суд вынес свежий приговор",
             "Преступление совершено в январе 1995 года.",
+        ))
+
+    def test_old_incident_month_and_year_is_rejected(self):
+        self.assert_rejected_stale(make_news(
+            "Мужчина получил срок за убийство охранника",
+            "Инцидент произошёл в июле 2025 года. Один из охранников "
+            "скончался в больнице.",
         ))
 
     def test_solved_old_murder_is_rejected(self):
@@ -205,6 +248,17 @@ class StaleEventPolicyTests(unittest.TestCase):
             "Сегодня мужчину нашли убитым",
             "В 2002 году мужчина переехал в Москву. Сегодня его нашли "
             "убитым.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [item],
+        )
+
+    def test_victim_birth_year_is_not_event_year(self):
+        item = make_news(
+            "Убийство зарегистрировано за прошедшие сутки",
+            "В поселке совершено убийство мужчины, 1978 года рождения.",
         )
 
         self.assertEqual(

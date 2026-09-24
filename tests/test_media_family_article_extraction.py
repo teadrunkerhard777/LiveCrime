@@ -151,7 +151,6 @@ class MediaFamilyArticleExtractionTests(unittest.TestCase):
             "VN.ru: происшествия",
             "PeterburgMedia: происшествия",
             "Lenta.ru",
-            "E1.ru: происшествия",
             "PrimaMedia: происшествия Приморья",
             "KrasnodarMedia: происшествия",
             "IrkutskMedia: происшествия",
