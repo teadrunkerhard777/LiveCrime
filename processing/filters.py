@@ -5,6 +5,13 @@ from datetime import datetime, timedelta, timezone
 CONTEXTUAL_SCORE_BONUS_LIMIT = 3
 
 
+# Явные метафоры со словом "убийца" не являются crime-событиями.
+# Список намеренно узкий: реальные люди-убийцы должны продолжать проходить.
+FIGURATIVE_HOMICIDE_PATTERNS = (
+    r"\bубийц\w*\s+(?:иммунитет\w*|здоровь\w*|настроени\w*|сн\w*|продуктивност\w*)\b",
+)
+
+
 # Эти формулировки явно описывают незавершённое преступление.
 # Одно слово "покушение" не блокируем: рядом может быть завершённое убийство.
 ATTEMPT_PATTERNS = (
@@ -122,6 +129,23 @@ def _contains_animal_event(full_text):
     )
 
 
+def _contains_nonfatal_rasstrel(full_text):
+    """Не считает форму «расстрелял» убийством без смертельного исхода."""
+
+    has_rasstrel = re.search(
+        r"\bрасстрелял\w*\b",
+        full_text,
+        re.IGNORECASE,
+    )
+    has_fatal_outcome = re.search(
+        r"\b(?:убил\w*|убит(?!ь)\w*|погиб\w*|скончал\w*|умер\w*|"
+        r"смертельн\w*|до\s+смерти)\b",
+        full_text,
+        re.IGNORECASE,
+    )
+    return bool(has_rasstrel and not has_fatal_outcome)
+
+
 def _explicit_old_event_year(full_text, published_at, max_age_days):
     """Возвращает год, только если старый год явно относится к hard-event."""
 
@@ -133,6 +157,10 @@ def _explicit_old_event_year(full_text, published_at, max_age_days):
         rf"\b(?:дел\w*\s+(?:об?|по)|раскрыл\w*|расследу\w*)[^.!?\n]{{0,60}}\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,50}}\b((?:19|20)\d{{2}})\s+год",
         rf"\b(?:убил\w*|изнасиловал\w*)[^.!?\n]{{0,100}}\b((?:19|20)\d{{2}})\s+год",
         rf"\bпреступлен\w*[^.!?\n]{{0,50}}\b(?:совершен\w*|произошл\w*)[^.!?\n]{{0,40}}\b((?:19|20)\d{{2}})\s+год",
+        # В ряде статей дата стоит раньше описания смертельного исхода:
+        # "в июне 2024 года ... трое детей утонули".
+        r"\b(?:в\s+)?(?:январ\w*|феврал\w*|март\w*|апрел\w*|ма[ея]|июн\w*|июл\w*|август\w*|сентябр\w*|октябр\w*|ноябр\w*|декабр\w*)\s+((?:19|20)\d{2})\s+год\w*[^.!?\n]{0,180}\b(?:убил\w*|изнасиловал\w*|утонул\w*|погиб\w*|скончал\w*|умер\w*|сбросил\w*)\b",
+        r"\b(?:инцидент\w*|происшестви\w*|нападен\w*|стрельб\w*)\s+(?:произош\w*|случил\w*)[^.!?\n]{0,50}\b(?:в\s+)?(?:январ\w*|феврал\w*|март\w*|апрел\w*|ма[ея]|июн\w*|июл\w*|август\w*|сентябр\w*|октябр\w*|ноябр\w*|декабр\w*)\s+((?:19|20)\d{2})\s+год",
     )
 
     for pattern in event_year_patterns:
@@ -193,6 +221,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         if _contains_animal_event(full_text):
             rejection = "animal_event"
             reason = "animal violence is not a human true-crime event"
+        elif _contains_nonfatal_rasstrel(full_text):
+            rejection = "nonfatal_shooting"
+            reason = "shooting without an explicit fatal outcome"
         elif _contains_standalone_attempt(full_text):
             rejection = "standalone_attempt"
             reason = "attempt without a completed hard event"
@@ -270,6 +301,10 @@ def filter_by_topics(
             keyword.casefold() in full_text
             for keyword in exclude_keywords
         )
+        has_figurative_homicide = any(
+            re.search(pattern, full_text, re.IGNORECASE)
+            for pattern in FIGURATIVE_HOMICIDE_PATTERNS
+        )
 
         # Разделение сохраняем в news_item для понятной диагностики.
         matched_strong_topics = [
@@ -322,7 +357,9 @@ def filter_by_topics(
                 f'severe outcome "{matched_serious_outcomes[0]}"'
             )
 
-        if has_excluded_keyword:
+        if has_figurative_homicide:
+            news_item["rejection_reason"] = "figurative homicide language"
+        elif has_excluded_keyword:
             news_item["rejection_reason"] = "excluded keyword"
         elif matched_conditional_topics and not matched_serious_outcomes:
             topics_text = ", ".join(matched_conditional_topics)
@@ -343,6 +380,7 @@ def filter_by_topics(
             matched_topics
             and has_supported_topic
             and not has_excluded_keyword
+            and not has_figurative_homicide
         )
 
         # Никакой score не может заменить hard serious допуск.
@@ -350,6 +388,7 @@ def filter_by_topics(
             matched_topics
             and has_supported_topic
             and not has_excluded_keyword
+            and not has_figurative_homicide
         ):
             filtered_news.append(news_item)
 

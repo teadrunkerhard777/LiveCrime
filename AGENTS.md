@@ -51,7 +51,7 @@ The current `main.py` order is:
 6. Add scores and require `MIN_PUBLICATION_SCORE`.
 7. Rank candidates by score, preserving source order for ties.
 8. Fetch article HTML once per ranked candidate and attach both `article_text` and `image_url`.
-9. Reject animal events, standalone attempts, and explicitly stale hard events using the loaded article text.
+9. Reject animal events, nonfatal shootings, standalone attempts, and explicitly stale hard events using the loaded article text.
 10. Run URL, title, and cross-source event deduplication in `remove_duplicates()`.
 11. Load history; bypass its selection restriction only in `DRY_RUN`.
 12. Slice `selected_news` to `MAX_NEWS_PER_RUN`.
@@ -93,6 +93,7 @@ The current `main.py` order is:
 - A standalone attempted crime is rejected unless the same story contains a completed hard event.
 - An explicitly old hard event is rejected when it exceeds `MAX_EVENT_AGE_DAYS`; an unknown event date remains eligible.
 - Violence by an animal or against an animal is not a human true-crime event and is rejected only when that relationship is explicit.
+- The sensational verb `расстрелял` is rejected unless the story explicitly confirms a fatal outcome.
 - `MIN_PUBLICATION_SCORE = 4`.
 - Contextual score bonus is capped at 3.
 - Do not change strong topics, conditional topics, severe outcomes, exclusions, scoring, or threshold in an unrelated task.

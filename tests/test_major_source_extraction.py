@@ -49,6 +49,28 @@ FONTANKA_HTML = """
 """
 
 
+RU116_HTML = """
+<html>
+  <body>
+    <section class="weather"><p>Сейчас +12°C, переменная облачность</p></section>
+    <article class="article_randomHash">
+      <header>
+        <h1>В Индии мать оправдали по делу об убийстве детей</h1>
+        <p>В деле нашли существенные противоречия</p>
+        <div><p>Суд распорядился освободить обвиняемых</p></div>
+      </header>
+      <div class="content_randomHash">
+        <div><p>Суд исследовал показания ключевого свидетеля.</p></div>
+        <div><p>Основной содержательный текст статьи сохранён.</p></div>
+      </div>
+    </article>
+    <article><p>Соседняя новость из общей ленты</p></article>
+    <footer><p>Контакты редакции</p></footer>
+  </body>
+</html>
+"""
+
+
 class MajorSourceExtractionTests(unittest.TestCase):
     def test_mk_uses_article_body_and_stops_before_related_links(self):
         result = extract_article_text(MK_HTML, source="MK.ru: происшествия")
@@ -70,6 +92,24 @@ class MajorSourceExtractionTests(unittest.TestCase):
         self.assertNotIn("Соседняя новость", result)
         self.assertNotIn("Лайк Смех", result)
         self.assertNotIn("Политика конфиденциальности", result)
+
+    def test_116_isolates_article_from_weather_and_neighboring_cards(self):
+        result = extract_article_text(
+            RU116_HTML,
+            source="116.ru: происшествия",
+        )
+
+        self.assertIn("В деле нашли существенные противоречия", result)
+        self.assertIn("Основной содержательный текст", result)
+        self.assertNotIn("Сейчас +12", result)
+        self.assertNotIn("Соседняя новость", result)
+        self.assertNotIn("Контакты редакции", result)
+
+        # E1.ru использует ту же подтверждённую платформу и DOM-структуру.
+        self.assertEqual(
+            result,
+            extract_article_text(RU116_HTML, source="E1.ru: происшествия"),
+        )
 
     def test_new_sources_keep_standard_image_metadata_extraction(self):
         self.assertEqual(
@@ -95,6 +135,34 @@ class MajorSourceExtractionTests(unittest.TestCase):
         result = fetch_article_html("https://www.fontanka.ru/2026/08/27/1/")
 
         self.assertEqual(result, "Текст Фонтанки")
+
+    @patch("article.fetcher.requests.get")
+    def test_116_response_is_decoded_as_utf8(self, get_mock):
+        response = Response()
+        response.status_code = 200
+        response._content = "Текст статьи 116.ru".encode("utf-8")
+        response.encoding = "ISO-8859-1"
+        get_mock.return_value = response
+
+        result = fetch_article_html(
+            "https://116.ru/text/incidents/2026/09/24/76659054/"
+        )
+
+        self.assertEqual(result, "Текст статьи 116.ru")
+
+    @patch("article.fetcher.requests.get")
+    def test_e1_response_is_decoded_as_utf8(self, get_mock):
+        response = Response()
+        response.status_code = 200
+        response._content = "Текст статьи E1.ru".encode("utf-8")
+        response.encoding = "ISO-8859-1"
+        get_mock.return_value = response
+
+        result = fetch_article_html(
+            "https://www.e1.ru/text/incidents/2026/09/24/76659054/"
+        )
+
+        self.assertEqual(result, "Текст статьи E1.ru")
 
 
 if __name__ == "__main__":

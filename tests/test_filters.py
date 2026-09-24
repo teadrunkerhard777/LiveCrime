@@ -95,6 +95,21 @@ class MedicalNoiseTests(unittest.TestCase):
 
         self.assertEqual(result, [])
 
+    def test_immunity_killers_metaphor_is_rejected(self):
+        result = self.filter_item(
+            "Врач назвал семь убийц иммунитета осенью",
+            "Убийцей иммунитета является хронический недосып.",
+        )
+
+        self.assertEqual(result, [])
+
+    def test_real_killer_with_medical_profession_is_accepted(self):
+        result = self.filter_item(
+            "Убийцу врача приговорили к лишению свободы"
+        )
+
+        self.assertEqual(len(result), 1)
+
     def test_vitamin_deficiency_symptoms_are_rejected(self):
         result = self.filter_item(
             "Врач назвал симптомы дефицита витамина"
