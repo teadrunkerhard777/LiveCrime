@@ -1,0 +1,8 @@
+{
+  "message_id": "71",
+  "text": "🔵 Android, Linux, Windows и macOS позволяют шпионить за пользователями через файловые операции — без чтения самих файлов\n\nИсследователи из Технического университета Граца (Австрия) обнаружили ошибки в реализации функций уведомлений ОС о файловых операциях — они затронули платформы Android, Linux, macOS и Windows. Из-за этих ошибок возникает угроза утечки конфиденциальной информации.\n\nПроблема затрагивает механизмы Linux inotify (с 2005 года), Google Android FileObserver (с 2008 года), Microsoft Windows ReadDirectoryChangesW (с 2000 года) и Apple macOS FSEvents в (с 2007 года). Они уведомляют ОС о том, что файл был открыт, изменён, записан или удалён.\n\nПроблема состоит в том, что у непривилегированных пользователей есть доступ к подсистеме уведомлений о файловых операциях; причём в Linux и Windows информация о файлах доступна даже в отсутствие прав…\n\n📅 25 сентября 2026\n📰 3DNews: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-09-25T10:31:38+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/X552Ttc1ktVK59rroGgS3XGlZF3MgXz_4hg6pmo5nbBFR4WtPUgjoXrYbKMWpFt5Dt7FM7fvxMdSXCzkhHvlQxuWl9Fa6jBEaJZ0jaA90LK0L0tpt2n9T1jLOcFuraZhSxvQAgvndMBPfHI2hgnDmJ5lGR7CmzFWxnF9PO26oh7mDO_VwXWntjFUv0yoEZQ9tC8yPzwJ_keFp8ih9ziaJwA_lUEWSqY3L5DA-bni4BK5tVCbpZbfYTqrWcVRGuHDyYzIEGceS9jcKsKbIRIS6rMLgwc-1wPWUwDuDlM-fRu2AW7GyMCG-KWzSqA28fXDVHw4y589Zv73b-kagU_k5w.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/71",
+  "source_url": "https://3dnews.ru/1149026"
+}

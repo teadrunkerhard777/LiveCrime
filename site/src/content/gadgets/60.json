@@ -1,0 +1,8 @@
+{
+  "message_id": "60",
+  "text": "🔵 Обновление KB5124010 для Windows 11 приводит к сбоям в Battlefield 6 и других играх спустя несколько минут после запуска\n\nВ начале сентября Microsoft выпустила обновление KB5124010 для канала Windows 11 Release Preview Insider под версии 25H2 и 24H2. Позже компания распространила этот патч в качестве необязательного обновления, не связанного с безопасностью.\n\nПроблемы наблюдаются в Battlefield 6 и других играх: приложение вылетает спустя несколько минут после начала игровой сессии. Пользователи предположили, что ошибка возникает по причине конфликта античитерских движков с Windows 11 после установки обновления KB5124010.\n\nПо словам пользователей, проблема затрагивает не только Battlefield 6. Участники обсуждений сообщали о подобных проблемах с другими играми,…\n\n📅 23 сентября 2026\n📰 Habr Новости: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-09-24T01:31:27+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/EJdgbn2hn7FzIEPrL03CPVUtdjd-IfzgBmKfKkVQpsUTRWOW03SdJd1ugN18i7cxmaVh9osmvEyI8jqTwGSY16ehsi3bfAFkbyyjGViRKTuDty-RuirLSqWo7SIBswIsc0jX9SaOQmur1Pw57IAhotZnxeObeT6PnjcZRxuekJGIZsuu9D9oQiNAa_Lh2ptLPs_Zv8ZlyrP4NdRUo6MhQ3T0dyonenVYJxmKVMt_HcHJJiwaXlE1KDrEh4puT0Fp6EmtNFAQdyVbIZXHGyEWaUO5rQyjEmAFHe0-8-8gehbKnWbA9LSgeO1vN5OaDi_tffWv99obcF6m6bR-FT0Yng.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/60",
+  "source_url": "https://habr.com/ru/news/1085568/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1085568"
+}

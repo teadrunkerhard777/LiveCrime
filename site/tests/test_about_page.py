@@ -15,7 +15,7 @@ class AboutPageTests(unittest.TestCase):
         self.assertIn("MMA и UFC", PAGE)
         self.assertIn("Звёзды и шоу-бизнес", PAGE)
         self.assertIn("Кошки, собаки и другие животные", PAGE)
-        self.assertIn("направление про гаджеты", PAGE)
+        self.assertIn("Гаджеты, технологии и ИИ", PAGE)
         self.assertIn("Авто", PAGE)
         self.assertNotIn("Сейчас «По факту» начинается с криминальных историй", PAGE)
         self.assertNotIn("SEO изучаем", PAGE)
@@ -29,12 +29,14 @@ class AboutPageTests(unittest.TestCase):
         self.assertIn('withBase("/mma/")', PAGE)
         self.assertIn('withBase("/stars/")', PAGE)
         self.assertIn('withBase("/pets/")', PAGE)
+        self.assertIn('withBase("/gadgets/")', PAGE)
         self.assertIn("CRIME_CHANNELS.telegram.url", PAGE)
         self.assertIn("ROBLOX_CHANNEL.max.url", PAGE)
         self.assertIn("CARS_CHANNEL.max.url", PAGE)
         self.assertIn("MMA_CHANNEL.max.url", PAGE)
         self.assertIn("STARS_CHANNEL.max.url", PAGE)
         self.assertIn("PETS_CHANNEL.max.url", PAGE)
+        self.assertIn("GADGETS_CHANNEL.max.url", PAGE)
 
     def test_about_page_has_search_metadata_and_structured_data(self):
         self.assertIn('"@type": "AboutPage"', PAGE)
@@ -46,6 +48,7 @@ class AboutPageTests(unittest.TestCase):
         self.assertIn('{ path: "/mma/"', SITEMAP)
         self.assertIn('{ path: "/stars/"', SITEMAP)
         self.assertIn('{ path: "/pets/"', SITEMAP)
+        self.assertIn('{ path: "/gadgets/"', SITEMAP)
 
     def test_about_footer_is_not_mislabeled_as_crime(self):
         self.assertIn('isAbout ? "О проекте"', LAYOUT)

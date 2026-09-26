@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import TelegramPostCard from "../../components/TelegramPostCard.astro";
+import { GADGETS_CHANNEL } from "../../config/channels";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("gadgets")).sort(
+  (first, second) => second.data.published_at.valueOf() - first.data.published_at.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Новости гаджетов, технологий и ИИ сегодня | По факту"
+  description="Свежие новости гаджетов и технологий: искусственный интеллект, смартфоны, устройства, цифровые сервисы, тренды и известные бренды."
+  canonicalPath="/gadgets/"
+>
+  <header class="roblox-masthead gadgets-masthead">
+    <div class="shell roblox-masthead-grid">
+      <div>
+        <h1>Гаджеты <span>технологии, ИИ и бренды</span></h1>
+      </div>
+      <div class="roblox-intro">
+        <p>
+          Новости техники, искусственного интеллекта, цифровых сервисов,
+          заметных брендов и устройств, которыми мы пользуемся каждый день.
+        </p>
+        <div class="roblox-channel-actions" aria-label="Каналы о гаджетах в мессенджерах">
+          <a href={GADGETS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+            Читать в Telegram ↗
+          </a>
+          <a href={GADGETS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+            Читать в MAX ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="shell roblox-feed gadgets-feed" aria-labelledby="gadgets-feed-title">
+    <div class="roblox-feed-heading">
+      <div>
+        <span>Ну и гаджеты</span>
+        <h2 id="gadgets-feed-title">Последние публикации</h2>
+      </div>
+      <p>{posts.length} {posts.length === 1 ? "пост" : "постов"}</p>
+    </div>
+
+    {posts.length ? (
+      <div class="roblox-posts">
+        {posts.map((post) => (
+          <TelegramPostCard
+            post={post}
+            channelName="Ну и гаджеты"
+            imageAlt="Изображение из публикации канала Ну и гаджеты"
+            maxUrl={GADGETS_CHANNEL.max.url}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="roblox-empty">
+        <strong>Лента подключена</strong>
+        <p>Первые публикации о гаджетах появятся после ближайшего обновления.</p>
+        <a href={GADGETS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+          Пока открыть канал в Telegram
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>

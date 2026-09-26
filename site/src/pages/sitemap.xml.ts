@@ -24,6 +24,7 @@ export const GET: APIRoute = async ({ site }) => {
     { path: "/mma/", changefreq: "daily", priority: "0.9" },
     { path: "/stars/", changefreq: "daily", priority: "0.9" },
     { path: "/pets/", changefreq: "daily", priority: "0.9" },
+    { path: "/gadgets/", changefreq: "daily", priority: "0.9" },
     { path: "/about/", changefreq: "monthly", priority: "0.5" },
     ...events.map((event) => ({
       path: `/crime/${event.id}/`,

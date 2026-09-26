@@ -147,4 +147,16 @@ const pets = defineCollection({
   }),
 });
 
-export const collections = { events, roblox, crimeFeed, cars, mma, stars, pets };
+const gadgets = defineCollection({
+  loader: glob({ pattern: "**/*.json", base: "./src/content/gadgets" }),
+  schema: z.object({
+    message_id: z.string().regex(/^\d+$/),
+    text: z.string().min(1),
+    published_at: z.coerce.date(),
+    image_url: z.url(),
+    telegram_url: z.url(),
+    source_url: z.url().optional(),
+  }),
+});
+
+export const collections = { events, roblox, crimeFeed, cars, mma, stars, pets, gadgets };

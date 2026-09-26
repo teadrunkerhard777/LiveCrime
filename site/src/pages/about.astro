@@ -1,11 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { CARS_CHANNEL, CRIME_CHANNELS, MMA_CHANNEL, PETS_CHANNEL, ROBLOX_CHANNEL, STARS_CHANNEL } from "../config/channels";
+import { CARS_CHANNEL, CRIME_CHANNELS, GADGETS_CHANNEL, MMA_CHANNEL, PETS_CHANNEL, ROBLOX_CHANNEL, STARS_CHANNEL } from "../config/channels";
 import { withBase } from "../lib/events";
 
 const title = "О проекте «По факту» — тематический медиахаб";
 const description =
-  "«По факту» — тематический медиахаб о криминальных событиях, Roblox, автомобилях, MMA, звёздах и животных. Свежие материалы и ссылки на наши каналы.";
+  "«По факту» — тематический медиахаб о криминальных событиях, Roblox, автомобилях, MMA, звёздах, животных, гаджетах и технологиях. Свежие материалы и ссылки на наши каналы.";
 const pageUrl = new URL(withBase("/about/"), Astro.site ?? Astro.url).toString();
 const homeUrl = new URL(withBase("/"), Astro.site ?? Astro.url).toString();
 const structuredData = {
@@ -38,7 +38,7 @@ const structuredData = {
       <div class="about-section-heading">
         <h2 id="about-live-title">Что уже можно читать</h2>
         <p>
-          Шесть действующих направлений помогают быстро перейти к интересующей
+          Семь действующих направлений помогают быстро перейти к интересующей
           теме и продолжить чтение в удобном мессенджере.
         </p>
       </div>
@@ -73,6 +73,11 @@ const structuredData = {
           <span class="about-route-copy">Добрые истории, новости питомцев, советы по уходу и интересные материалы о животных.</span>
           <span class="about-route-action">Перейти в раздел <span aria-hidden="true">→</span></span>
         </a>
+        <a class="about-route about-route-gadgets" href={withBase("/gadgets/")}>
+          <span class="about-route-name">Гаджеты, технологии и ИИ</span>
+          <span class="about-route-copy">Новинки техники, цифровые сервисы, искусственный интеллект, тренды и заметные бренды.</span>
+          <span class="about-route-action">Перейти в раздел <span aria-hidden="true">→</span></span>
+        </a>
       </div>
     </section>
 
@@ -104,7 +109,7 @@ const structuredData = {
     <section class="about-next" aria-labelledby="about-next-title">
       <div>
         <h2 id="about-next-title">Хаб будет расти</h2>
-        <p>Следом готовится направление про гаджеты. Оно появится только тогда, когда сможет быть полезным само по себе.</p>
+        <p>Новые направления будут появляться тогда, когда для них готовы полезная лента и подтверждённые каналы.</p>
       </div>
       <a class="primary-action" href={withBase("/")}>Выбрать тему</a>
     </section>
@@ -118,6 +123,7 @@ const structuredData = {
         <div><strong>MMA и UFC</strong><a href={MMA_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">Telegram</a><a href={MMA_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">MAX</a></div>
         <div><strong>Звёзды и шоу-бизнес</strong><a href={STARS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">Telegram</a><a href={STARS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">MAX</a></div>
         <div><strong>Кошки, собаки и животные</strong><a href={PETS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">Telegram</a><a href={PETS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">MAX</a></div>
+        <div><strong>Гаджеты, технологии и ИИ</strong><a href={GADGETS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">Telegram</a><a href={GADGETS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">MAX</a></div>
       </div>
     </section>
   </article>

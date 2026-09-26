@@ -18,6 +18,7 @@ colors:
   topic-mma: "#7b865c"
   topic-auto: "#7b70ad"
   topic-stars: "#b15a83"
+  topic-gadgets: "#3d8793"
   night-paper: "#151719"
   night-sheet: "#202326"
   night-ink: "#f2ede3"

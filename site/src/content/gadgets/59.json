@@ -1,0 +1,8 @@
+{
+  "message_id": "59",
+  "text": "🔵 У CrowdSec украли код из 170 приватных репозиториев через заражённые npm-пакеты\n\n18 сентября 2026 года компания CrowdSec опубликовала разбор инцидента , в котором связала кражу кода примерно из 170 приватных GitHub-репозиториев с майской компрометацией TanStack. Репозитории скачали 22 мая, а о результатах утечки компания узнала уже в сентябре, после публикации архива на форуме.\n\nЦепочка событий, которая привела к потере данных, начинается ещё весной. 11 мая атакующий выпустил 84 вредоносные версии 42 пакетов TanStack .\n\nВ случае CrowdSec пострадал бывший сотрудник, которому временно сохранили доступ к GitHub для завершения работы. Украденный у него OAuth-токен позволил скачать репозитории, а скомпрометированный аккаунт удалили из организации…\n\n📅 23 сентября 2026\n📰 Habr Новости: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-09-23T22:31:31+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/tNqnySLoLWxIXDCj9PDKkOwv7AyhHozUXOY3yRAVN7_5dtpi_n0VP4u-CtTs2sg3lofGvZs4Ymke2P0jV0B_rlR6YVPh_WDMTYRg2AmEZrmEfCFf5b1WQxiLKJdglhuEZrLERrSq2qs0XWrPM5qc90IGQ_r8dGmGfmpLTr__gyh6J-qc-OiBzdBhS-QbbyM4jc7Y90GZ37rR4b1Luv6xFP6wCFW0qz3ck9gZpyTRgWl5FQqOpf8fBsRrbldIZrkas0CusoZI4Z_TSx1vcpk9U1zwV3TTcrWYij88EQLOYNCVouVj0gcWMGdDVB_2llc6yqhg6acgg_1jJcCTn8wU9A.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/59",
+  "source_url": "https://habr.com/ru/companies/codescoring/news/1085736/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1085736"
+}

@@ -80,6 +80,7 @@ export const HUB_TOPIC_GROUPS: HubTopicGroup[] = [
         title: "НУ И ГАДЖЕТЫ",
         subtitle: "ИИ • техника • наука",
         image: "/channel-logos/gadgets.jpg",
+        url: "/gadgets/",
         theme: "gadgets",
       },
       {

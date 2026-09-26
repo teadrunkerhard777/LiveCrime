@@ -1,0 +1,8 @@
+{
+  "message_id": "75",
+  "text": "🔵 Китайцы научили ИИ общаться без слов — модели передают друг другу содержимое памяти и работают на 150 % быстрее\n\nУчёные китайского Университета Цинхуа представили метод, позволяющий различным моделям искусственного интеллекта общаться друг с другом напрямую без генерации текста. Метод получил название Cache-to-Cache (C2C), разработчикам уже доступен исходный код решения.\n\nСейчас при совместной деятельности нескольких языковых моделей в рамках единого конвейера обработки данных взаимодействие между ними осуществляется недостаточно эффективно — одной приходится преобразовывать результаты своих «рассуждений» в текстовые предложения, чтобы вторая могла их прочитать. При генерации текста расходуются вычислительные ресурсы и теряются некоторые мелкие детали.\n\nЗа процесс передачи отвечает вспомогательная программа Fuser — она преобразует и адаптирует данные…\n\n📅 25 сентября 2026\n📰 3DNews: искусственный интеллект\n#ИИ",
+  "published_at": "2026-09-25T22:31:09+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/u1N4Oak_UJKRhVANQqAHct6PAiHcIndJSgyiMHI9YkNEzedtrYtfpzdmheL55N8iTJeH8Bm5j4Ilwe6xZgHjOmWiBI2njL9_9daCrMf3wGFLnJvbyBBaBFBXoC03UKKgwkzugSpbglHMQ1nG7rRUXXS6zZlOLRcfwMumJ2Iucd7hhWN5yUSMecUNeeKm-71tdY0bYsbsbr-yjfT5sdl3di6CrqMRwlJ2jRmHSwflPXhtx2mSDA6Jg0Kg6Z_JoNFjKK4EPWXv9z74XOdy_f2lcTiXLF4KUdRCYljSWySuhCCTHldnc_mGt9c5mRtD-QrAyge7C48vP_wywslRO91jgw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/75",
+  "source_url": "https://3dnews.ru/1149042"
+}

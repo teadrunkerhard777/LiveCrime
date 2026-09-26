@@ -25,6 +25,9 @@
   --pets: #d1813d;
   --pets-dark: #8f4f1e;
   --pets-pale: #f5e4d3;
+  --gadgets: #3d8793;
+  --gadgets-dark: #23606a;
+  --gadgets-pale: #dbecee;
   --dark-muted: #c8c7c1;
   --ledger: #191b1d;
   --ledger-text: #fffdf7;
@@ -63,6 +66,9 @@
   --pets: #e4a266;
   --pets-dark: #f4be8c;
   --pets-pale: #38291e;
+  --gadgets: #67aeb8;
+  --gadgets-dark: #9bd4db;
+  --gadgets-pale: #1d3033;
   --dark-muted: #b9b5ac;
   --ledger: #0d0f10;
   --ledger-text: #f2ede3;
@@ -1216,6 +1222,29 @@ a.hub-card:hover .hub-card-logo {
   border-top-color: var(--pets);
 }
 
+.gadgets-masthead .roblox-masthead-grid {
+  border-top-color: var(--gadgets);
+}
+
+.gadgets-masthead h1 span,
+.gadgets-feed .roblox-feed-heading span,
+.gadgets-feed .roblox-signal span,
+.gadgets-feed .telegram-post-actions a {
+  color: var(--gadgets-dark);
+}
+
+.gadgets-feed .roblox-signal {
+  border-right-color: var(--gadgets);
+}
+
+.gadgets-feed .roblox-image {
+  background: var(--gadgets-pale);
+}
+
+.gadgets-feed .roblox-post-copy {
+  border-top-color: var(--gadgets);
+}
+
 .roblox-empty {
   max-width: 740px;
   margin-top: 42px;
@@ -1779,6 +1808,10 @@ a.hub-card:hover .hub-card-logo {
   --route-accent: var(--pets);
 }
 
+.about-route-gadgets {
+  --route-accent: var(--gadgets);
+}
+
 .about-route::before {
   width: 54px;
   height: 5px;
@@ -2227,6 +2260,10 @@ a.hub-card:hover .hub-card-logo {
 
   .pets-feed .roblox-signal {
     border-bottom-color: var(--pets);
+  }
+
+  .gadgets-feed .roblox-signal {
+    border-bottom-color: var(--gadgets);
   }
 
   .roblox-signal time {

@@ -1,0 +1,8 @@
+{
+  "message_id": "64",
+  "text": "🔵 Alibaba представила модель генерации изображений Qwen-Image-2.1 — работает на обычной видеокарте\n\nAlibaba выпустила Qwen-Image-2.1 — компактную нейросеть для генерации и редактирования изображений. По данным команды Qwen, визуальная часть модели содержит всего 7 млрд параметров, а сама система умеет создавать картинки по текстовому описанию и редактировать готовые изображения.\n\nГлавная особенность Qwen-Image-2.1 — объединение нескольких функций в одной модели. Нейросеть может генерировать изображения с нуля, менять отдельные элементы готовой картинки и использовать до 10 изображений в качестве референсов.\n\nЕще одна заметная функция — создание изображений с прозрачным фоном. Qwen-Image-2.1 умеет сразу выдавать картинки с альфа-каналом, поэтому результат можно использовать как стикер,…\n\n📅 24 сентября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-09-24T13:31:16+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/Cd9U6NWqG_sg3UewC93zUnYLBFlbZYl6-rQ69TyptIJ1cZ2l0oXb1IZXJh4KVtQxtiW0UgOCh51aIwnEL1JdzKFtsZPPOoVaP7to23Cn4ezPUzAQjZ99SwjIeHjh28o4BWt7YIc1SzmBfXAtQzNTiiE9RYQH3RNCa-rXJK7Jr9gBuqfNEbhckrVMEGdxSkifytQaKIzxGDSqOfJx6rLCBkwsop1gxDAJBTD61XdrfigHjxoMUDJCvBCZT__urA_0612GnwYFN52TKJeBkcgJ32EVqkpwG3oR2ZSHdtuEFsbSu5tQe6fpCECukMCUfAsi39oyI9G9BFKE2um_D-5FDA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/64",
+  "source_url": "https://hi-tech.mail.ru/news/156210-alibaba-predstavila-model-generacii-izobrazhenij-qwen-image-21/"
+}

@@ -51,3 +51,8 @@ export const PETS_CHANNEL = {
   telegram: { label: "Telegram", url: "https://t.me/koshki_sobaki_hvosti" },
   max: { label: "MAX", url: "https://max.ru/channel_koshki_sobaki" },
 } as const;
+
+export const GADGETS_CHANNEL = {
+  telegram: { label: "Telegram", url: "https://t.me/trends_brands_money" },
+  max: { label: "MAX", url: "https://max.ru/channel_trends_and_brands" },
+} as const;
