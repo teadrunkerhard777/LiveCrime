@@ -30,3 +30,14 @@ export const CARS_CHANNEL = {
     url: "https://max.ru/channel_auto_moto_gear",
   },
 } as const;
+
+export const MMA_CHANNEL = {
+  telegram: {
+    label: "Telegram",
+    url: "https://t.me/MMA_TODAY777",
+  },
+  max: {
+    label: "MAX",
+    url: "https://max.ru/channel_MMA_TODAY",
+  },
+} as const;

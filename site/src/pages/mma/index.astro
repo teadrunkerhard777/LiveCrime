@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import TelegramPostCard from "../../components/TelegramPostCard.astro";
+import { MMA_CHANNEL } from "../../config/channels";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("mma")).sort(
+  (first, second) => second.data.published_at.valueOf() - first.data.published_at.valueOf(),
+);
+---
+
+<BaseLayout
+  title="MMA и UFC — новости, турниры и бойцы | По факту"
+  description="Свежие новости MMA и UFC: результаты турниров, анонсы боёв, интервью, рейтинги и главные события мира смешанных единоборств."
+  canonicalPath="/mma/"
+>
+  <header class="roblox-masthead mma-masthead">
+    <div class="shell roblox-masthead-grid">
+      <div>
+        <h1>MMA <span>UFC, турниры и бойцы</span></h1>
+      </div>
+      <div class="roblox-intro">
+        <p>
+          Результаты турниров, анонсы боёв, интервью и важные события мира
+          смешанных единоборств.
+        </p>
+        <div class="roblox-channel-actions" aria-label="Каналы MMA в мессенджерах">
+          <a href={MMA_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+            Читать в Telegram ↗
+          </a>
+          <a href={MMA_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+            Читать в MAX ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="shell roblox-feed mma-feed" aria-labelledby="mma-feed-title">
+    <div class="roblox-feed-heading">
+      <div>
+        <span>Новости единоборств</span>
+        <h2 id="mma-feed-title">Последние публикации</h2>
+      </div>
+      <p>{posts.length} {posts.length === 1 ? "пост" : "постов"}</p>
+    </div>
+
+    {posts.length ? (
+      <div class="roblox-posts">
+        {posts.map((post) => (
+          <TelegramPostCard
+            post={post}
+            channelName="MMA Today"
+            imageAlt="Изображение из публикации MMA Today"
+            maxUrl={MMA_CHANNEL.max.url}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="roblox-empty">
+        <strong>Лента подключена</strong>
+        <p>Первые публикации MMA появятся после ближайшего обновления.</p>
+        <a href={MMA_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+          Пока открыть канал в Telegram
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>

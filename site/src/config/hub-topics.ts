@@ -33,6 +33,7 @@ export const HUB_TOPIC_GROUPS: HubTopicGroup[] = [
         title: "MMA TODAY",
         subtitle: "UFC • MMA • бойцы",
         image: "/channel-logos/mma.jpg",
+        url: "/mma/",
         theme: "mma",
       },
       {

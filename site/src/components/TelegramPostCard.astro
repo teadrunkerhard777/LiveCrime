@@ -3,7 +3,11 @@ import type { CollectionEntry } from "astro:content";
 import { formatDate } from "../lib/events";
 
 interface Props {
-  post: CollectionEntry<"roblox"> | CollectionEntry<"crimeFeed"> | CollectionEntry<"cars">;
+  post:
+    | CollectionEntry<"roblox">
+    | CollectionEntry<"crimeFeed">
+    | CollectionEntry<"cars">
+    | CollectionEntry<"mma">;
   channelName: string;
   imageAlt: string;
   maxUrl: string;

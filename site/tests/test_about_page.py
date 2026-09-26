@@ -12,7 +12,8 @@ class AboutPageTests(unittest.TestCase):
     def test_about_page_describes_the_whole_media_hub(self):
         self.assertIn("О медиахабе", PAGE)
         self.assertIn("Roblox и Brawl Stars", PAGE)
-        self.assertIn("MMA, животных, гаджеты", PAGE)
+        self.assertIn("MMA и UFC", PAGE)
+        self.assertIn("животных, гаджеты", PAGE)
         self.assertIn("Авто", PAGE)
         self.assertNotIn("Сейчас «По факту» начинается с криминальных историй", PAGE)
         self.assertNotIn("SEO изучаем", PAGE)
@@ -23,9 +24,11 @@ class AboutPageTests(unittest.TestCase):
         self.assertIn('withBase("/crime/")', PAGE)
         self.assertIn('withBase("/roblox/")', PAGE)
         self.assertIn('withBase("/cars/")', PAGE)
+        self.assertIn('withBase("/mma/")', PAGE)
         self.assertIn("CRIME_CHANNELS.telegram.url", PAGE)
         self.assertIn("ROBLOX_CHANNEL.max.url", PAGE)
         self.assertIn("CARS_CHANNEL.max.url", PAGE)
+        self.assertIn("MMA_CHANNEL.max.url", PAGE)
 
     def test_about_page_has_search_metadata_and_structured_data(self):
         self.assertIn('"@type": "AboutPage"', PAGE)
@@ -34,6 +37,7 @@ class AboutPageTests(unittest.TestCase):
         self.assertIn("description={description}", PAGE)
         self.assertIn('{ path: "/about/"', SITEMAP)
         self.assertIn('{ path: "/cars/"', SITEMAP)
+        self.assertIn('{ path: "/mma/"', SITEMAP)
 
     def test_about_footer_is_not_mislabeled_as_crime(self):
         self.assertIn('isAbout ? "О проекте"', LAYOUT)
