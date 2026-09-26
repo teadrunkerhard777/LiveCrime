@@ -2,7 +2,7 @@
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/unbounded";
 import "../styles/global.css";
-import { CARS_CHANNEL, CRIME_CHANNELS, MMA_CHANNEL, ROBLOX_CHANNEL } from "../config/channels";
+import { CARS_CHANNEL, CRIME_CHANNELS, MMA_CHANNEL, ROBLOX_CHANNEL, STARS_CHANNEL } from "../config/channels";
 import { withBase } from "../lib/events";
 
 interface Props {
@@ -32,6 +32,7 @@ const currentPath = Astro.url.pathname;
 const isRoblox = currentPath.includes("/roblox");
 const isCars = currentPath.includes("/cars");
 const isMma = currentPath.includes("/mma");
+const isStars = currentPath.includes("/stars");
 const isAbout = currentPath.includes("/about");
 const canonical = canonicalPath
   ? new URL(withBase(canonicalPath), Astro.site ?? Astro.url).toString()
@@ -118,6 +119,10 @@ const resolvedSocialImage = socialImage
                 href={withBase("/mma/")}
               >MMA</a>
               <a
+                class:list={{ active: isStars }}
+                href={withBase("/stars/")}
+              >Звёзды</a>
+              <a
                 class:list={{ active: currentPath.includes("/about") }}
                 href={withBase("/about/")}
               >О проекте</a>
@@ -159,6 +164,8 @@ const resolvedSocialImage = socialImage
           <p>Автомобильные новости, новинки, технологии и материалы для водителей.</p>
         ) : isMma ? (
           <p>Новости MMA и UFC, результаты турниров, бойцы и главные события единоборств.</p>
+        ) : isStars ? (
+          <p>Новости знаменитостей, шоу-бизнеса, кино, музыки и светской жизни.</p>
         ) : (
           <p>
             Публикация информации о расследовании не означает доказанную
@@ -167,7 +174,7 @@ const resolvedSocialImage = socialImage
         )}
         <div class="footer-follow">
           <p class="footer-status">
-            Раздел: <strong>{isAbout ? "О проекте" : isRoblox ? "Roblox" : isCars ? "Авто" : isMma ? "MMA" : "Криминал"}</strong>
+            Раздел: <strong>{isAbout ? "О проекте" : isRoblox ? "Roblox" : isCars ? "Авто" : isMma ? "MMA" : isStars ? "Звёзды" : "Криминал"}</strong>
           </p>
           {isAbout ? (
             <a class="text-action" href={withBase("/")}>Все темы</a>
@@ -195,6 +202,15 @@ const resolvedSocialImage = socialImage
                 Telegram
               </a>
               <a href={MMA_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+                MAX
+              </a>
+            </div>
+          ) : isStars ? (
+            <div class="footer-channels" aria-label="Канал о звёздах">
+              <a href={STARS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+                Telegram
+              </a>
+              <a href={STARS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
                 MAX
               </a>
             </div>

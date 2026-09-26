@@ -86,6 +86,7 @@ export const HUB_TOPIC_GROUPS: HubTopicGroup[] = [
         title: "ЗВЁЗДНЫЕ БУДНИ",
         subtitle: "Шоу-бизнес • знаменитости",
         image: "/channel-logos/stars.jpg",
+        url: "/stars/",
         theme: "stars",
         size: "wide",
       },

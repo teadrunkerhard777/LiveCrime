@@ -41,3 +41,8 @@ export const MMA_CHANNEL = {
     url: "https://max.ru/channel_MMA_TODAY",
   },
 } as const;
+
+export const STARS_CHANNEL = {
+  telegram: { label: "Telegram", url: "https://t.me/zvezdi_budni" },
+  max: { label: "MAX", url: "https://max.ru/channel_zvezdi_budni" },
+} as const;

@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import TelegramPostCard from "../../components/TelegramPostCard.astro";
+import { STARS_CHANNEL } from "../../config/channels";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("stars")).sort(
+  (first, second) => second.data.published_at.valueOf() - first.data.published_at.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Новости звёзд и шоу-бизнеса — знаменитости сегодня | По факту"
+  description="Свежие новости звёзд и шоу-бизнеса: знаменитости, кино, музыка, телевидение, интервью и заметные события светской жизни."
+  canonicalPath="/stars/"
+>
+  <header class="roblox-masthead stars-masthead">
+    <div class="shell roblox-masthead-grid">
+      <div>
+        <h1>Звёзды <span>шоу-бизнес и знаменитости</span></h1>
+      </div>
+      <div class="roblox-intro">
+        <p>
+          Новости знаменитостей, кино, музыки, телевидения и заметные события
+          светской жизни.
+        </p>
+        <div class="roblox-channel-actions" aria-label="Каналы о звёздах в мессенджерах">
+          <a href={STARS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+            Читать в Telegram ↗
+          </a>
+          <a href={STARS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+            Читать в MAX ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="shell roblox-feed stars-feed" aria-labelledby="stars-feed-title">
+    <div class="roblox-feed-heading">
+      <div>
+        <span>Звёздные будни</span>
+        <h2 id="stars-feed-title">Последние публикации</h2>
+      </div>
+      <p>{posts.length} {posts.length === 1 ? "пост" : "постов"}</p>
+    </div>
+
+    {posts.length ? (
+      <div class="roblox-posts">
+        {posts.map((post) => (
+          <TelegramPostCard
+            post={post}
+            channelName="Звёздные будни"
+            imageAlt="Изображение из публикации канала Звёздные будни"
+            maxUrl={STARS_CHANNEL.max.url}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="roblox-empty">
+        <strong>Лента подключена</strong>
+        <p>Первые публикации о звёздах появятся после ближайшего обновления.</p>
+        <a href={STARS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+          Пока открыть канал в Telegram
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>
