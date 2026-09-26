@@ -1203,6 +1203,10 @@ a.hub-card:hover .hub-card-logo {
   border-top-color: var(--pets);
 }
 
+.pets-masthead h1 {
+  font-size: clamp(3.6rem, 8vw, 6.6rem);
+}
+
 .pets-masthead h1 span,
 .pets-feed .roblox-feed-heading span,
 .pets-feed .roblox-signal span,
@@ -2277,6 +2281,10 @@ a.hub-card:hover .hub-card-logo {
 
   .roblox-masthead h1 {
     font-size: clamp(3.2rem, 18vw, 5rem);
+  }
+
+  .pets-masthead h1 {
+    font-size: clamp(2.6rem, 14vw, 4.4rem);
   }
 
   .section-title-row p {

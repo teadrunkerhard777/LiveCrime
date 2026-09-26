@@ -8,6 +8,7 @@ PAGE = (SITE_ROOT / "src/pages/pets/index.astro").read_text(encoding="utf-8")
 CHANNELS = (SITE_ROOT / "src/config/channels.ts").read_text(encoding="utf-8")
 SCHEMA = (SITE_ROOT / "src/content.config.ts").read_text(encoding="utf-8")
 WORKFLOW = (PROJECT_ROOT / ".github/workflows/pets-feed.yml").read_text(encoding="utf-8")
+STYLES = (SITE_ROOT / "src/styles/global.css").read_text(encoding="utf-8")
 
 
 class PetsPageTests(unittest.TestCase):
@@ -21,6 +22,10 @@ class PetsPageTests(unittest.TestCase):
     def test_feed_has_content_schema(self):
         self.assertIn('base: "./src/content/pets"', SCHEMA)
         self.assertIn("pets", SCHEMA)
+
+    def test_long_heading_has_a_pets_specific_responsive_scale(self):
+        self.assertIn(".pets-masthead h1", STYLES)
+        self.assertIn("font-size: clamp(3.6rem, 8vw, 6.6rem)", STYLES)
 
     def test_feed_runs_once_in_the_evening_without_secrets(self):
         self.assertIn("workflow_dispatch:", WORKFLOW)
