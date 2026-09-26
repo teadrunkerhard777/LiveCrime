@@ -32,6 +32,8 @@ class TelegramFeedParser(HTMLParser):
         self.current: dict | None = None
         self.message_depth = 0
         self.text_depth: int | None = None
+        self.anchor_href: str | None = None
+        self.anchor_text_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -43,6 +45,7 @@ class TelegramFeedParser(HTMLParser):
                 "text_parts": [],
                 "image_url": None,
                 "published_at": None,
+                "source_url": None,
             }
             self.message_depth = 1
             return
@@ -56,6 +59,9 @@ class TelegramFeedParser(HTMLParser):
                 self.text_depth = self.message_depth
         elif tag == "br" and self.text_depth is not None:
             self.current["text_parts"].append("\n")
+        elif tag == "a" and self.text_depth is not None:
+            self.anchor_href = attributes.get("href")
+            self.anchor_text_parts = []
         elif "tgme_widget_message_photo_wrap" in classes:
             match = PHOTO_URL.search(attributes.get("style") or "")
             if match:
@@ -66,8 +72,18 @@ class TelegramFeedParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self.current is not None and self.text_depth is not None:
             self.current["text_parts"].append(data)
+            if self.anchor_href is not None:
+                self.anchor_text_parts.append(data)
 
     def handle_endtag(self, tag: str) -> None:
+        if tag == "a" and self.current is not None and self.anchor_href is not None:
+            anchor_text = "".join(self.anchor_text_parts).strip().casefold()
+            if anchor_text in {"источник", "читать источник"} and self.anchor_href.startswith(("https://", "http://")):
+                self.current["source_url"] = html.unescape(self.anchor_href)
+            self.anchor_href = None
+            self.anchor_text_parts = []
+            return
+
         if self.current is None or tag != "div":
             return
 
@@ -83,6 +99,16 @@ class TelegramFeedParser(HTMLParser):
         text = re.sub(r"\n{3,}", "\n\n", text)
         image_url = self.current["image_url"]
         published_at = self.current["published_at"]
+        source_url = self.current["source_url"]
+
+        if source_url:
+            text = re.sub(
+                r"(?:^|\n)\s*🔗?\s*(?:читать\s+)?источник\s*(?=\n|$)",
+                "",
+                text,
+                flags=re.IGNORECASE,
+            )
+            text = re.sub(r"\n{3,}", "\n\n", text).strip()
 
         if (
             separator
@@ -93,18 +119,21 @@ class TelegramFeedParser(HTMLParser):
             and image_url.startswith("https://")
             and published_at
         ):
-            self.posts.append(
-                {
-                    "message_id": message_id,
-                    "text": text,
-                    "published_at": published_at,
-                    "image_url": image_url,
-                    "telegram_url": f"https://t.me/{self.channel_name}/{message_id}",
-                }
-            )
+            post = {
+                "message_id": message_id,
+                "text": text,
+                "published_at": published_at,
+                "image_url": image_url,
+                "telegram_url": f"https://t.me/{self.channel_name}/{message_id}",
+            }
+            if source_url:
+                post["source_url"] = source_url
+            self.posts.append(post)
 
         self.current = None
         self.text_depth = None
+        self.anchor_href = None
+        self.anchor_text_parts = []
 
 
 def _atomic_write_json(path: Path, payload: object) -> None:
@@ -172,7 +201,23 @@ def import_posts(
     for post in posts[-limit:]:
         output_path = content_path / f"{post['message_id']}.json"
         if output_path.exists():
-            continue
+            try:
+                current_payload = json.loads(output_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                current_payload = None
+            if current_payload is not None:
+                source_url = post.get("source_url")
+                if not source_url or current_payload.get("source_url") == source_url:
+                    continue
+                # Keep the original card stable and only backfill the newly
+                # discovered source link plus the cleaned message text.
+                post = {
+                    **current_payload,
+                    "text": post["text"],
+                    "source_url": source_url,
+                }
+            if current_payload == post:
+                continue
         _atomic_write_json(output_path, post)
         written.append(output_path)
     return written

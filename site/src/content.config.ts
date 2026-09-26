@@ -83,6 +83,7 @@ const roblox = defineCollection({
     published_at: z.coerce.date(),
     image_url: z.url(),
     telegram_url: z.url(),
+    source_url: z.url().optional(),
   }),
 });
 
@@ -94,6 +95,7 @@ const crimeFeed = defineCollection({
     published_at: z.coerce.date(),
     image_url: z.url(),
     telegram_url: z.url(),
+    source_url: z.url().optional(),
   }),
 });
 
@@ -105,6 +107,7 @@ const cars = defineCollection({
     published_at: z.coerce.date(),
     image_url: z.url(),
     telegram_url: z.url(),
+    source_url: z.url().optional(),
   }),
 });
 
@@ -116,6 +119,7 @@ const mma = defineCollection({
     published_at: z.coerce.date(),
     image_url: z.url(),
     telegram_url: z.url(),
+    source_url: z.url().optional(),
   }),
 });
 
@@ -127,6 +131,7 @@ const stars = defineCollection({
     published_at: z.coerce.date(),
     image_url: z.url(),
     telegram_url: z.url(),
+    source_url: z.url().optional(),
   }),
 });
 
@@ -138,6 +143,7 @@ const pets = defineCollection({
     published_at: z.coerce.date(),
     image_url: z.url(),
     telegram_url: z.url(),
+    source_url: z.url().optional(),
   }),
 });
 

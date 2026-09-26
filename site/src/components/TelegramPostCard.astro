@@ -45,6 +45,11 @@ const publicationTime = new Intl.DateTimeFormat("ru-RU", {
       </div>
       <p>{post.data.text}</p>
       <div class="telegram-post-actions">
+        {post.data.source_url && (
+          <a href={post.data.source_url} rel="noopener noreferrer nofollow" target="_blank">
+            Читать источник ↗
+          </a>
+        )}
         <a href={post.data.telegram_url} rel="noopener noreferrer" target="_blank">
           Открыть пост в Telegram ↗
         </a>
