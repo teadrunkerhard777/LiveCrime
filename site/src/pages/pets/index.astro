@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import TelegramPostCard from "../../components/TelegramPostCard.astro";
+import { PETS_CHANNEL } from "../../config/channels";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("pets")).sort(
+  (first, second) => second.data.published_at.valueOf() - first.data.published_at.valueOf(),
+);
+---
+
+<BaseLayout
+  title="Кошки, собаки и животные — новости и полезные истории | По факту"
+  description="Новости и истории о кошках, собаках и других животных: питомцы, уход, поведение, здоровье и интересные факты."
+  canonicalPath="/pets/"
+>
+  <header class="roblox-masthead pets-masthead">
+    <div class="shell roblox-masthead-grid">
+      <div>
+        <h1>Животные <span>кошки, собаки и хвостатые истории</span></h1>
+      </div>
+      <div class="roblox-intro">
+        <p>
+          Добрые истории, новости питомцев, советы по уходу и интересные
+          материалы о животных.
+        </p>
+        <div class="roblox-channel-actions" aria-label="Каналы о животных в мессенджерах">
+          <a href={PETS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+            Читать в Telegram ↗
+          </a>
+          <a href={PETS_CHANNEL.max.url} rel="noopener noreferrer" target="_blank">
+            Читать в MAX ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="shell roblox-feed pets-feed" aria-labelledby="pets-feed-title">
+    <div class="roblox-feed-heading">
+      <div>
+        <span>Хвостатые новости</span>
+        <h2 id="pets-feed-title">Последние публикации</h2>
+      </div>
+      <p>{posts.length} {posts.length === 1 ? "пост" : "постов"}</p>
+    </div>
+
+    {posts.length ? (
+      <div class="roblox-posts">
+        {posts.map((post) => (
+          <TelegramPostCard
+            post={post}
+            channelName="Хвостатые новости"
+            imageAlt="Изображение из публикации канала Хвостатые новости"
+            maxUrl={PETS_CHANNEL.max.url}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="roblox-empty">
+        <strong>Лента подключена</strong>
+        <p>Первые публикации о животных появятся после ближайшего обновления.</p>
+        <a href={PETS_CHANNEL.telegram.url} rel="noopener noreferrer" target="_blank">
+          Пока открыть канал в Telegram
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>

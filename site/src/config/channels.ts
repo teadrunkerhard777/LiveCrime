@@ -46,3 +46,8 @@ export const STARS_CHANNEL = {
   telegram: { label: "Telegram", url: "https://t.me/zvezdi_budni" },
   max: { label: "MAX", url: "https://max.ru/channel_zvezdi_budni" },
 } as const;
+
+export const PETS_CHANNEL = {
+  telegram: { label: "Telegram", url: "https://t.me/koshki_sobaki_hvosti" },
+  max: { label: "MAX", url: "https://max.ru/channel_koshki_sobaki" },
+} as const;

@@ -72,6 +72,7 @@ export const HUB_TOPIC_GROUPS: HubTopicGroup[] = [
         title: "ХВОСТАТЫЕ НОВОСТИ",
         subtitle: "Кошки • собаки • животные",
         image: "/channel-logos/pets.jpg",
+        url: "/pets/",
         theme: "pets",
       },
       {

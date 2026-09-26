@@ -30,7 +30,7 @@ class HubHomeTests(unittest.TestCase):
             self.assertIn(title, TOPICS)
 
         routes = re.findall(r'url: "([^"]+)"', TOPICS)
-        self.assertEqual(routes, ["/mma/", "/cars/", "/crime/", "/roblox/", "/stars/"])
+        self.assertEqual(routes, ["/mma/", "/cars/", "/crime/", "/roblox/", "/pets/", "/stars/"])
         self.assertNotIn("ТРЕНДЫ И БРЕНДЫ", TOPICS)
 
     def test_home_header_is_minimal_without_changing_section_navigation(self):
