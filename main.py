@@ -635,6 +635,11 @@ def run():
         item.get("event_policy_rejection") == "nonfatal_shooting"
         for item in ranked_news
     )
+    roundup_rejections = sum(
+        item.get("event_policy_rejection") == "news_roundup"
+        for item in ranked_news
+    )
+    print(f"Исключено новостных дайджестов: {roundup_rejections}")
     print(f"Исключено animal events: {animal_rejections}")
     print(
         "Исключено nonfatal shootings: "

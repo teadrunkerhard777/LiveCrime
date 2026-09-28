@@ -98,6 +98,48 @@ class StandaloneAttemptPolicyTests(unittest.TestCase):
         )
 
 
+class NewsRoundupPolicyTests(unittest.TestCase):
+    def test_real_116_daily_digest_is_rejected(self):
+        item = make_news(
+            "Житель многоквартирного дома убил девушку и хранил тело "
+            "в холодильнике: новости 28 сентября",
+            "Каждый день в мире происходит множество событий. Поэтому "
+            "мы собрали главное в этом дайджесте. Сегодня подводим "
+            "итоги 28 сентября.",
+            description="Что произошло за сутки",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [],
+        )
+        self.assertEqual(item["event_policy_rejection"], "news_roundup")
+
+    def test_single_crime_story_with_news_word_is_preserved(self):
+        item = make_news(
+            "Следствие сообщило об убийстве: новости 28 сентября",
+            "Подозреваемого задержали по горячим следам. "
+            "Материал посвящён одному преступлению.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [item],
+        )
+
+    def test_body_with_two_roundup_markers_is_rejected(self):
+        item = make_news(
+            "Главные происшествия региона",
+            "Что произошло за сутки. Мы собрали главное в этом "
+            "дайджесте: убийство, дорожную аварию и пожар.",
+        )
+
+        self.assertEqual(
+            filter_by_event_policy([item], MAX_EVENT_AGE_DAYS),
+            [],
+        )
+
+
 class AnimalEventPolicyTests(unittest.TestCase):
     def assert_rejected_animal(self, news_item):
         self.assertEqual(

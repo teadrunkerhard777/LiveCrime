@@ -63,6 +63,22 @@ ANIMAL_EVENT_PATTERNS = (
     rf"(?<!владельца\s)(?<!хозяина\s)\b{ANIMAL_PATTERN}\b\s+(?:были?\s+)?(?:убиты|застрелены|расстреляны|убили|застрелили|расстреляли)\b",
 )
 
+
+# Новостной дайджест может вынести одно тяжёлое событие в заголовок,
+# хотя сама страница объединяет несколько несвязанных материалов.
+# Для отказа требуем несколько редакционных признаков, чтобы не блокировать
+# обычную отдельную статью из-за одного случайного слова «новости».
+NEWS_ROUNDUP_TITLE_PATTERNS = (
+    r":\s*(?:главн\w+\s+)?новост\w+\s+\d{1,2}\s+[а-яё]+(?:\s+\d{4})?\b",
+    r"\b(?:главн\w+|итог\w+)\s+(?:дн\w+|сут\w+)\b",
+)
+NEWS_ROUNDUP_BODY_PATTERNS = (
+    r"\bчто произошло за сутки\b",
+    r"\bсобрал\w+\s+главн\w+\s+в\s+этом\s+дайджест\w*\b",
+    r"\bподводим\s+итоги\s+\d{1,2}\s+[а-яё]+\b",
+)
+
+
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
@@ -146,6 +162,29 @@ def _contains_nonfatal_rasstrel(full_text):
     return bool(has_rasstrel and not has_fatal_outcome)
 
 
+def _contains_news_roundup(news_item):
+    """Находит много-сюжетный новостной дайджест, а не одно crime-событие."""
+
+    title = str(news_item.get("title", "")).casefold()
+    body = " ".join(
+        str(news_item.get(field, ""))
+        for field in ("description", "article_text")
+    ).casefold()
+
+    title_signals = sum(
+        bool(re.search(pattern, title, re.IGNORECASE))
+        for pattern in NEWS_ROUNDUP_TITLE_PATTERNS
+    )
+    body_signals = sum(
+        bool(re.search(pattern, body, re.IGNORECASE))
+        for pattern in NEWS_ROUNDUP_BODY_PATTERNS
+    )
+
+    # Заголовок дайджеста подтверждаем содержимым страницы. Если заголовок
+    # нейтральный, двух независимых body-маркеров всё равно достаточно.
+    return bool((title_signals and body_signals) or body_signals >= 2)
+
+
 def _explicit_old_event_year(full_text, published_at, max_age_days):
     """Возвращает год, только если старый год явно относится к hard-event."""
 
@@ -219,7 +258,7 @@ def _has_explicit_old_event_age(full_text, max_age_days):
 
 
 def filter_by_event_policy(news_items, max_event_age_days):
-    """Исключает animal events, покушения и явно старые hard-события."""
+    """Исключает дайджесты, animal events, покушения и старые события."""
 
     filtered_news = []
 
@@ -231,7 +270,10 @@ def filter_by_event_policy(news_items, max_event_age_days):
         ).casefold()
 
         rejection = None
-        if _contains_animal_event(full_text):
+        if _contains_news_roundup(news_item):
+            rejection = "news_roundup"
+            reason = "multi-story news roundup is not one true-crime event"
+        elif _contains_animal_event(full_text):
             rejection = "animal_event"
             reason = "animal violence is not a human true-crime event"
         elif _contains_nonfatal_rasstrel(full_text):
