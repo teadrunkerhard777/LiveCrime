@@ -1,0 +1,8 @@
+{
+  "message_id": "99",
+  "text": "🔵 Разработчик выпустил Taiga‑S1 — компактную модель с 1,2 млн параметров для управления FreeCAD\n\nРазработчик Шив Шанмугам (Shiv Shanmugam) представил Taiga‑S1 — компактную модель с 1,2 млн параметров, которая может создавать 3D‑детали во FreeCAD. Нейросеть принимает решения примерно за 1 мс.\n\nTaiga‑S1 задумана как быстрый слой для более крупного AI‑агента. Планировщик определяет, какую делать надо построить, и передаёт структурированный список операций.\n\nМодель обучили с нуля на 25 тыс. синтетических сессий моделирования, включающих около 590 тыс.\n\nВ тестах Taiga‑S1 выполнила 100% заданий с 11 элементами. Для каждого потребовалось сделать 55 действий, хотя во время обучения нейросеть видела последовательности максимум с пятью элементами.\n\n📅 28 сентября 2026\n📰 Habr Новости: гаджеты\n#гаджеты",
+  "published_at": "2026-09-28T22:31:27+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/sbozQXlX8peulGkdBghIOAP4UL-tun1VOKhjmy4uG0Cd-3EwzyCogMhGBZPI6QDscARwlW6Iiuht8glN5Zq5LiW8CPySa3cgvNdEcA7i5gU_2p1wZLSkrfgWo2Kqp6czNZ3g44xyjN46VzOKl1kBhnxGgmcahmx_mWTN3jtRS2B8STFv7xCkD_lS-SKCMifxCBu_WYR_Ssdlbq7BLrYces8mitQcAU56vHOQng2Z9jHbP-StC5scBPgub5ccyshx_tH0AdxkysesPmUsr4Cu5XnZ-BfzWHo9TsI1T9BjyLG645VxTE0eQKTlnp6Lc2xOCaJhjhenJKJHb1sK9HItdA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/99",
+  "source_url": "https://habr.com/ru/news/1087800/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1087800"
+}
