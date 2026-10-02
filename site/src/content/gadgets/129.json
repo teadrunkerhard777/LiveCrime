@@ -1,0 +1,8 @@
+{
+  "message_id": "129",
+  "text": "🔵 Легендарный ютубер PewDiePie представил ИИ-модель без цензуры для домашних ПК\n\nШведский блогер Феликс Чельберг, известный как PewDiePie, рассказал в новом видео на своем YouTube-канале о собственной ИИ-модели Ajax. Ее можно запускать на домашнем компьютере.\n\nВ основе Ajax лежит открытая модель Qwen 3.5 на 9 млрд параметров от Alibaba. Эта компания недавно выпустила и генератор изображений на базе Qwen.\n\nЧтобы снять ограничения, блогер воспользовался утилитой Heretic. Она точечно изменяет часть параметров внутри модели, связанных с отказами, и подавляет такую реакцию без повторного обучения нейросети .\n\nС OpenAI у проекта вышел конфликт. Чельберг хотел улучшить свою модель с помощью дистилляции, то есть обучить ее на ответах более мощной нейросети.\n\n📅 2 октября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-10-02T16:31:21+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/n8OPt3TKnkV7xk6r7tGNwL4SBi-4BQvpq1bpAc-ILjwpYhJUAYyTt2mc9927w_s47oGWpTxMqMobUXVo5Hpm0rUhqnCY87OVLuRRLPUth7z1ajfgfwZa4thTz2Scqm91jDlFjmGmcWGBjNtqUdokq-doG_q3B2Bdv9v2HxetRd-eT8PeNRb9Q1bjaobJKSQrbAVrHAekDX8gc6EhTGL9mUpA0JGVirZ8eETQ_hls8aSk4pvLduHRHQKeH4M3SFGIP2FpXpCkIJHQAWhR_hvcmu5mYkhlnTahhEWZWzSrnGKFPrD0aOzZKvcIu1Wfkmdm13C7XVqT0YFg_GXA-Jvngg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/129",
+  "source_url": "https://hi-tech.mail.ru/news/156924-pewdiepie-vypustit-ii-bez-tsenzury-dlya-domashnih-pk/"
+}
