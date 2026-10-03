@@ -1,0 +1,8 @@
+{
+  "message_id": "136",
+  "text": "🔵 ИИ научился притворяться человеком в видеозвонках — модель Griffin прошла «видеотест Тьюринга»\n\nАмериканский стартап Tavus представил модель Griffin для общения по видеосвязи в реальном времени. В эксперименте компании 26 из 54 участников (48 %) после минутного разговора приняли виртуального собеседника Griffin-Lite за человека.\n\nИсточник изображений: tavus.io\n\nОднако участникам заранее сообщали, что они будут разговаривать с другим человеком. Эксперимент поэтому показывает убедительность аватара в короткой беседе, но не доказывает, что система выдержит целенаправленную проверку.\n\nМодель Griffin имеет принципиально новую архитектуру. Ранее использовался последовательный подход: сначала распознаётся речь, затем текст передаётся языковой модели для генерации ответа, после чего результат выводится через систему синтеза речи, которая управляет цифровым аватаром.\n\n📅 3 октября 2026\n📰 3DNews: искусственный интеллект\n#ИИ",
+  "published_at": "2026-10-03T13:31:11+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/PCDgrCVTQiHVAmloRnsIR49HbG6hsBrpme4vReZ5dcbdrHCklu437L0z1efYOc3KBOWjSeSRfAFsMGkigQaVpmAA-RDSka2Q4f4I2xSvBc3U-cjv29XkP5PrRFZ6QrenCP1QEg3pixfZkpXzHRDasGrti-cKB3zvJaeRdrXPEWtxSVtr7qhCgyMuxkXAx-BmEG05WnLV_QxSxmNyF0EpM7J_leEslcNXPQpKwvjCaCpvgqUv0x9xWcusFAz17eM8e5XNmCwpiCMLPp3Mmbw9kjwnLlmZvH4optbTkPOJ1iyHlyG4yiduE3Prek26HidFwWic2he2iJ4fK2LA4CkTkQ.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/136",
+  "source_url": "https://3dnews.ru/1149430"
+}
