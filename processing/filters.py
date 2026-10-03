@@ -11,6 +11,32 @@ FIGURATIVE_HOMICIDE_PATTERNS = (
     r"\bубийц\w*\s+(?:иммунитет\w*|здоровь\w*|настроени\w*|сн\w*|продуктивност\w*)\b",
 )
 
+# Просьба об убийстве не подтверждает, что человек был убит.
+# Маскируем только глагол внутри этой конструкции: отдельное сообщение
+# о совершённом убийстве в той же новости должно сохранить свой сигнал.
+REQUESTED_KILLING_PATTERN = (
+    r"\b(?:просил(?:а|и)?|попросил(?:а|и)?|умолял(?:а|и)?)\b"
+    r"[^.!?\n]{0,60}?\bчтобы\b[^.!?\n]{0,35}?"
+    r"\b(?P<killing>убил(?:а|и)?|убит(?:а|о|ы)?)\b"
+)
+
+
+def _without_requested_killing(full_text):
+    """Убирает ложный homicide-сигнал, сохраняя остальные слова текста."""
+
+    def mask_killing(match):
+        start = match.start("killing") - match.start()
+        end = match.end("killing") - match.start()
+        fragment = match.group()
+        return fragment[:start] + " " * (end - start) + fragment[end:]
+
+    return re.sub(
+        REQUESTED_KILLING_PATTERN,
+        mask_killing,
+        full_text,
+        flags=re.IGNORECASE,
+    )
+
 
 # Эти формулировки явно описывают незавершённое преступление.
 # Одно слово "покушение" не блокируем: рядом может быть завершённое убийство.
@@ -82,6 +108,10 @@ NEWS_ROUNDUP_BODY_PATTERNS = (
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
+    # Одну и ту же контекстную проверку используют фильтр и score.
+    if topic.casefold() in {"убил", "убит"}:
+        full_text = _without_requested_killing(full_text)
+
     # Левая граница не даёт "следств" совпасть внутри "последствия".
     suffix_guard = ""
 
@@ -129,8 +159,9 @@ def _contains_standalone_attempt(full_text):
         re.search(pattern, full_text, re.IGNORECASE)
         for pattern in ATTEMPT_PATTERNS
     )
+    factual_text = _without_requested_killing(full_text)
     has_completed_event = any(
-        re.search(pattern, full_text, re.IGNORECASE)
+        re.search(pattern, factual_text, re.IGNORECASE)
         for pattern in COMPLETED_HARD_EVENT_PATTERNS
     )
     return has_attempt and not has_completed_event
@@ -402,6 +433,14 @@ def filter_by_topics(
         news_item["strong_topics"] = serious_topics
         news_item["contextual_topics"] = matched_contextual_topics
 
+        # В диагностике видно, какое совпадение отброшено как просьба.
+        news_item["ignored_homicide_fragments"] = [
+            match.group()
+            for match in re.finditer(
+                REQUESTED_KILLING_PATTERN, full_text, re.IGNORECASE
+            )
+        ]
+
         if matched_strong_topics:
             news_item["admission_reason"] = (
                 f'hard serious topic "{matched_strong_topics[0]}"'
@@ -412,7 +451,11 @@ def filter_by_topics(
                 f'severe outcome "{matched_serious_outcomes[0]}"'
             )
 
-        if has_figurative_homicide:
+        if not has_supported_topic and news_item["ignored_homicide_fragments"]:
+            news_item["rejection_reason"] = (
+                "requested killing is not a completed homicide"
+            )
+        elif has_figurative_homicide:
             news_item["rejection_reason"] = "figurative homicide language"
         elif has_excluded_keyword:
             news_item["rejection_reason"] = "excluded keyword"
