@@ -59,9 +59,10 @@ RU116_HTML = """
         <p>В деле нашли существенные противоречия</p>
         <div><p>Суд распорядился освободить обвиняемых</p></div>
       </header>
-      <div class="content_randomHash">
-        <div><p>Суд исследовал показания ключевого свидетеля.</p></div>
-        <div><p>Основной содержательный текст статьи сохранён.</p></div>
+      <div class="articleContent_randomHash">
+        <figure><figcaption><p>Подпись под фотографией</p><p>Автор / 74.RU</p></figcaption></figure>
+        <div class="uiArticleBlockText_hash"><p>Суд исследовал показания ключевого свидетеля.</p></div>
+        <div class="uiArticleBlockText_hash"><p>Основной содержательный текст статьи сохранён.</p></div>
       </div>
     </article>
     <article><p>Соседняя новость из общей ленты</p></article>
@@ -99,17 +100,43 @@ class MajorSourceExtractionTests(unittest.TestCase):
             source="116.ru: происшествия",
         )
 
-        self.assertIn("В деле нашли существенные противоречия", result)
+        self.assertNotIn("В деле нашли существенные противоречия", result)
+        self.assertNotIn("Подпись под фотографией", result)
+        self.assertNotIn("Автор / 74.RU", result)
         self.assertIn("Основной содержательный текст", result)
         self.assertNotIn("Сейчас +12", result)
         self.assertNotIn("Соседняя новость", result)
         self.assertNotIn("Контакты редакции", result)
 
-        # E1.ru использует ту же подтверждённую платформу и DOM-структуру.
-        self.assertEqual(
-            result,
-            extract_article_text(RU116_HTML, source="E1.ru: происшествия"),
-        )
+        # Исправление только 116.ru: результат E1.ru пока не меняем.
+        e1_result = extract_article_text(RU116_HTML, source="E1.ru: происшествия")
+        self.assertIn("В деле нашли существенные противоречия", e1_result)
+        self.assertIn("Автор / 74.RU", e1_result)
+
+    def test_116_without_reliable_body_does_not_scrape_whole_article(self):
+        self.assertEqual(extract_article_text(
+            '<article><h1>Заголовок</h1><p>Служебный текст</p></article>',
+            source="116.ru: происшествия",
+        ), "")
+
+    def test_116_preserves_short_paragraphs_quotes_and_updates(self):
+        html = '''<article><h1>Заключенный застрелил сотрудника ФСИН</h1>
+        <header><p>Еще несколько правоохранителей ранены</p></header>
+        <div class="articleContent_0DdLJ">
+        <figure><figcaption><p>Нападавшего ликвидировали</p>
+        <p>Наталья Лапцевич / 74.RU</p></figcaption></figure>
+        <div class="uiArticleBlockText_lLEvz"><p>В Кабардино-Балкарии заключенный убил сотрудника ФСИН.</p>
+        <p>«Еще трое ранены», — рассказал источник.</p><p>Короткий абзац.</p>
+        <p><em>Обновлено в 23:43:</em> ФСИН подтвердила нападение.</p></div>
+        <aside><p>Соседняя новость</p></aside></div></article>'''
+        text = extract_article_text(html, source="116.ru: происшествия")
+        self.assertTrue(text.startswith("В Кабардино-Балкарии"))
+        self.assertIn("Короткий абзац.", text)
+        self.assertIn("«Еще трое ранены»", text)
+        self.assertIn("Обновлено в 23:43:", text)
+        self.assertNotIn("Наталья Лапцевич", text)
+        self.assertNotIn("Нападавшего ликвидировали", text)
+        self.assertNotIn("Соседняя новость", text)
 
     def test_new_sources_keep_standard_image_metadata_extraction(self):
         self.assertEqual(

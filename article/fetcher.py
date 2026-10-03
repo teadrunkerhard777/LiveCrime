@@ -187,6 +187,39 @@ def extract_116_e1_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
+def extract_116_article_text(soup):
+    """Берёт только текстовые блоки 116.ru без lead и подписей к фото."""
+
+    headline = soup.find("h1")
+    current_article = headline.find_parent("article") if headline else None
+    if current_article is None:
+        return ""
+
+    # Хеш CSS-класса меняется; смысловой префикс платформы остаётся.
+    # Заголовочный lead и figcaption лежат вне текстовых блоков статьи.
+    body = current_article.find(
+        "div", class_=lambda value: value and value.startswith("articleContent_")
+    )
+    if body is None:
+        # При изменении DOM безопаснее вернуть пустой body для RSS-fallback,
+        # чем снова собрать все подписи и служебные элементы страницы.
+        return ""
+
+    paragraphs = []
+    for paragraph in body.find_all("p"):
+        text_block = paragraph.find_parent(
+            "div", class_=lambda value: value and value.startswith("uiArticleBlockText_")
+        )
+        # Фотокредиты в figure не становятся содержательными абзацами.
+        if text_block is None or paragraph.find_parent("figure") is not None:
+            continue
+        text = paragraph.get_text(" ", strip=True)
+        if text:
+            paragraphs.append(text)
+
+    return "\n\n".join(paragraphs)
+
+
 # Эти вложенные блоки подтверждены на сайтах Media-семейства.
 # Они находятся внутри article body, но не относятся к тексту новости.
 MEDIA_FAMILY_SERVICE_SELECTORS = (
@@ -400,7 +433,7 @@ def extract_fontanka_article_text(soup):
 
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
-    "116.ru: происшествия": extract_116_e1_article_text,
+    "116.ru: происшествия": extract_116_article_text,
     "E1.ru: происшествия": extract_116_e1_article_text,
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
     "VN.ru: происшествия": extract_vn_article_text,
