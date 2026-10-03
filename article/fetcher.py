@@ -187,8 +187,8 @@ def extract_116_e1_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
-def extract_116_article_text(soup):
-    """Берёт только текстовые блоки 116.ru без lead и подписей к фото."""
+def extract_platform_article_text(soup):
+    """Берёт текстовые блоки подтверждённой платформы 116.ru/Фонтанки."""
 
     headline = soup.find("h1")
     current_article = headline.find_parent("article") if headline else None
@@ -398,42 +398,16 @@ def extract_mk_article_text(soup):
 
 
 def extract_fontanka_article_text(soup):
-    """Извлекает первый содержательный блок текущей статьи Fontanka.ru."""
+    """Извлекает Фонтанку без подписей и фотокредитов внутри article."""
 
-    headline = soup.find("h1")
-    current_article = headline.find_parent("article") if headline else None
-
-    if current_article is None:
-        return ""
-
-    article_body = None
-
-    # CSS-классы Fontanka хешируются при сборке сайта. Вместо них берём
-    # первый прямой дочерний div статьи, содержащий обычные абзацы.
-    for block in current_article.find_all("div", recursive=False):
-        if block.find("p") is not None:
-            article_body = block
-            break
-
-    if article_body is None:
-        return ""
-
-    paragraphs = []
-
-    # Related, реакции и сведения об авторе идут следующими соседями article.
-    # Поэтому собираем <p> только из найденного body текущего материала.
-    for paragraph in article_body.find_all("p"):
-        text = paragraph.get_text(" ", strip=True)
-
-        if text:
-            paragraphs.append(text)
-
-    return "\n\n".join(paragraphs)
+    # В реальном HTML Фонтанки подтверждены те же articleContent_ и
+    # uiArticleBlockText_, что у 116.ru. Общая логика берёт только body.
+    return extract_platform_article_text(soup)
 
 
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
-    "116.ru: происшествия": extract_116_article_text,
+    "116.ru: происшествия": extract_platform_article_text,
     "E1.ru: происшествия": extract_116_e1_article_text,
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
     "VN.ru: происшествия": extract_vn_article_text,

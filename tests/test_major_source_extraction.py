@@ -36,9 +36,16 @@ FONTANKA_HTML = """
     <article>
       <header><h1>Следственный комитет расследует убийство</h1></header>
       <div class="article-subheader"></div>
-      <div class="content_randomHash">
-        <div><p>Первый содержательный абзац статьи Фонтанки.</p></div>
-        <div><p>Второй абзац с подтверждёнными обстоятельствами.</p></div>
+      <div class="content_randomHash"><div class="articleContent_otherHash">
+        <figure><figcaption><p>Шота Мусаев</p>
+          <p>скриншот / YouTube-канал «И Грянул Грэм»</p></figcaption></figure>
+        <div class="uiArticleBlockText_otherHash"><p>Первый содержательный абзац статьи Фонтанки.</p></div>
+        <div class="uiArticleBlockText_otherHash"><p>Второй абзац с подтверждёнными обстоятельствами.</p></div>
+        <figure><figcaption><p>Повторная подпись</p></figcaption></figure>
+        <div class="uiArticleBlockText_otherHash"><p>Коротко.</p>
+          <p>«Мы очень часто летаем», — сказал Шота Мусаев.</p></div>
+        <aside><p>Вложенная соседняя публикация</p></aside>
+      </div>
       </div>
       <div class="related_randomHash"><p>Соседняя новость по теме</p></div>
       <div class="reactions_randomHash"><p>Лайк Смех Удивление</p></div>
@@ -93,6 +100,16 @@ class MajorSourceExtractionTests(unittest.TestCase):
         self.assertNotIn("Соседняя новость", result)
         self.assertNotIn("Лайк Смех", result)
         self.assertNotIn("Политика конфиденциальности", result)
+        self.assertNotIn("скриншот / YouTube", result)
+        self.assertNotIn("Повторная подпись", result)
+        self.assertNotIn("Вложенная соседняя публикация", result)
+        self.assertNotIn("\n\nШота Мусаев\n\n", result)
+        self.assertIn("Коротко.", result)
+        self.assertIn("«Мы очень часто летаем», — сказал Шота Мусаев.", result)
+
+    def test_fontanka_without_article_body_does_not_scrape_photo_caption(self):
+        html = '<article><h1>Новость</h1><div><figure><figcaption><p>Автор фото</p></figcaption></figure></div></article>'
+        self.assertEqual(extract_article_text(html, source="Фонтанка: происшествия"), "")
 
     def test_116_isolates_article_from_weather_and_neighboring_cards(self):
         result = extract_article_text(
