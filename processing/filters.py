@@ -105,6 +105,33 @@ NEWS_ROUNDUP_BODY_PATTERNS = (
 )
 
 
+# Реакция политика на гибель лидера — отдельный редакционный формат.
+# Одного упоминания президента или Ирана недостаточно для отказа:
+# нужны и комментарий в заголовке, и явная связь погибшего с должностью.
+POLITICAL_COMMENTARY_PATTERN = (
+    r"\b(?:раскрыл\w*\s+отношени\w*|рассказал\w*\s+об\s+отношени\w*|"
+    r"выразил\w*\s+соболезнован\w*|почтил\w*\s+память|"
+    r"осудил\w*\s+убийств\w*)\b"
+)
+POLITICAL_LEADER_PATTERN = (
+    r"(?:лидер\w*|президент\w*|премьер\w*|глав\w*\s+государств\w*)"
+)
+POLITICAL_DEATH_PATTERNS = (
+    rf"\b(?:убит\w*|погибш\w*)\b[^.!?\n]{{0,40}}\b{POLITICAL_LEADER_PATTERN}\b",
+    rf"\bубийств\w*\b[^.!?\n]{{0,40}}\b{POLITICAL_LEADER_PATTERN}\b",
+)
+
+
+def _is_political_death_commentary(news_item):
+    """Отличает комментарий о погибшем лидере от новости о преступлении."""
+
+    title = str(news_item.get("title", "")).casefold()
+    return bool(
+        re.search(POLITICAL_COMMENTARY_PATTERN, title)
+        and any(re.search(pattern, title) for pattern in POLITICAL_DEATH_PATTERNS)
+    )
+
+
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
@@ -301,7 +328,10 @@ def filter_by_event_policy(news_items, max_event_age_days):
         ).casefold()
 
         rejection = None
-        if _contains_news_roundup(news_item):
+        if _is_political_death_commentary(news_item):
+            rejection = "political_commentary"
+            reason = "political commentary about a deceased leader"
+        elif _contains_news_roundup(news_item):
             rejection = "news_roundup"
             reason = "multi-story news roundup is not one true-crime event"
         elif _contains_animal_event(full_text):
@@ -391,6 +421,7 @@ def filter_by_topics(
             re.search(pattern, full_text, re.IGNORECASE)
             for pattern in FIGURATIVE_HOMICIDE_PATTERNS
         )
+        has_political_commentary = _is_political_death_commentary(news_item)
 
         # Разделение сохраняем в news_item для понятной диагностики.
         matched_strong_topics = [
@@ -451,7 +482,11 @@ def filter_by_topics(
                 f'severe outcome "{matched_serious_outcomes[0]}"'
             )
 
-        if not has_supported_topic and news_item["ignored_homicide_fragments"]:
+        if has_political_commentary:
+            news_item["rejection_reason"] = (
+                "political commentary about a deceased leader"
+            )
+        elif not has_supported_topic and news_item["ignored_homicide_fragments"]:
             news_item["rejection_reason"] = (
                 "requested killing is not a completed homicide"
             )
@@ -479,6 +514,7 @@ def filter_by_topics(
             and has_supported_topic
             and not has_excluded_keyword
             and not has_figurative_homicide
+            and not has_political_commentary
         )
 
         # Никакой score не может заменить hard serious допуск.
@@ -487,6 +523,7 @@ def filter_by_topics(
             and has_supported_topic
             and not has_excluded_keyword
             and not has_figurative_homicide
+            and not has_political_commentary
         ):
             filtered_news.append(news_item)
 
