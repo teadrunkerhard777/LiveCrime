@@ -233,6 +233,42 @@ class StaleEventPolicyTests(unittest.TestCase):
             "совершенных в 2002 году"
         ))
 
+    def test_real_mk_registration_violation_after_2015_rape_is_rejected(self):
+        self.assert_rejected_stale(make_news(
+            "Три штрафа не заставили осужденного насильника сообщить "
+            "полиции, где он живёт",
+            "Суд вынес новый приговор за нарушение правил регистрации. "
+            "В 2015 году его признали виновным в изнасиловании и "
+            "приговорили к двум годам лишения свободы условно.",
+        ))
+
+    def test_year_before_prior_conviction_is_recognized(self):
+        for text in (
+            "В 2015 году он был осуждён за убийство.",
+            "В 2015 году мужчину осудили за совершение убийства.",
+            "В 2015 году его признали виновным в убийстве.",
+        ):
+            with self.subTest(text=text):
+                # Форму «осудили» также проверяем отдельным вариантом.
+                self.assert_rejected_stale(make_news("Нарушены правила учёта", text))
+
+    def test_current_year_conviction_is_not_proven_stale(self):
+        item = make_news(
+            "Суд вынес приговор за убийство",
+            "В 2026 году его признали виновным в убийстве.",
+        )
+        self.assertEqual(filter_by_event_policy([item], MAX_EVENT_AGE_DAYS), [item])
+
+    def test_old_birth_and_unrelated_year_do_not_date_current_crime(self):
+        for text in (
+            "Он родился в 1980 году. Его признали виновным в убийстве.",
+            "В 2015 году мужчина сменил место жительства. "
+            "Сегодня его признали виновным в убийстве.",
+        ):
+            with self.subTest(text=text):
+                item = make_news("Расследовано убийство", text)
+                self.assertEqual(filter_by_event_policy([item], MAX_EVENT_AGE_DAYS), [item])
+
     def test_real_india_acquittal_about_2024_child_deaths_is_rejected(self):
         self.assert_rejected_stale(make_news(
             "В Индии мать приговорили к казни за убийство троих детей, "

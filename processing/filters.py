@@ -250,6 +250,10 @@ def _explicit_old_event_year(full_text, published_at, max_age_days):
         return None
 
     event_year_patterns = (
+        # Год старой судимости может стоять перед названием преступления:
+        # «В 2015 году его признали виновным в изнасиловании». Новый штраф
+        # за регистрацию не делает это тяжёлое преступление свежим.
+        rf"\bв\s+((?:19|20)\d{{2}})\s+год[уа]\b[^.!?\n]{{0,60}}\b(?:признал\w*\s+виновн\w*|(?:был\w*\s+)?осужд[её]н\w*|осудил\w*)\s+(?:в|за)\s+(?:совершени\w*\s+)?{HARD_EVENT_WORD_PATTERN}\b",
         rf"\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,100}}\b((?:19|20)\d{{2}})\s+год",
         rf"\b(?:дел\w*\s+(?:об?|по)|раскрыл\w*|расследу\w*)[^.!?\n]{{0,60}}\b{HARD_EVENT_WORD_PATTERN}[^.!?\n]{{0,50}}\b((?:19|20)\d{{2}})\s+год",
         rf"\b(?:убил\w*|изнасиловал\w*)[^.!?\n]{{0,100}}\b((?:19|20)\d{{2}})\s+год",
@@ -322,7 +326,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
 
     for news_item in news_items:
         # После article loading все признаки читаются из того же news_item.
-        full_text = " ".join(
+        # Граница полей не позволяет связать слово из заголовка с чужой
+        # датой (например годом рождения) в первом абзаце статьи.
+        full_text = "\n".join(
             str(news_item.get(field, ""))
             for field in ("title", "description", "article_text")
         ).casefold()
