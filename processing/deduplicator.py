@@ -6,6 +6,8 @@ from difflib import SequenceMatcher
 # Event comparison использует только начало статьи: там обычно находятся
 # место, участники и основные обстоятельства события.
 EVENT_TEXT_LIMIT = 1600
+# Короткий lead выделяет факты события до длинного редакционного фона.
+EVENT_LEAD_LIMIT = 300
 EVENT_TIME_WINDOW = timedelta(hours=36)
 MIN_SHARED_EVENT_TOKENS = 5
 MIN_EVENT_TOKEN_OVERLAP = 0.45
@@ -124,6 +126,13 @@ LOCATION_PATTERN = re.compile(
     r"([А-ЯЁ][а-яё-]{3,})"
 )
 
+# Для сравнения короткого lead нужна более точная география, чем страна.
+# Эти формы подтверждены в паре MK: «префектуры Окинава», «острове Окинава».
+LOCAL_LOCATION_PATTERN = re.compile(
+    r"\b(?:город[ае]?|префектур[аые]|остров[ае]|сел[ае]|деревн[еяи]|район[ае])\s+"
+    r"([А-ЯЁ][а-яё-]{3,})"
+)
+
 
 def normalize_title(title):
     """Приводит заголовок к единому виду для сравнения."""
@@ -134,7 +143,7 @@ def normalize_title(title):
 
 
 def remove_duplicates(news_items, debug=False):
-    """Последовательно удаляет URL, title и cross-source event дубли."""
+    """Последовательно удаляет URL, title и event дубли любых источников."""
 
     unique_news = []
     seen_urls = set()
@@ -242,6 +251,13 @@ def build_event_fingerprint(news_item):
         "topics": sorted(_event_topic_families(news_item)),
         "tokens": sorted(_meaningful_event_tokens(event_text)),
         "locations": sorted(_extract_location_tokens(event_text)),
+        "lead_tokens": sorted(
+            _meaningful_event_tokens(event_text[:EVENT_LEAD_LIMIT])
+        ),
+        "local_locations": sorted({
+            _stem_russian_token(match.group(1))
+            for match in LOCAL_LOCATION_PATTERN.finditer(event_text)
+        }),
     }
 
 
@@ -262,12 +278,8 @@ def compare_event_fingerprints(first_item, second_item):
         "time_delta_hours": None,
     }
 
-    # Event-слой предназначен именно для разных СМИ.
-    first_source = first_item.get("source")
-    second_source = second_item.get("source")
-
-    if first_source and second_source and first_source == second_source:
-        return empty_result
+    # Один сайт тоже может выпустить две статьи одного события с разными
+    # URL и заголовками. Название СМИ не отменяет совпадение фактов.
 
     first_date = _parse_datetime(first_item.get("published_at"))
     second_date = _parse_datetime(second_item.get("published_at"))
@@ -321,11 +333,37 @@ def compare_event_fingerprints(first_item, second_item):
         and token_jaccard >= MIN_EVENT_TOKEN_JACCARD
     )
 
+    # Длинный фон может размыть общий overlap. Дополнительное сравнение
+    # использует прежний порог 0.45, но требует минимум 7 фактов lead
+    # и совпадение явно названного города/острова/района, а не одной страны.
+    lead_match = False
+    lead_overlap = 0.0
+    for focused, other, other_tokens in (
+        (first_fingerprint, second_fingerprint, second_tokens),
+        (second_fingerprint, first_fingerprint, first_tokens),
+    ):
+        lead_tokens = set(focused.get("lead_tokens", ()))
+        local_locations = set(focused.get("local_locations", ()))
+        # Старый fingerprint не содержит новых полей, но название места
+        # уже сохранено среди его tokens. Миграция history не нужна.
+        other_locations = set(other.get("local_locations", ()))
+        if "local_locations" not in other:
+            other_locations = other_tokens
+        if not lead_tokens or not local_locations.intersection(other_locations):
+            continue
+        lead_shared = lead_tokens & other_tokens
+        overlap = len(lead_shared) / len(lead_tokens)
+        lead_overlap = max(lead_overlap, overlap)
+        if len(lead_shared) >= 7 and overlap >= MIN_EVENT_TOKEN_OVERLAP:
+            lead_match = True
+
     return {
         **empty_result,
         "is_duplicate": bool(
-            has_enough_facts and has_location_or_dense_match
+            (has_enough_facts and has_location_or_dense_match) or lead_match
         ),
+        "lead_match": lead_match,
+        "lead_overlap": lead_overlap,
         "shared_tokens": sorted(shared_tokens),
         "shared_topics": sorted(shared_topics),
         "shared_locations": sorted(shared_locations),
@@ -476,6 +514,9 @@ def _print_event_duplicate(first_item, second_item, details, preferred_item):
         f"overlap={details['token_overlap']:.3f}, "
         f"jaccard={details['token_jaccard']:.3f}"
     )
+    if details.get("lead_match"):
+        # Показываем, когда совпали факты начала статьи и конкретное место.
+        print(f"lead overlap: {details['lead_overlap']:.3f}; local place matched")
     print(
         "kept: "
         f"{preferred_item.get('source', 'не указан')} — "

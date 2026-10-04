@@ -104,7 +104,7 @@ The current `main.py` order is:
 - `remove_duplicates()` is one ordered operation with three layers: exact URL, similar title, then cross-source event comparison.
 - Normalized-title similarity uses `SequenceMatcher` with threshold `0.75`.
 - Explicit conflicting locations protect similar titles from being merged.
-- Event dedup compares different sources only.
+- Event dedup compares both different sources and separate articles from the same source.
 - Both items must have reliable publication dates.
 - The maximum event time distance is 36 hours.
 - Fingerprints use the title plus the first 1,600 characters of article text or description.
@@ -113,6 +113,7 @@ The current `main.py` order is:
 - Minimum shared-token overlap against the smaller token set is `0.45`.
 - A shared location is sufficient after those base checks.
 - Without a shared location, require at least 7 shared tokens and Jaccard similarity of at least `0.20`.
+- When long background dilutes the full-text overlap, compare meaningful tokens from the first 300 characters against the other fingerprint: require at least 7 shared tokens, overlap `0.45`, and an explicitly named shared city, island, prefecture, village, or district. A country alone is insufficient. Old fingerprints remain usable without migration.
 - Noise words, procedural terms, topic markers, and lightweight Russian inflections are removed locally without a morphology service.
 - Do not loosen these thresholds to merge more stories without paired positive and negative tests.
 - When event duplicates compete, prefer higher score, then article text, then image, then longer article text, then stable first occurrence.
