@@ -175,6 +175,45 @@ def _is_political_homicide_rhetoric(news_item):
     return bool(re.search(POLITICAL_CONTEXT_PATTERN, context))
 
 
+# Дипломатический протест — реакция на crime, а не новый тяжёлый эпизод.
+# Не запрещаем МИД/послов глобально: нужны действие и связь с преступлением.
+DIPLOMATIC_REACTION_PATTERN = (
+    r"\b(?:выразил\w*|заявил\w*)\s+(?:решительн\w*\s+)?протест\w*\b|"
+    r"\bвызвал\w*\b[^.!?\n]{0,50}\b(?:посла|послов)\b"
+)
+DIPLOMATIC_CONTEXT_PATTERN = (
+    r"\b(?:мид|дипломат\w*|посол|посла|послу|послом|послы|послов|"
+    r"министр\w*\s+иностранных\s+дел)\b"
+)
+DIPLOMATIC_CRIME_LINK_PATTERN = (
+    r"\b(?:из-за|в\s+связи\s+с|после|по\s+поводу)\b"
+    r"[^.!?\n]{0,80}\b(?:убийств\w*|изнасилован\w*|застрел\w*)\b"
+)
+
+
+def _is_diplomatic_crime_reaction(news_item):
+    """Находит дипломатический повод с убийством только как причиной реакции."""
+
+    title = str(news_item.get("title", "")).casefold()
+    reaction = re.search(DIPLOMATIC_REACTION_PATTERN, title)
+    if reaction is None or not re.search(DIPLOMATIC_CRIME_LINK_PATTERN, title):
+        return False
+
+    # Если сначала сообщается само завершённое тяжёлое событие, сохраняем
+    # новость: «Морпех убил женщину; МИД выразил протест из-за убийства».
+    if any(
+        re.search(pattern, title[:reaction.start()])
+        for pattern in COMPLETED_HARD_EVENT_PATTERNS
+    ):
+        return False
+
+    context = "\n".join(
+        str(news_item.get(field, ""))
+        for field in ("title", "description", "article_text")
+    ).casefold()
+    return bool(re.search(DIPLOMATIC_CONTEXT_PATTERN, context))
+
+
 # Убийство в статусе разыскиваемого — предыстория, а не исход погони.
 # Это узкое правило формата новости, а не запрет на задержания убийц.
 SUSPECT_BACKGROUND_PATTERN = (
@@ -430,6 +469,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         elif _is_political_homicide_rhetoric(news_item):
             rejection = "political_rhetoric"
             reason = "political homicide rhetoric is not a concrete hard event"
+        elif _is_diplomatic_crime_reaction(news_item):
+            rejection = "diplomatic_reaction"
+            reason = "diplomatic reaction; hard crime is background, not the news event"
         elif _contains_news_roundup(news_item):
             rejection = "news_roundup"
             reason = "multi-story news roundup is not one true-crime event"
@@ -525,6 +567,7 @@ def filter_by_topics(
         )
         has_political_commentary = _is_political_death_commentary(news_item)
         has_political_rhetoric = _is_political_homicide_rhetoric(news_item)
+        has_diplomatic_reaction = _is_diplomatic_crime_reaction(news_item)
 
         # Разделение сохраняем в news_item для понятной диагностики.
         matched_strong_topics = [
@@ -593,6 +636,10 @@ def filter_by_topics(
             news_item["rejection_reason"] = (
                 "political homicide rhetoric is not a concrete hard event"
             )
+        elif has_diplomatic_reaction:
+            news_item["rejection_reason"] = (
+                "diplomatic reaction; hard crime is background, not the news event"
+            )
         elif not has_supported_topic and news_item["ignored_homicide_fragments"]:
             news_item["rejection_reason"] = (
                 "requested killing is not a completed homicide"
@@ -623,6 +670,7 @@ def filter_by_topics(
             and not has_figurative_homicide
             and not has_political_commentary
             and not has_political_rhetoric
+            and not has_diplomatic_reaction
         )
 
         # Никакой score не может заменить hard serious допуск.
@@ -633,6 +681,7 @@ def filter_by_topics(
             and not has_figurative_homicide
             and not has_political_commentary
             and not has_political_rhetoric
+            and not has_diplomatic_reaction
         ):
             filtered_news.append(news_item)
 
