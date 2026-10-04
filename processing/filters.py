@@ -132,6 +132,49 @@ def _is_political_death_commentary(news_item):
     )
 
 
+# Пословица в политической оценке не описывает конкретное убийство.
+# Требуем одновременно речевой формат, политический контекст и формулу:
+# фамилия политика или слово «убийца» сами по себе ничего не запрещают.
+POLITICAL_HOMICIDE_RHETORIC_PATTERN = (
+    r"\bубийц\w*\s+(?:всегда\s+)?возвраща\w*\s+"
+    r"(?:на|к)\s+мест[оу]\s+преступлени\w*\b"
+)
+POLITICAL_EVALUATION_PATTERN = (
+    r"\b(?:оценил\w*|назвал\w*|прокомментировал\w*|"
+    r"отреагировал\w*|сравнил\w*)\b"
+)
+POLITICAL_CONTEXT_PATTERN = (
+    r"\b(?:мид|дипломат\w*|канцлер\w*|президент\w*|министр\w*|"
+    r"премьер\w*|политик\w*|визит\w*|делегаци\w*)\b"
+)
+
+
+def _is_political_homicide_rhetoric(news_item):
+    """Отличает политическую пословицу об убийцах от конкретного crime."""
+
+    title = str(news_item.get("title", "")).casefold()
+    if not (
+        re.search(POLITICAL_HOMICIDE_RHETORIC_PATTERN, title)
+        and re.search(POLITICAL_EVALUATION_PATTERN, title)
+    ):
+        return False
+
+    # Если помимо фигуры речи заголовок сообщает о настоящем hard-event,
+    # не отбрасываем его из-за цитаты или должности комментатора.
+    factual_title = re.sub(POLITICAL_HOMICIDE_RHETORIC_PATTERN, "", title)
+    if re.search(r"\b(?:убийств\w*|изнасилован\w*)\b", factual_title) or any(
+        re.search(pattern, factual_title)
+        for pattern in COMPLETED_HARD_EVENT_PATTERNS
+    ):
+        return False
+
+    context = "\n".join(
+        str(news_item.get(field, ""))
+        for field in ("title", "description", "article_text")
+    ).casefold()
+    return bool(re.search(POLITICAL_CONTEXT_PATTERN, context))
+
+
 # Убийство в статусе разыскиваемого — предыстория, а не исход погони.
 # Это узкое правило формата новости, а не запрет на задержания убийц.
 SUSPECT_BACKGROUND_PATTERN = (
@@ -384,6 +427,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         if _is_political_death_commentary(news_item):
             rejection = "political_commentary"
             reason = "political commentary about a deceased leader"
+        elif _is_political_homicide_rhetoric(news_item):
+            rejection = "political_rhetoric"
+            reason = "political homicide rhetoric is not a concrete hard event"
         elif _contains_news_roundup(news_item):
             rejection = "news_roundup"
             reason = "multi-story news roundup is not one true-crime event"
@@ -478,6 +524,7 @@ def filter_by_topics(
             for pattern in FIGURATIVE_HOMICIDE_PATTERNS
         )
         has_political_commentary = _is_political_death_commentary(news_item)
+        has_political_rhetoric = _is_political_homicide_rhetoric(news_item)
 
         # Разделение сохраняем в news_item для понятной диагностики.
         matched_strong_topics = [
@@ -542,6 +589,10 @@ def filter_by_topics(
             news_item["rejection_reason"] = (
                 "political commentary about a deceased leader"
             )
+        elif has_political_rhetoric:
+            news_item["rejection_reason"] = (
+                "political homicide rhetoric is not a concrete hard event"
+            )
         elif not has_supported_topic and news_item["ignored_homicide_fragments"]:
             news_item["rejection_reason"] = (
                 "requested killing is not a completed homicide"
@@ -571,6 +622,7 @@ def filter_by_topics(
             and not has_excluded_keyword
             and not has_figurative_homicide
             and not has_political_commentary
+            and not has_political_rhetoric
         )
 
         # Никакой score не может заменить hard serious допуск.
@@ -580,6 +632,7 @@ def filter_by_topics(
             and not has_excluded_keyword
             and not has_figurative_homicide
             and not has_political_commentary
+            and not has_political_rhetoric
         ):
             filtered_news.append(news_item)
 

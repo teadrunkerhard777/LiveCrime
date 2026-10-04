@@ -95,6 +95,7 @@ The current `main.py` order is:
 - Violence by an animal or against an animal is not a human true-crime event and is rejected only when that relationship is explicit.
 - The sensational verb `расстрелял` is rejected unless the story explicitly confirms a fatal outcome.
 - A nonfatal pursuit, crash, or shootout involving a homicide suspect is rejected when the hard crime only explains the search. A confirmed fatal outcome of the current incident remains eligible; check this after article loading.
+- A political evaluation using the proverb about killers returning to the crime scene is rhetoric, not a standalone homicide signal. Require both evaluative headline and political context; preserve a separate concrete hard event in the headline.
 - `MIN_PUBLICATION_SCORE = 4`.
 - Contextual score bonus is capped at 3.
 - Do not change strong topics, conditional topics, severe outcomes, exclusions, scoring, or threshold in an unrelated task.
