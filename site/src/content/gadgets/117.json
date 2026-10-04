@@ -1,0 +1,8 @@
+{
+  "message_id": "117",
+  "text": "🔵 OpenAI обнаружила, как превратить ИИ в «червя» — вредоносные промпты могут самовоспроизводиться\n\nOpenAI обнаружила у своих моделей уязвимость к ориентированным на искусственный интеллект атакам типа «червь» — в компании им присвоили название «самовоспроизводящихся инъекций в запросах» . Такие инъекции теоретически могут приводить к массовому распространению вирусов, но на практике такие атаки ещё не использовались, заверил разработчик.\n\nИсточник изображений: Brecht Corbeel / unsplash.com\n\nЧтобы нейтрализовать угрозу ещё до того, как она начнёт работать, в OpenAI разработали ИИ-агента для тестирования на уязвимости — ему присвоили название GPT-Red. Этот агент обучает ИИ-модели распознавать самовоспроизводство запросов как одну из целей злоумышленников.\n\nНовый тип атак инженеры компании открыли в июне, когда подключили ИИ-агента GPT-Red к…\n\n📅 30 сентября 2026\n📰 3DNews: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-01T04:31:12+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/qqaY_IuuGY6etwnDVd79r-iM1iqewbaTj7U4Kq-8rGDb4PoDaEyq48nv6079O1m092uQAZVrR7ummNJzSA48ULN5ecpxIalWYE9rLOxNZOmxZgwXbto-g1etQajeohETc4Gp9unDvOTg9BNAvvSw0LOehnm5YO6faxYdIlOfyX33nXYo2ccfXEhXqZh4zoyJrT-zJfHyHyAjMb-jE3LX3nKgaRgAWF1ti21x3mX-b_kzKfi4V4dzNAOLxY-x9q90iG70fxsDKjtXiauscj0dZ5AR1VFyIFKzE7EmEKdk5F-KaR5YH_U5HlODQaHJ27Mp8NfqCtrrseMRud2gGI6Q8Q.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/117",
+  "source_url": "https://3dnews.ru/1149269"
+}

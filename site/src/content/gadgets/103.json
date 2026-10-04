@@ -1,0 +1,8 @@
+{
+  "message_id": "103",
+  "text": "🔵 Энтузиаст запустил мощную нейросеть OpenAI — потребовалось 5 ПК и топовый смартфон\n\nПользователь Reddit под ником Medicine_Blogscanner в сообществе r/LocalLLM показал , как запустить gpt-oss-120b — открытую 120-миллиардную модель OpenAI для сложных аналитических задач — на шести бытовых устройствах разом. Подробности эксперимента разобрало издание Wccftech.\n\nПо стандартным требованиям для запуска этой модели нужно минимум 60 ГБ памяти, а в несжатом виде она запрашивает уже 240 ГБ оперативной памяти. Энтузиаст обошел ограничение двумя способами.\n\nВ роли вычислительного парка выступили Samsung Galaxy S24+, мини-ПК с видеокартой RTX 3060 (12 ГБ видеопамяти), ноутбук под Windows с 12 ГБ оперативной памяти, MacBook Pro на чипе Intel, Mac mini и MacBook Pro на M3. Устройства объединились через…\n\n📅 29 сентября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-09-29T10:31:17+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/UEjA9DBeLSWPrjveBNEWWe4859ZZNEgvP_yLtX9rAlP6_KyqEbHwCFxEbEyWkT6Km4ArFh420p_7CxqqEwgeEM4xJ_6Fr8P5O7GOHuBlGDAD1g0oDrK8sreZF0WEDY6yI6bpw0ix76qvghv0OBGFXLDglllhCdmaTN08M7pMYQPQ1A_3nR-I2wyKf9fhoqjmFB5hISyf9jDO1nrPIj-2j_byTsMnlhDLWmZihgzfPzLkKiDoEXKq0HkvC7FiDL6EHnDkz_MzTVJXJiwyQo0F7xSDfThtknH5ivtZRE8efEhKxz8NGOiPkqv5QJyCK2bfVmvJxyRCpRrSVSySwgGe8Q.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/103",
+  "source_url": "https://hi-tech.mail.ru/news/156571-entuz-ast-zapustil-120-milliardnuyu-nejroset-openai-na/"
+}
