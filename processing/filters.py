@@ -132,6 +132,53 @@ def _is_political_death_commentary(news_item):
     )
 
 
+# Убийство в статусе разыскиваемого — предыстория, а не исход погони.
+# Это узкое правило формата новости, а не запрет на задержания убийц.
+SUSPECT_BACKGROUND_PATTERN = (
+    r"\b(?:подозреваем\w*|обвиняем\w*|разыскиваем\w*)\s+"
+    r"(?:в|за)\s+(?:совершени\w*\s+)?(?:убийств\w*|изнасилован\w*)\b"
+)
+NONFATAL_INCIDENT_PATTERN = (
+    r"\b(?:ранил\w*|ранен\w*|погон\w*|перестрел\w*|авари\w*)\b"
+)
+FATAL_INCIDENT_PATTERN = (
+    r"\b(?:погиб\w*|скончал\w*|умер(?:ла|ли)?|смертельн\w*|"
+    r"убил(?:а|и)?|убит(?!ь)(?:а|о|ы)?|застрелил(?:а|и)?|"
+    r"застрелян(?:а|о|ы)?)\b"
+)
+
+
+def _is_nonfatal_suspect_incident(news_item):
+    """Отличает ранение/погоню от hard-события, упомянутого для розыска."""
+
+    title = str(news_item.get("title", "")).casefold()
+    if not re.search(SUSPECT_BACKGROUND_PATTERN, title):
+        return False
+    if not re.search(NONFATAL_INCIDENT_PATTERN, title):
+        return False
+
+    # Отдельное завершённое убийство в заголовке остаётся допустимым.
+    current_title = re.sub(SUSPECT_BACKGROUND_PATTERN, "", title)
+    if re.search(FATAL_INCIDENT_PATTERN, current_title):
+        return False
+
+    # Проверяем загруженное тело до отбора/публикации. Номинальное
+    # «расследование убийства» не подтверждает смерть в текущей погоне.
+    body = str(news_item.get("article_text") or news_item.get("description", ""))
+    for sentence in re.split(r"[.!?\n]+", body.casefold()):
+        if re.search(r"\b(?:ранее|до этого)\b", sentence):
+            continue
+        current_incident = re.search(
+            r"\b(?:погон\w*|перестрел\w*|полицей\w*|при задержани\w*|"
+            r"авари\w*|больниц\w*)\b", sentence
+        )
+        # Нужна связь смертельного исхода именно с текущим происшествием.
+        if current_incident and re.search(FATAL_INCIDENT_PATTERN, sentence):
+            return False
+
+    return True
+
+
 def _topic_matches(full_text, topic):
     """Ищет тематическую основу только с начала отдельного слова."""
 
@@ -340,6 +387,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         elif _contains_news_roundup(news_item):
             rejection = "news_roundup"
             reason = "multi-story news roundup is not one true-crime event"
+        elif _is_nonfatal_suspect_incident(news_item):
+            rejection = "nonfatal_suspect_incident"
+            reason = "nonfatal suspect incident; hard crime is search background"
         elif _contains_animal_event(full_text):
             rejection = "animal_event"
             reason = "animal violence is not a human true-crime event"
