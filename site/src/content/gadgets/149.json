@@ -1,0 +1,8 @@
+{
+  "message_id": "149",
+  "text": "🔵 Обновления для Linux: NVIDIA исправляет сбои, а NTFS-3G закрывает уязвимости\n\nУ линуксоидов на этой неделе случилось еще два события, заслуживающих внимания.\n\nРазработчики NTFS-3G выпустили критическое обновление, латающее утечки памяти и сбои в правах доступа ACL. Компания NVIDIA ® представила драйвер версии 595.104.02, исправляющий падения системы при работе с Wayland и тяжелыми таблицами страниц GPU.\n\nВся информация по двум апдейтам — в этом суперкоротком дайджесте.\n\nРелиз драйвера NTFS-3G 2026.9.18 — масштабный патч безопасности. В новой версии закрыты переполнения буфера кучи в функциях ntfs_external_attr_find , ntfs_ea_check_wsldev , ntfs_check_restart_area , ntfs_same_sid и ntfs_acl_owner .\n\n📅 4 октября 2026\n📰 Habr Новости: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-05T04:31:09+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/BDCdROceLDZWnyH_ZckMIaAm4qwFAjxMBT_IkyFwffUyLFRTdUQz3gaPx6UEQE7qSiT6-uZaB4uMogk-Di11Kxvu1F9bfKzj05-0HWQNpcQT5N0YzY--PDuNNnmaCieAZMe57sDg-zTSdft8O8ICIRVsC9hEz-ktfM8dGwRWZgoWs7zpvDvAj4cnDiosC2_eR5sWmZ8iXfgrbgPZdSwOkIoBwb0YtU_yiokZGyikLnJUMcOrcc3GeYskNu3cmD6xej895_PyyhtOhEvHpe0bqSpHFoii5wE4Lj1NjW9TGS7d_p1-KEAIjuk-li3mvmJF6Sp1kSCLnYlGVditVBoLog.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/149",
+  "source_url": "https://habr.com/ru/companies/selectel/news/1090074/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1090074"
+}

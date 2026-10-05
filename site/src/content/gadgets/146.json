@@ -1,0 +1,8 @@
+{
+  "message_id": "146",
+  "text": "🔵 Критическая уязвимость в GitLab AI Gateway позволяет удалённо выполнять команды\n\nGitLab выпустила срочные обновления для критической уязвимости в AI Gateway, которая при определённых условиях позволяет аутентифицированному пользователю удалённо выполнять произвольные команды. Уязвимость CVE-2026-90970 получила 9,9 балла по шкале CVSS и затрагивает самостоятельно развернутые версии шлюза, используемые для работы функций GitLab Duo на базе ИИ.\n\nПроблема связана с обработкой пользовательских шаблонов промптов для спроектированных сценариев. Пользователь с доступом к Duo Agent Platform может передать специально сформированную конфигурацию, которая выходит за пределы изолированной среды обработки шаблонов.\n\nGitLab закрыла уязвимость в версиях AI…\n\n📅 4 октября 2026\n📰 iXBT: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-04T19:31:22+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/DKSMgIk6ttOfhZ0xbZszUFveoyxFlv9FQ2T_OXsguor8T5radE1l2zh_GwZqQry42f_JHPryrWA9Hj-BUxTwfKKfKdVjoYOSW_gArMwhbOW6dnkTsLS9MwTPtTgZMFPE58sakkypBt8Hp8S6y8e0ni6glVf6BEcH1f2OB8NOOHFUkUClKazb0GHjfydOeYvpW5sdbwAhm8lHpTBROsFxVhYR6vIe7vU3jZmFdKZmgMf9xQqKJRubaDdo7fMX6HifTErNWcUBHm7sXKS3dFwtqvfvR7Hprp7IrfjiXtO87b2tHCEePvtecl-B5HMuUJsl4yTsBmXGoMSuBLllufUqFQ.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/146",
+  "source_url": "https://www.ixbt.com/news/2026/10/04/440199-kriticeskaia-uiazvimost-v-gitlab-ai-gateway-pozvoliaet-udalenno-vypolniat-komandy.html"
+}
