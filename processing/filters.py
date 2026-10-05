@@ -175,6 +175,48 @@ def _is_political_homicide_rhetoric(news_item):
     return bool(re.search(POLITICAL_CONTEXT_PATTERN, context))
 
 
+# Обобщение о большой группе людей в политическом интервью — не отдельный
+# crime-case. Нужны и агрегатный заголовок, и явный формат заявления.
+AGGREGATE_VIOLENCE_PATTERN = (
+    r"(?:\b(?:почти|практически)\s+все\b|\bбольшинств\w*\b|"
+    r"\b\d+\s*(?:процент\w*|%))"
+    r"[^.!?\n]{0,140}\b(?:изнасил\w*|убийств\w*|убит(?!ь)\w*)\b"
+)
+POLITICAL_SPEAKER_PATTERN = (
+    r"\b(?:министр\w*|политик\w*|депутат\w*|канцлер\w*|президент\w*)\b"
+)
+REPORTED_STATEMENT_PATTERN = (
+    r"\b(?:заявил\w*|рассказал\w*|сообщил\w*|интервью|подкаст\w*)\b"
+)
+CONCRETE_CASE_HEADLINE_PATTERN = (
+    r"\b(?:по\s+делу|в\s+деле|задержан\w*|задержали|арестован\w*|"
+    r"подозреваем\w*|заложниц\w*)\b"
+)
+
+
+def _is_aggregate_political_violence_statement(news_item):
+    """Распознаёт политическое заявление о распространённости насилия."""
+
+    title = str(news_item.get("title", "")).casefold()
+    if not re.search(AGGREGATE_VIOLENCE_PATTERN, title):
+        return False
+    # Определённое дело/группа заложниц не становится статистикой из-за
+    # слов «почти все». Обычные case-новости сохраняют прежние проверки.
+    if re.search(CONCRETE_CASE_HEADLINE_PATTERN, title):
+        return False
+
+    # Смотрим начало материала, а не случайную политическую цитату внизу.
+    # Если RSS пустой, та же проверка повторится после загрузки article_text.
+    lead = (
+        news_item.get("article_text") or news_item.get("description", "")
+    )
+    context = f"{title}\n{str(lead)[:800]}".casefold()
+    return bool(
+        re.search(POLITICAL_SPEAKER_PATTERN, context)
+        and re.search(REPORTED_STATEMENT_PATTERN, context)
+    )
+
+
 # Дипломатический протест — реакция на crime, а не новый тяжёлый эпизод.
 # Не запрещаем МИД/послов глобально: нужны действие и связь с преступлением.
 DIPLOMATIC_REACTION_PATTERN = (
@@ -472,6 +514,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         elif _is_diplomatic_crime_reaction(news_item):
             rejection = "diplomatic_reaction"
             reason = "diplomatic reaction; hard crime is background, not the news event"
+        elif _is_aggregate_political_violence_statement(news_item):
+            rejection = "aggregate_political_statement"
+            reason = "aggregate political violence statement, not a concrete crime case"
         elif _contains_news_roundup(news_item):
             rejection = "news_roundup"
             reason = "multi-story news roundup is not one true-crime event"
@@ -568,6 +613,7 @@ def filter_by_topics(
         has_political_commentary = _is_political_death_commentary(news_item)
         has_political_rhetoric = _is_political_homicide_rhetoric(news_item)
         has_diplomatic_reaction = _is_diplomatic_crime_reaction(news_item)
+        has_aggregate_statement = _is_aggregate_political_violence_statement(news_item)
 
         # Разделение сохраняем в news_item для понятной диагностики.
         matched_strong_topics = [
@@ -640,6 +686,10 @@ def filter_by_topics(
             news_item["rejection_reason"] = (
                 "diplomatic reaction; hard crime is background, not the news event"
             )
+        elif has_aggregate_statement:
+            news_item["rejection_reason"] = (
+                "aggregate political violence statement, not a concrete crime case"
+            )
         elif not has_supported_topic and news_item["ignored_homicide_fragments"]:
             news_item["rejection_reason"] = (
                 "requested killing is not a completed homicide"
@@ -671,6 +721,7 @@ def filter_by_topics(
             and not has_political_commentary
             and not has_political_rhetoric
             and not has_diplomatic_reaction
+            and not has_aggregate_statement
         )
 
         # Никакой score не может заменить hard serious допуск.
@@ -682,6 +733,7 @@ def filter_by_topics(
             and not has_political_commentary
             and not has_political_rhetoric
             and not has_diplomatic_reaction
+            and not has_aggregate_statement
         ):
             filtered_news.append(news_item)
 
