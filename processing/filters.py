@@ -220,7 +220,7 @@ def _is_aggregate_political_violence_statement(news_item):
 # Дипломатический протест — реакция на crime, а не новый тяжёлый эпизод.
 # Не запрещаем МИД/послов глобально: нужны действие и связь с преступлением.
 DIPLOMATIC_REACTION_PATTERN = (
-    r"\b(?:выразил\w*|заявил\w*)\s+(?:решительн\w*\s+)?протест\w*\b|"
+    r"\b(?:выразил\w*|заявил\w*)\b[^.!?\n]{0,80}\bпротест\w*\b|"
     r"\bвызвал\w*\b[^.!?\n]{0,50}\b(?:посла|послов)\b"
 )
 DIPLOMATIC_CONTEXT_PATTERN = (
@@ -231,6 +231,12 @@ DIPLOMATIC_CRIME_LINK_PATTERN = (
     r"\b(?:из-за|в\s+связи\s+с|после|по\s+поводу)\b"
     r"[^.!?\n]{0,80}\b(?:убийств\w*|изнасилован\w*|застрел\w*)\b"
 )
+DIPLOMATIC_LEAD_CONDEMNATION_PATTERN = (
+    r"\b(?:премьер(?:-министр)?|мид|дипломат\w*|президент\w*|"
+    r"министр\w*\s+иностранных\s+дел)\b"
+    r"[^.!?\n]{0,160}\bосудил\w*\b[^.!?\n]{0,80}"
+    r"\b(?:убийств\w*|изнасилован\w*|застрел\w*)\b"
+)
 
 
 def _is_diplomatic_crime_reaction(news_item):
@@ -239,7 +245,22 @@ def _is_diplomatic_crime_reaction(news_item):
     title = str(news_item.get("title", "")).casefold()
     reaction = re.search(DIPLOMATIC_REACTION_PATTERN, title)
     if reaction is None or not re.search(DIPLOMATIC_CRIME_LINK_PATTERN, title):
-        return False
+        # Сенсационный заголовок может не назвать crime вовсе, а lead
+        # сразу сообщает лишь о реакции премьера/дипломата на чужое дело.
+        # Сохраняем прямой hard-заголовок: политическая цитата в теле статьи
+        # не должна отменить новость о самом убийстве или задержании.
+        if re.search(
+            r"\b(?:убий\w*|изнасил\w*|застрел\w*|расстрел\w*|"
+            r"убил(?:а|и)?|убит(?!ь)\w*|суицид\w*|самоубий\w*)\b",
+            title,
+        ):
+            return False
+        body = str(
+            news_item.get("article_text") or news_item.get("description", "")
+        ).strip()
+        # Только первый абзац (до 600 символов), не поздние комментарии.
+        lead = re.split(r"\n\s*\n", body, maxsplit=1)[0][:600].casefold()
+        return bool(re.search(DIPLOMATIC_LEAD_CONDEMNATION_PATTERN, lead))
 
     # Если сначала сообщается само завершённое тяжёлое событие, сохраняем
     # новость: «Морпех убил женщину; МИД выразил протест из-за убийства».

@@ -97,6 +97,7 @@ The current `main.py` order is:
 - A nonfatal pursuit, crash, or shootout involving a homicide suspect is rejected when the hard crime only explains the search. A confirmed fatal outcome of the current incident remains eligible; check this after article loading.
 - A political evaluation using the proverb about killers returning to the crime scene is rhetoric, not a standalone homicide signal. Require both evaluative headline and political context; preserve a separate concrete hard event in the headline.
 - Diplomatic protests or summoning an ambassador because of a killing are reactions, not standalone hard events. Require an explicit diplomatic headline action linked to crime and diplomatic context; preserve direct killing and arrest reporting.
+- If a neutral/sensational headline omits the hard event, also reject a first-paragraph condemnation of crime by a premier, president, or diplomat. Use at most 600 characters of that first paragraph; later reactions must not suppress a direct crime report.
 - Aggregate violence claims in political interviews/statements are not concrete crime cases: require a generalizing headline plus political speaker and statement markers in the lead. Do not reject refugees or migrants as a topic; preserve concrete case reporting.
 - `MIN_PUBLICATION_SCORE = 4`.
 - Contextual score bonus is capped at 3.
