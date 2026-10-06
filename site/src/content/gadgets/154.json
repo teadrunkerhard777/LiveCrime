@@ -1,0 +1,8 @@
+{
+  "message_id": "154",
+  "text": "🔵 Бесплатная программа исправила одну из главных проблем игр на ПК\n\nРазработчик под ником BlueHeisenberg выложил на GitHub бесплатную программу SCSKiller для Windows. Она борется с одной из самых раздражающих проблем ПК-гейминга — короткими фризами, которые возникают, когда игра прямо во время прохождения компилирует шейдеры.\n\nОбычно игра собирает нужные шейдеры «на лету», когда они впервые понадобились. В этот момент кадр задерживается, и игрок ощущает потормаживания.\n\nАвтор опубликовал результаты замеров на видеокарте RTX 5090. В Final Fantasy VII Rebirth число подтормаживаний из-за шейдеров сократилось с 19 до нуля, в Tiny Tina's Wonderlands — с 583 до нуля, в Hogwarts Legacy — с 1014 до 87.\n\nУтилита работает на Windows 10 версии 2004 и Windows 11 в 64-битном исполнении. Она…\n\n📅 5 октября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-10-05T22:31:10+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/oqbkkNB_iC_dueB2WyluZNX3oLaTG6otD1DdjK4pN_FsdW0OpA3kGUyLxbbkaQEyDHPSUeAoI9jFYeau_wTshPAaG-HjLnV51w3g7qSnitYW-MC7OzKVJbIbgQf9Z85w4lQABrVX-DqNUbHYzJ5Xkfa_YPOGYWJzXMC7dPqwHNaQ0GxMkf6YQ5yyIJCfvN6jgENVOFb0C7W-JB1nuUlw2iak97h_ctBa1ImUA7m9YyaP-AMnJulRqSKqGYiwi9eUTXMgkZNGSEJ8Ah0UgEzNXgwUoWcNZEEFRuDxmy4YRvP5V6xx8jQqtf4VzFF-oeN0f6TQlcYekP61_UYSfHRtwA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/154",
+  "source_url": "https://hi-tech.mail.ru/news/157117-besplatnaya-utilita-scskiller-ubiraet-frizy-iz-za-sheiderov/"
+}
