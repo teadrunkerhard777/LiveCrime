@@ -277,6 +277,36 @@ def _is_diplomatic_crime_reaction(news_item):
     return bool(re.search(DIPLOMATIC_CONTEXT_PATTERN, context))
 
 
+# Ограничения на базе — реакция учреждения, а не новое преступление.
+# Проверяем конкретный формат; военные и задержания сами по себе не запрещены.
+MILITARY_RESTRICTION_PATTERN = (
+    r"\bоперативн\w*\s+пауз\w*\b|"
+    r"\b(?:запрет\w*|огранич\w*)\b[^.!?\n]{0,80}"
+    r"\b(?:выход\w*|выезд\w*|увольнительн\w*)\b"
+)
+
+
+def _is_military_crime_response(news_item):
+    title = str(news_item.get("title", "")).casefold()
+    background = re.search(DIPLOMATIC_CRIME_LINK_PATTERN, title)
+    if background is None:
+        return False
+
+    # Самостоятельное тяжёлое событие вне причинного оборота сохраняем.
+    foreground = title[:background.start()] + title[background.end():]
+    if any(re.search(pattern, foreground) for pattern in COMPLETED_HARD_EVENT_PATTERNS):
+        return False
+
+    # Поздний абзац об ограничениях не превращает прямой репортаж в реакцию.
+    body = str(news_item.get("article_text") or news_item.get("description") or "").strip()
+    lead = re.split(r"\n\s*\n", body, maxsplit=1)[0][:600].casefold()
+    context = title + "\n" + lead
+    return bool(
+        re.search(r"\b(?:военн\w*|морпех\w*|командован\w*|баз\w*)\b", context)
+        and re.search(MILITARY_RESTRICTION_PATTERN, context)
+    )
+
+
 # Убийство в статусе разыскиваемого — предыстория, а не исход погони.
 # Это узкое правило формата новости, а не запрет на задержания убийц.
 SUSPECT_BACKGROUND_PATTERN = (
@@ -535,6 +565,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         elif _is_diplomatic_crime_reaction(news_item):
             rejection = "diplomatic_reaction"
             reason = "diplomatic reaction; hard crime is background, not the news event"
+        elif _is_military_crime_response(news_item):
+            rejection = "military_crime_response"
+            reason = "military restrictions; hard crime is background, not the news event"
         elif _is_aggregate_political_violence_statement(news_item):
             rejection = "aggregate_political_statement"
             reason = "aggregate political violence statement, not a concrete crime case"
@@ -634,6 +667,7 @@ def filter_by_topics(
         has_political_commentary = _is_political_death_commentary(news_item)
         has_political_rhetoric = _is_political_homicide_rhetoric(news_item)
         has_diplomatic_reaction = _is_diplomatic_crime_reaction(news_item)
+        has_military_response = _is_military_crime_response(news_item)
         has_aggregate_statement = _is_aggregate_political_violence_statement(news_item)
 
         # Разделение сохраняем в news_item для понятной диагностики.
@@ -711,6 +745,10 @@ def filter_by_topics(
             news_item["rejection_reason"] = (
                 "aggregate political violence statement, not a concrete crime case"
             )
+        elif has_military_response:
+            news_item["rejection_reason"] = (
+                "military restrictions; hard crime is background, not the news event"
+            )
         elif not has_supported_topic and news_item["ignored_homicide_fragments"]:
             news_item["rejection_reason"] = (
                 "requested killing is not a completed homicide"
@@ -742,6 +780,7 @@ def filter_by_topics(
             and not has_political_commentary
             and not has_political_rhetoric
             and not has_diplomatic_reaction
+            and not has_military_response
             and not has_aggregate_statement
         )
 
@@ -754,6 +793,7 @@ def filter_by_topics(
             and not has_political_commentary
             and not has_political_rhetoric
             and not has_diplomatic_reaction
+            and not has_military_response
             and not has_aggregate_statement
         ):
             filtered_news.append(news_item)
