@@ -1,0 +1,8 @@
+{
+  "message_id": "168",
+  "text": "🔵 Bloodborne запустили на ПК без эмулятора: фанаты сделали порт через 11 лет\n\nBloodborne от FromSoftware теперь можно запустить на компьютере без классического эмулятора. Энтузиаст под ником Supermedo выложил на GitHub проект bbport.\n\nПорт работает иначе, чем эмуляторы. У PS4 и обычных ПК процессоры одной архитектуры, поэтому код Bloodborne выполняется на компьютере напрямую, без перевода команд на лету.\n\nОсновной платформой автор называет Linux. Кроме того, проект поддерживает 64-битные Windows 10 и Windows 11 с отдельным лаунчером, а для Steam Deck есть сборка в формате AppImage.\n\nВ порт встроили технологии масштабирования AMD FSR 3.1, FSR 4 и FSR 4.1.1. Частота кадров разблокирована, при желании ее можно зафиксировать на 30, 60 или 90 кадрах в секунду.\n\n📅 7 октября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-10-07T13:31:15+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/rA7sUODEuQF7NM1C0E6mO4kiHYwD65dP0mXkjkCJcbMllsG6lmKvxC6MQ9luohd84uUq3rcgz2WpmRD4huUhl39J24naJyluhvn3Xh2ptHk4Wli84hQ8_Xue10_sqkb2uEEHJhktR0byHB99wAbi2qsfTm6pi31wELBVZTsGR61_4OqtBdZtsNBqRO6ABtsnNvs4ZoJpT0-p84abW1ZmZ8sVYWfBmU0CYB5PUXcOH67Hz6kMeID0wyE6duj1FKbRmsfhe2mVPOdel572oKM_unm-E_bn8sYpaVSCDsiyuWVE3fWl-_CqS9aLK8zr9yTPCjYQ4x-AugGMKPX83fmGxw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/168",
+  "source_url": "https://hi-tech.mail.ru/news/157307-bloodborne-zapustili-na-pk-bez-emulyatora-fanaty-sdelali/"
+}

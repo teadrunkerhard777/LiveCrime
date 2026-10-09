@@ -1,0 +1,8 @@
+{
+  "message_id": "172",
+  "text": "🔵 Россиянин превратил списанную майнинговую ферму в сервер для нейросетей\n\nПользователь Reddit под ником markpronkin купил на «Авито» списанную майнинговую ферму за 3000 рублей и превратил ее в домашний сервер для нейросетей . Об этом он рассказал в сообществе LocalLLaMA, где обсуждают запуск языковых моделей на собственном железе.\n\nИзначально продавец просил за ферму 5000 рублей, но покупатель сторговался до 3000. Внутри стоят девять видеокарт NVIDIA P106.\n\nНа этой ферме автор запустил модель Qwen3.6 35B-A3B через программу Ollama и получил скорость больше 30 токенов в секунду. При этом у сборки хватает ограничений.\n\nВ ферме не оказалось даже SSD, поэтому систему пришлось загружать с флешки. Счета за электричество девяти карт автора не пугают: по его словам, электроэнергия достается ему бесплатно.\n\n📅 7 октября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-10-08T01:31:26+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/KWvp2FCHXOlNE5HY3yE0WuG3DzKbegPEE7qXTEVehK5iFPYzKRNXZKzvk1B9TD60QLkXsuVS1Zt2KxWgq8uv3vXzi4wj1Cd7-KSimbU5kQgQgbdihJZQ3-tgCxsWwpLSRiT8Xb6ifDiO-iSvq5oyyN0MnQnQ_OkP00FluOBsNQU3QaQ5zquaH48jkn4-AqjAKIFopV0vSFWeIvaPLGjRyWPnAn-fteJjHXXeVIJxlrZpaD9Yp1eAqusJAlMQmuE9sNbAIhILxURuKxh6irQjjtK1Tu7-XB8ksWgyJlRVboLcZ46Sp_AW1v09SDjXTlKYN3i_ffGfdWEmfgNT17Zpdw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/172",
+  "source_url": "https://hi-tech.mail.ru/news/157320-devyat-mainingovyh-videokart-za-3000-rublei-potyanuli-ii/"
+}
