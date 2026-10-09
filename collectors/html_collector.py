@@ -160,6 +160,13 @@ def collect_e1ru(soup, source):
     )
 
 
+def collect_ngs_region(soup, source):
+    """Общие карточки новых региональных сайтов без отдельного collector."""
+
+    # Разметка подтверждена на каждом сайте; timezone задан в config.py.
+    return _collect_ngs_news(soup, source, default_timezone="Europe/Moscow")
+
+
 def collect_vnru(soup, source):
     """Разбирает рубрику происшествий VN.ru."""
 
@@ -861,6 +868,7 @@ def _clean_text(text):
 # Имя adapter из config.py явно выбирает небольшую функцию сайта.
 # Для нового источника достаточно добавить функцию и одну запись здесь.
 ADAPTERS = {
+    "ngs": collect_ngs_region,
     "116ru": collect_116ru,
     "e1ru": collect_e1ru,
     "vnru": collect_vnru,

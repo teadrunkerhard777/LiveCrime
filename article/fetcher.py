@@ -1,3 +1,4 @@
+from functools import partial
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -56,6 +57,33 @@ SOURCE_STOP_MARKERS = {
 }
 
 
+# У проверенных региональных сайтов единая UTF-8 платформа и article body.
+REGIONAL_PLATFORM_SOURCES = (
+    "НГС55: происшествия Омска",
+    "НГС: происшествия Новосибирска",
+    "НГС24: происшествия Красноярска",
+    "29.ru: происшествия Архангельской области",
+    "51.ru: происшествия Мурманской области",
+    "86.ru: происшествия ХМАО",
+    "89.ru: происшествия ЯНАО",
+    "59.ru: происшествия Пермского края",
+    "74.ru: происшествия Челябинской области",
+    "45.ru: происшествия Курганской области",
+)
+REGIONAL_PLATFORM_DOMAINS = {
+    "ngs55.ru",
+    "ngs.ru",
+    "ngs24.ru",
+    "29.ru",
+    "51.ru",
+    "86.ru",
+    "89.ru",
+    "59.ru",
+    "74.ru",
+    "45.ru",
+}
+
+
 def fetch_article_html(url):
     """
     Загружает HTML страницы новости.
@@ -86,7 +114,7 @@ def fetch_article_html(url):
     # Эти сайты отдают UTF-8 HTML без charset в HTTP-заголовке.
     # requests иначе ошибочно декодирует кириллицу как Latin-1.
     utf8_domain = urlparse(url).netloc.casefold().removeprefix("www.")
-    if utf8_domain in {"fontanka.ru", "116.ru", "e1.ru"}:
+    if utf8_domain in {"fontanka.ru", "116.ru", "e1.ru"} | REGIONAL_PLATFORM_DOMAINS:
         response.encoding = "utf-8"
 
     return response.text
@@ -397,6 +425,60 @@ def extract_mk_article_text(soup):
     return "\n\n".join(paragraphs)
 
 
+def extract_northern_article_text(soup, source):
+    """Берёт только подтверждённый контейнер конкретного северного СМИ."""
+
+    selectors = {
+        "БНК: новости Коми": ".b-news-single .cnt.daGallery",
+        "Комиинформ: новости Коми": '.news-view [itemprop="articleBody"]',
+        "НАО24: новости Ненецкого округа": "article.fullstory .box_in > .text",
+    }
+    if source == "СеверПост: новости Мурманской области":
+        # Первый div после разделителя под h1 — текст, следующие — подписки.
+        container = soup.select_one(".c-post-block")
+        headline = container.find("h1", recursive=False) if container else None
+        divider = headline.find_next_sibling("hr") if headline else None
+        body = divider.find_next_sibling("div") if divider else None
+    else:
+        body = soup.select_one(selectors[source])
+
+    if body is None:
+        # Без надёжного body используем RSS description, а не footer страницы.
+        return ""
+
+    for service in body.select(
+        "script, style, figure, .pic-container, .item__image, .telegram, .max, "
+        ".ya-share2, .tags, .cookie-banner"
+    ):
+        service.decompose()
+    return "\n\n".join(
+        p.get_text(" ", strip=True) for p in body.find_all("p")
+        if p.get_text(" ", strip=True)
+    )
+
+
+def extract_regional_platform_text(soup):
+    """Использует проверенный общий body без подписок новых региональных сайтов."""
+
+    text = extract_platform_article_text(soup)
+    # В body НГС24 подтверждены подписка и просьбы прислать сведения.
+    # Удаляем только эти служебные фразы; короткий текст сам по себе не режем.
+    return "\n\n".join(
+        p for p in text.split("\n\n")
+        if not (
+            (
+                "новостей и даже без интернета" in p.casefold()
+                and "нашем канале в max" in p.casefold()
+            )
+            or p.casefold() in {
+                "знаете что-то об этом дтп? расскажите нам!",
+                "вам известны детали произошедшего? расскажите нам.",
+                "вам есть что рассказать по этой теме? напишите нам.",
+            }
+        )
+    )
+
+
 def extract_fontanka_article_text(soup):
     """Извлекает Фонтанку без подписей и фотокредитов внутри article."""
 
@@ -407,6 +489,19 @@ def extract_fontanka_article_text(soup):
 
 # Диспетчер сохраняет source-specific правила в одном модуле.
 SOURCE_TEXT_EXTRACTORS = {
+    **{name: extract_regional_platform_text for name in REGIONAL_PLATFORM_SOURCES},
+    "БНК: новости Коми": partial(
+        extract_northern_article_text, source="БНК: новости Коми"
+    ),
+    "Комиинформ: новости Коми": partial(
+        extract_northern_article_text, source="Комиинформ: новости Коми"
+    ),
+    "СеверПост: новости Мурманской области": partial(
+        extract_northern_article_text, source="СеверПост: новости Мурманской области"
+    ),
+    "НАО24: новости Ненецкого округа": partial(
+        extract_northern_article_text, source="НАО24: новости Ненецкого округа"
+    ),
     "116.ru: происшествия": extract_platform_article_text,
     "E1.ru: происшествия": extract_116_e1_article_text,
     "АГН Москва: происшествия": extract_agn_moscow_article_text,
