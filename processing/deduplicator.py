@@ -132,6 +132,12 @@ LOCAL_LOCATION_PATTERN = re.compile(
     r"\b(?:город[ае]?|префектур[аые]|остров[ае]|сел[ае]|деревн[еяи]|район[ае])\s+"
     r"([А-ЯЁ][а-яё-]{3,})"
 )
+# «Районный суд Екатеринбурга» называет город без предлога «в».
+# Не используем общий «суд России»: страна не является местом события.
+COURT_CITY_PATTERN = re.compile(
+    r"\bрайонн[ыо]й\s+суд\s+([А-ЯЁ][а-яё-]{3,})"
+)
+EVENT_LEAD_NOISE_TOKENS = {"город", "сейчас"}
 
 
 def normalize_title(title):
@@ -256,7 +262,8 @@ def build_event_fingerprint(news_item):
         ),
         "local_locations": sorted({
             _stem_russian_token(match.group(1))
-            for match in LOCAL_LOCATION_PATTERN.finditer(event_text)
+            for pattern in (LOCAL_LOCATION_PATTERN, COURT_CITY_PATTERN)
+            for match in pattern.finditer(event_text)
         }),
     }
 
@@ -342,11 +349,19 @@ def compare_event_fingerprints(first_item, second_item):
         (first_fingerprint, second_fingerprint, second_tokens),
         (second_fingerprint, first_fingerprint, first_tokens),
     ):
-        lead_tokens = set(focused.get("lead_tokens", ()))
+        # Два общих вводных слова не описывают факты; очищаем и старые
+        # compact fingerprints на чтении, не переписывая history.
+        lead_tokens = set(focused.get("lead_tokens", ())) - EVENT_LEAD_NOISE_TOKENS
         local_locations = set(focused.get("local_locations", ()))
         # Старый fingerprint не содержит новых полей, но название места
         # уже сохранено среди его tokens. Миграция history не нужна.
         other_locations = set(other.get("local_locations", ()))
+        # Город может быть назван судом в одном тексте и «в городе» —
+        # в другом. Требуем конкретный local place хотя бы с одной стороны.
+        local_locations |= (
+            set(focused.get("locations", ())) & other_locations
+        )
+        other_locations |= set(other.get("locations", ()))
         if "local_locations" not in other:
             other_locations = other_tokens
         if not lead_tokens or not local_locations.intersection(other_locations):

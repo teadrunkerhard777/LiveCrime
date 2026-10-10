@@ -472,6 +472,8 @@ def _explicit_old_event_year(full_text, published_at, max_age_days):
         return None
 
     event_year_patterns = (
+        # Формулировка Lenta «была лишена жизни ... 2025 года».
+        r"\bлишен\w*\s+жизни[^.!?\n]{0,100}\b((?:19|20)\d{2})\s+год",
         # Год старой судимости может стоять перед названием преступления:
         # «В 2015 году его признали виновным в изнасиловании». Новый штраф
         # за регистрацию не делает это тяжёлое преступление свежим.
@@ -516,6 +518,31 @@ def _explicit_old_event_year(full_text, published_at, max_age_days):
     return None
 
 
+def _has_previous_year_homicide(full_text, published_at, max_age_days):
+    """Связывает прошлый год с гибелью, а не с давней биографией."""
+
+    if published_at is None:
+        return False
+    # Конкретная дата и следующая фраза «была убита» подтверждены у MK.
+    # Ограничение одной следующей фразой не связывает далёкий фон с событием.
+    pattern = (
+        r"\b(?:убит\w*|убил\w*|лишен\w*\s+жизни)[^.!?\n]{0,100}"
+        r"\b\d{1,2}\s+(?:января|февраля|марта|апреля|мая|июня|июля|"
+        r"августа|сентября|октября|ноября|декабря)\s+прошлого\s+года"
+        r"\b(?!\s+рождени)|"
+        r"\b(?:трагеди\w*|убийств\w*)\s+(?:случил\w*|произош\w*)"
+        r"[^.!?\n]{0,80}\bпрошлого\s+года\s*\.\s*"
+        r"(?:был[аои]?\s+)?(?:убит\w*|лишен\w*\s+жизни)\b"
+    )
+    if not re.search(pattern, full_text, re.IGNORECASE):
+        return False
+    latest = datetime(
+        published_at.year - 1, 12, 31,
+        tzinfo=published_at.tzinfo or timezone.utc,
+    )
+    return published_at - latest > timedelta(days=max_age_days)
+
+
 def _has_explicit_old_event_age(full_text, max_age_days):
     """Распознаёт явную многолетнюю давность рядом с преступлением."""
 
@@ -524,6 +551,13 @@ def _has_explicit_old_event_age(full_text, max_age_days):
         rf"\bспустя\s+(\d{{1,3}})\s+(?:лет|год\w*)[^.!?\n]{{0,60}}\b{HARD_EVENT_WORD_PATTERN}",
     )
     minimum_old_years = max_age_days / 365
+    # «Убийцу арестовали спустя полтора года» — старый hard event,
+    # свежий арест не обновляет дату убийства.
+    if max_age_days < 365 and re.search(
+        r"\b(?:убийц\w*|убийств\w*|изнасилован\w*)[^.!?\n]{0,80}"
+        r"\bспустя\s+полтора\s+года\b", full_text, re.IGNORECASE
+    ):
+        return 1.5
 
     for pattern in age_patterns:
         match = re.search(pattern, full_text, re.IGNORECASE)
@@ -602,6 +636,11 @@ def filter_by_event_policy(news_items, max_event_age_days):
             elif old_age is not None:
                 rejection = "stale_event"
                 reason = f"hard event explicitly described as {old_age} years old"
+            elif _has_previous_year_homicide(
+                full_text, news_item.get("published_at"), max_event_age_days
+            ):
+                rejection = "stale_event"
+                reason = "hard event explicitly tied to previous year"
 
         news_item["event_policy_passed"] = rejection is None
         news_item["event_policy_rejection"] = rejection
