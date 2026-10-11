@@ -101,6 +101,7 @@ The current `main.py` order is:
 - If a neutral/sensational headline omits the hard event, also reject a first-paragraph condemnation of crime by a premier, president, or diplomat. Use at most 600 characters of that first paragraph; later reactions must not suppress a direct crime report.
 - Aggregate violence claims in political interviews/statements are not concrete crime cases: require a generalizing headline plus political speaker and statement markers in the lead. Do not reject refugees or migrants as a topic; preserve concrete case reporting.
 - `MIN_PUBLICATION_SCORE = 4`.
+- Foreign rape cases are rejected after article loading unless the event is explicitly a group rape or includes a connected homicide. Determine event location from headline/lead, not nationality or source; unknown location retains existing behavior. These exceptions do not bypass other editorial exclusions or event freshness.
 - Contextual score bonus is capped at 3.
 - Do not change strong topics, conditional topics, severe outcomes, exclusions, scoring, or threshold in an unrelated task.
 - Add regression tests for every known false positive and every nearby valid true-crime case when changing topic logic.

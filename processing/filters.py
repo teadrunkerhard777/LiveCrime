@@ -1,6 +1,8 @@
 import re
 from datetime import datetime, timedelta, timezone
 
+from config import DOMESTIC_EVENT_PLACE_STEMS, FOREIGN_EVENT_PLACE_STEMS
+
 
 CONTEXTUAL_SCORE_BONUS_LIMIT = 3
 
@@ -575,6 +577,86 @@ def _has_explicit_old_event_age(full_text, max_age_days):
     return None
 
 
+def _foreign_rape_rejection(news_item):
+    """Ограничивает зарубежные rape cases, не меняя другие hard темы."""
+
+    title = str(news_item.get("title", ""))
+    body = news_item.get("article_text") or news_item.get("description", "")
+    # География из заголовка/начала, а не из соседней новости или footer.
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", str(body)) if p.strip()]
+    lead = " ".join(paragraphs[:2])[:1600]
+    event_text = f"{title}\n{lead}".casefold().replace("ё", "е")
+    if not re.search(r"\bизнасил\w*", event_text):
+        return None
+    # Отдельная новость об убийстве не становится rape case из-за
+    # фонового упоминания сексуального преступления в тексте.
+    if not re.search(r"\bизнасил\w*", title, re.IGNORECASE) and re.search(
+        r"\b(?:убийств\w*|убили?|убит(?:а|ы)?|застрел\w*)\b", title,
+        re.IGNORECASE,
+    ):
+        return None
+
+    def place_match(text, stems):
+        places = "|".join(re.escape(stem) for stem in stems)
+        # «В шведском городе» / «в Швеции»: национальность «швед» сама
+        # по себе не определяет страну преступления.
+        return re.search(rf"\b(?:в|на)\s+(?:городе\s+)?(?:{places})\w*\b", text)
+
+    location = "unknown"
+    for fragment in (title.casefold().replace("ё", "е"), lead.casefold().replace("ё", "е")):
+        domestic = place_match(fragment, DOMESTIC_EVENT_PLACE_STEMS)
+        foreign = place_match(fragment, FOREIGN_EVENT_PLACE_STEMS)
+        if domestic or foreign:
+            first = min(
+                (match.start(), kind)
+                for match, kind in ((domestic, "domestic"), (foreign, "foreign"))
+                if match
+            )
+            location = first[1]
+            break
+    news_item["sexual_violence_location"] = location
+    # Неизвестную географию не выдаём за зарубежную; источник не является
+    # местом события. Это правило не запрещает российские материалы.
+    if location != "foreign":
+        return None
+
+    group = re.search(
+        r"\bгруппов\w*\s+изнасилован\w*\b|"
+        r"\bизнасилован\w*[^.!?\n]{0,40}\bгруппой\s+лиц\b|"
+        r"\b(?:двое|трое|четверо|пятеро|два\s+мужчины|три\s+мужчины|"
+        r"несколько\s+мужчин|группа\s+мужчин)"
+        r"[^.!?\n]{0,60}\bизнасиловали\b|"
+        r"\bизнасиловали\b[^.!?\n]{0,60}\b(?:двое|трое|четверо|"
+        r"два\s+мужчины|три\s+мужчины)\b", event_text
+    )
+    if group and not re.search(
+        r"\bгруппов\w*\s+изнасилован\w*[^.!?\n]{0,35}"
+        r"\b(?:не\s+подтверд|опроверг)|"
+        r"\bне\s+было\s+группов\w*\s+изнасилован\w*", event_text
+    ):
+        return None
+
+    # Исключение — убийство той же жертвы, а не «подозреваемый по другому
+    # делу об убийстве» или цитата с просьбой убить. Нужны связные действия.
+    connected_killing = re.search(
+        r"\b(?:изнасиловали?|изнасилована?|изнасилованы)\b[^.!?\n]{0,80}"
+        r"\b(?:и|затем|после\s+чего)\s+"
+        r"(?:убили?|убита?|убиты|застрелили?|задушили?)\b|"
+        r"\bизнасиловани[еяи]\s+и\s+убийств[оеа]\b|"
+        r"\bпосле\s+изнасилования\s+(?:женщину|девушку|жертву|потерпевшую)"
+        r"\s+(?:убили?|застрелили?|задушили?)\b|"
+        r"\b(?:убили?|застрелили?|задушили?)\b[^.!?\n]{0,60}"
+        r"\b(?:и|затем)\s+изнасиловали?\b|"
+        r"\bизнасиловал(?:и)?\b[^.!?\n]{0,100}\.\s*"
+        r"(?:затем\s+|после\s+этого\s+)(?:он\s+|они\s+)?"
+        r"(?:убил(?:и)?|застрелил(?:и)?|задушил(?:и)?)\s+(?:ее|её|жертву|потерпевшую)\b",
+        _without_requested_killing(event_text),
+    )
+    if connected_killing:
+        return None
+    return "foreign rape without a connected homicide or explicit group rape"
+
+
 def filter_by_event_policy(news_items, max_event_age_days):
     """Исключает дайджесты, animal events, покушения и старые события."""
 
@@ -620,6 +702,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         elif _contains_standalone_attempt(full_text):
             rejection = "standalone_attempt"
             reason = "attempt without a completed hard event"
+        elif (foreign_rape_reason := _foreign_rape_rejection(news_item)):
+            rejection = "foreign_rape"
+            reason = foreign_rape_reason
         else:
             old_year = _explicit_old_event_year(
                 full_text,
