@@ -1,0 +1,8 @@
+{
+  "message_id": "193",
+  "text": "🔵 JetBrains выпустила Mellum2.1 под лицензией Apache 2.0\n\n8 октября компания JetBrains представила открытую языковую модель Mellum2.1. Новинка развивает предыдущую версию Mellum2, вышедшую в июне, и распространяется по лицензии Apache 2.0.\n\nОсновой тренировочного процесса стало обучение с подкреплением. Инженеры создали собственную инфраструктуру, которая позволила развернуть тысячи окружений и запустить миллионы изолированных сред.\n\nMellum2.1 рассчитана на работу в составе кодинг-агентов, субагентов и автономных систем. Модель способна ориентироваться в кодовой базе репозитория, самостоятельно редактировать файлы и тестировать внесенные правки.\n\nПомимо написания кода, модель справляется с обязанностями универсального ассистента. Она отвечает на повседневные…\n\n📅 10 октября 2026\n📰 Habr Новости: искусственный интеллект\n#ИИ",
+  "published_at": "2026-10-10T16:31:30+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/vDEn8X6J33zekRiqWDj5h0XTTg-DxvP5Be4Cm2ApVaDmb8SkHhre6MiBnbdlQu3FUZ1DLOqkT7Pa1oi7DQQKHOQGszZgpAWsAnq_0dbIPOgnJarscOVvDS-r2e1UC5sAB5GYhdlhuwu2H6VwQNepM4P1caXpqxU32dnHucGBaW1Ovf-tXNt6zePSUfTuPo07Rx8Oq4OXqijRzcRCntyGVZEwYfRlgIEPKeDgMLHiyhdCrWF1-9PxVBftn2P4GrwjWx1qVk-krEFIF9tyY4ZKg0ozWVNSXOIE1nClIX6s4AEg2AdBbFlcn1JLfLUvgmAJccW9_ryjW6j9YbP8L6sNGw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/193",
+  "source_url": "https://habr.com/ru/companies/selectel/news/1092682/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1092682"
+}
