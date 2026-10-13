@@ -1,0 +1,8 @@
+{
+  "message_id": "213",
+  "text": "🔵 Разработчик представил инструмент для нативного запуска Android‑приложений на macOS\n\nРазработчик Калеб Симпсон (Kaleb Simpson) выпустил публичную альфа‑версию Mac.apk — инструмента для запуска Android‑приложений на Mac с чипами Apple Silicon. Утилита воссоздаёт всё необходимое окружение и работает без эмулятора, виртуальной машины и ядра Linux.\n\nПосле установки APK‑файл получает собственный пакет .app , появляется в папке «Программы» и открывается в отдельном окне. Щелчки мыши заменяют касания экрана, а переключать ориентацию экрана можно с помощью сочетания клавиш ⌘ + R .\n\nТехнически Mac.apk устроен как слой совместимости. Код Java и Kotlin из DEX‑формата конвертируется в стандартный байт‑код Java.\n\nНативные ARM64-библиотеки выполняются на процессоре Apple Silicon без перевода…\n\n📅 12 октября 2026\n📰 Habr Новости: гаджеты\n#гаджеты",
+  "published_at": "2026-10-13T04:31:27+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/XY7Rh5-509HJpfmN5NWfJ-t9qfVLVokKsJhEECIH6vxsi7G95KTZRpTWv5G4Rb33bB04JxapuL8LbSZtig39-6-kDptmQp-bkIJ87TwW5EJQQOogXOhlGUZkscOGLo-sETFljZmRcoVThEjPmsWg5yvaA43T_KtD9yqNw-eiyxsTeFx6zBW46Q8vjUqPnRTp_9JkenXjIcuSzmO3uYhC2KjjckRVj6wu4QB_Eo_etl-Iq6xRCAvpLvkpUuudFIvLPmaZFFP9gWhEajjNAUjUDwdKhfWTgA_DAUpvTvtaw0rUk_0CqNYDxgaTZl-FjZeOrQr2iUiKj5dezQ3JhBOp6A.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/213",
+  "source_url": "https://habr.com/ru/news/1093294/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1093294"
+}
