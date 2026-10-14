@@ -1,0 +1,8 @@
+{
+  "message_id": "226",
+  "text": "🔵 На взломанной PlayStation 5 запустили Qwen с 27 млрд параметров и 2-битным квантованием\n\nРазработчик под никнеймом abhi245y выпустил приложение PS5LM Plus для запуска языковых моделей на графическом процессоре PlayStation 5. В тестах Qwen 3.8 с 27 млрд параметров генерирует примерно 20 токенов в секунду.\n\nВ основе проекта лежит PS5LM Мерта Кобанова (Mert Cobanov). Ранее разработчик перенёс на PlayStation 5 открытый движок llama.cpp.\n\nАвтор PS5LM Plus переписал проект и оформил его в виде отдельного приложения для PS5. Если фоновому модулю были доступны всего 6 ГБ памяти без графического ускорителя, то приложение уже получило до 12 ГБ видеопамяти консоли и возможность использовать GPU.\n\nЧтобы Qwen поместилась в память, разработчик использовал квантованные версии.…\n\n📅 14 октября 2026\n📰 Habr Новости: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-14T19:31:36+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/U01c2Zjz_QPBi2dN8U0KtYC77bmgXopEM1V9SX1InlxpH5i9vHGWJ7zvUO735ktSLwSTycXyIJI3zZ0EadQKxyieGaiDsvJReIzXbn2iyinuvEA_0OqxohOwdGVLycvDPG_az3a03QLH_o5IaH6F45WkokNvXo4-9qdgdbJI-wzNcD-IE_j109ZweEIR8GIC22pTOT9Bwqc6cCwU4q8-OYo4Uq8EOiSMNVqhpYtPlETmUmrLSy-efdW0kqTsX1kpyEyIsN0lCypMA3rJizF5cAB7pitBFGG7aEegIL3CbfKYrl2xhGiMjmA6SJRjQ9yqWEPw_Dyi6NT58gtaQyzEUw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/226",
+  "source_url": "https://habr.com/ru/news/1094494/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1094494"
+}
