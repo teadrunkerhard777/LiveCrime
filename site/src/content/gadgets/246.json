@@ -1,0 +1,8 @@
+{
+  "message_id": "246",
+  "text": "🔵 Microsoft прекратила поддержку приложения Publisher спустя 35 лет\n\nMicrosoft прекратила поддержку десктопного приложения Publisher. 1 октября доступа к программе лишились подписчики Microsoft 365, а 13 октября завершилась поддержка бессрочной версии Publisher вместе с версиями Office 2021 и Office LTSC 2021.\n\nПользователям, которые ещё могут найти Publisher в меню «Пуск», Microsoft рекомендует успеть конвертировать *.pub‑файлы в PDF. Для пакетной конвертации выпущен PowerShell‑скрипт Convert‑PubFileToPDF.ps1, который переводит *.pub‑файлы из указанных папок, включая вложенные, в PDF.\n\nПервая версия Publisher появилась в 1991 году. Сначала он продавался отдельно, а позднее вошёл в состав некоторых редакций Office.\n\nУниверсальной замены для Publisher Microsoft не предлагает. Для…\n\n📅 16 октября 2026\n📰 Habr Новости: искусственный интеллект\n#ИИ",
+  "published_at": "2026-10-17T07:31:14+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/LIPK-mj1Qe-Qv6TLn5A6dxit-EtHhX9RdoDhs59gZ2B9Auqx3Kz6G0m62ENQlywYayxg2uf7fcDHPf9HaXJTtrzNZ6NuF9caXswC5vr9Jsv_YizxYfW3krbGf1DLEHavqZE2W68dBgplKtejd5-548E2RKjuU9TmVwkDUoLeaSRpbgQYQmnhFaJrG7wo_Mi9Jq_r8M1NhjH4XU6EKRArFbGI05p--CB4IbDkbRWmS7zK8o81VbSvN57t1xFmclfNGAitLLrtxHqIyLlpQqteUpBFmf3LVctxLiIWuUvYlshNgzq-VegJkiowNrkbSA-H3gQ3ORgmr1ZMpVx4jtQdGg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/246",
+  "source_url": "https://habr.com/ru/news/1095318/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1095318"
+}

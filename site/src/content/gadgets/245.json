@@ -1,0 +1,8 @@
+{
+  "message_id": "245",
+  "text": "🔵 NVIDIA выпустила Nemotron 3.5 Super VL\n\nNVIDIA представила Nemotron 3.5 Super VL — модель с открытыми весами на 120 млрд параметров, из которых 12 млрд активируются при обработке каждого токена. Она работает с текстом, изображениями и видео, умеет рассуждать и вызывать инструменты.\n\nВ зрительной части модель ориентирована на работу с документами: распознавание текста, таблиц, графиков, веб-страниц и PDF. Она также обрабатывает видео длительностью до двух минут.\n\nГибрид Mamba-2 и Transformer\n\nВ основе Nemotron 3.5 Super VL лежит гибридная архитектура Mamba-2 и Transformer со смесью MoE. NVIDIA также использует спекулятивное декодирование для ускорения генерации.\n\n📅 16 октября 2026\n📰 Habr Новости: искусственный интеллект\n#ИИ",
+  "published_at": "2026-10-17T04:31:13+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/KSisJlFoIlOAx48-6VilgBCw0BKvEyWPTvRjQQ5rlkPq8QabCwUM0fA64CVIM89TJ9EdzStgR2oTkFrhU_4GdUBpOqsu3f35Yvrjqa3XAuerMJE2vJzbjdl25HLnHuLFOwlm6FF60T_8gFxqcIWs0_id07Ez4EVRG7hIGpfTccAC49AZVRv6uIZ_MVOwenNZHUiXzxLGV5QCBYwLstbDGSNAtBRzjiQe-1EMQ6phusFxJhQH9ZdBO2ntPt6HQlmlC-KLnrgT4uhjOJv_3Sjebr6jzBqlXpkcubqcDLJ1Z9bg9TUY8NjvcMDGm4zOA8N2Usheq5BPvo_tdfX6LSSSbA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/245",
+  "source_url": "https://habr.com/ru/companies/bothub/news/1095494/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1095494"
+}
