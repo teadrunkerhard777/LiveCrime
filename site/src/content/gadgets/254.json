@@ -1,0 +1,8 @@
+{
+  "message_id": "254",
+  "text": "🔵 Взломанная PlayStation 5 превратилась в ИИ-сервер: модель на 27 млрд параметров выдаёт 21 токен в секунду\n\nРазработчик abhi245y представил PS5LM Plus — приложение, позволяющее запускать большие языковые модели непосредственно на взломанной PlayStation 5. Проект основан на PS5LM, созданном инженером по искусственному интеллекту Мертом Кобановым, и использует графический процессор консоли для ускорения вычислений.\n\nДля повышения производительности разработчик портировал драйвер AMD RADV из проекта Mesa и адаптировал llama.cpp для работы через Vulkan. В результате объём доступной моделям памяти увеличился примерно с 6 до 11,4 ГБ.\n\nPS5LM Plus также включает веб-интерфейс для общения с ИИ и предоставляет API через локальную сеть на…\n\n📅 18 октября 2026\n📰 iXBT: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-18T07:31:18+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/Q7Ljdi0iKFzl9J2D7hRxrNyL3zXFI5u923IZYmL9u1GmaXCz0xkf-nIffgcOvr-Jy5bHFvKj8geViVDK7h2abZNJURtNiwAuAWxwKsCnVSTnjqLvZXefqYy-deuLk6VQTpafnMdoOuE7mMsuDZALpD1TKUJj9P_ScUhBXQ2QaE-M4jD9isVUwaKU03Kifcsl2zDaWhwpKlMfIcSAMt9rdlggi1NcgGbwmii0Nq1yMTwa-cVAvXKWGvmSJ360AZESs88Q3xV702PQAZpKBT58UEP9nq5pq9eS2PjJkw5yw8APyypYz7Aj8TxyX8EizKwmPdohU_RAHrE3JAggH7pUzQ.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/254",
+  "source_url": "https://www.ixbt.com/news/2026/10/18/vzlomannaia-playstation-5-prevratilas-v-ii-server-model-na-27-mlrd-parametrov-vydaet-21-token-v-sekundu.html"
+}
