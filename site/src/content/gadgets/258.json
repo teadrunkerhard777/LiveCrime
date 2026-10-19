@@ -1,0 +1,8 @@
+{
+  "message_id": "258",
+  "text": "🔵 Claude разгадал 25-летнюю загадку АНБ и обнаружил источник секретных чисел в старой программе\n\nИИ-модель Claude компании Anthropic разгадала криптографическую загадку, над которой специалисты по безопасности бились 25 лет: она установила происхождение 5 начальных значений, предоставленных Агентством национальной безопасности США (АНБ) для создания криптографических кривых. Менее чем за 30 минут модель связала их с lrand48 — генератором псевдослучайных чисел из старой библиотеки языка программирования C.\n\nВ 2000 году Национальный институт стандартов и технологий США (NIST) утвердил набор эллиптических кривых, предложенных АНБ. Эта математическая конструкция используется в криптографии с открытым ключом: она позволяет подтверждать владение…\n\n📅 18 октября 2026\n📰 iXBT: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-18T19:31:58+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/u9PdziJ_7CPKaO7i1pPGEztDJis_80E0fr49sMDpqwK_eV08NZj2pJGb2seXgbkcmm4h7ITbTae0n_G85F5YNGDboWgR9Tb4NQ-t_7ZUNamt_B7dPRUUZGt8rS1n19F3svJC65VZzrWCczYPJXky7ErwMWHqzOUEKyRy_RA2rydGP7djEtt5klPoDfJlTsQl3re8Ja2RwND1hn-QNI2uWywgCzr1KJiufyiErUEK1WtKZnzs5mjEhFRBtpMOb5T_SO_BHGwQ0_96gshjT6opqmHRRQJLTvWUsy5_d_csgjL71vGY4wsYcOkBTqV_7FvAljUuCVCjSVDC53tFSiOtDw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/258",
+  "source_url": "https://www.ixbt.com/news/2026/10/18/claude-razgadal-25-letniuiu-zagadku-anb-i-obnaruzil-istocnik-sekretnyx-cisel-v-staroi-programme.html"
+}
