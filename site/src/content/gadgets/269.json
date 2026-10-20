@@ -1,0 +1,8 @@
+{
+  "message_id": "269",
+  "text": "🔵 Minecraft для Xbox One запустили на iOS через слой совместимости\n\nРазработчик под никнеймом leviidev01 представил Utsuro — проект для запуска игр для Xbox One на iOS и iPadOS. Первым запущенным проектом стал Minecraft с поддержкой сенсорного управления и геймпадов.\n\nUtsuro запускает программную среду Xbox One, основанную на Windows, и реализует все необходимые ей системные функции. Для исполнения кода x86-64 на процессорах Apple система использует FEXCore.\n\nГрафику Utsuro выводит с помощью Metal. Слой совместимости обрабатывает вызовы DirectX и переводит шейдеры в формат Metal Shading Language.\n\nАвтор проекта отмечает, что Xbox‑версия Minecraft на iOS работает «очень хорошо». Подтверждён запуск игрового мира и сохранений, но замеров производительности пока нет.\n\n📅 19 октября 2026\n📰 Habr Новости: гаджеты\n#гаджеты",
+  "published_at": "2026-10-20T04:31:27+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/U6BTlWYZ5doaxGrMmRFvtgFfbLO_Ms60G_eP-sE-XefwCmPg1l_WYMMosPnL6KLnOO_yDXMCsSQSO6x9TvZkOPJ_zRIuHbKZVIn_GvVxIR9kCpKlESXGLW7es6xYHE7ENTn2WN4-HC_nh8TcLRPriBc96NS1XiQibFEf75JX-0sYOqRsOJ5SjYc7gss3lUgP6FKq_z5StDKjZ6Jf7FwEVPzzkj3QLZ-HDpSNg1BB5YXO8Bk05QtHWCvkRgcWhsdXJ8Q0SflqEiRKE6g4teBOfz-Perp6OPywHSjkTdSvtOqpKB_4vtXQ80j9_a_XM6h-KprwkLrHDuDG6_DslTSBPg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/269",
+  "source_url": "https://habr.com/ru/news/1096416/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1096416"
+}
