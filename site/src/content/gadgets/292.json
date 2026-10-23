@@ -1,0 +1,8 @@
+{
+  "message_id": "292",
+  "text": "🔵 Хакинтош вернулся: macOS 27 запустили на ПК с чипом Snapdragon — но пользоваться ноутбуком почти невозможно\n\nРазработчик по имени Мигель (Miguel C) сумел запустить операционную систему macOS 27 на ноутбуке Asus Zenbook A16 с процессором Snapdragon X2 Elite Extreme. Теперь проект доступен в публичном репозитории на GitHub с инструментами, драйверами и необходимой документацией.\n\nВ отличие от проекта Hackintosh с процессорами Intel, новый проект под названием Snapintosh использует слой совместимости ARM64 на базе гипервизора EL2. Система работает на стандартном ядре Apple macOS, при этом осуществляется трансляция аппаратных интерфейсов и средств управления памятью для процессора Qualcomm.\n\nТекущую версию, однако, едва ли можно назвать полноценной, готовой к использованию системой. Поддерживается только ноутбук модели Asus Zenbook A16 UX3607OA с процессором Snapdragon…\n\n📅 22 октября 2026\n📰 3DNews: гаджеты\n#гаджеты",
+  "published_at": "2026-10-23T04:31:15+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/pvn71ISRibxSz_r-fsM-3jvZ_S-nQp7dwn-Hlqarib8k6j-XJWS9nDQXIPsbLybyChLx2pmcrJOos9TrFDHN5W_SM5KKNaOV4LWSIE-3Ixo84ZsTLhY4rpnWsdctHANlDef6UGXWGwnNYpk9xBFHg_gNQzSwzm4tWqf0nQoRvdhGJ20Ak9UN1fUkZa8UiIEWHGkPBwQg99HIwq38-27YJuBSt-K1ANs7M5IibInrft0LNctJC5nPpN2f-3Rq-z_DjAGzalDBYjT8RVLTRBrekhPlzUEg0x1e1Wx1JnP0wnF82LLCEFMgJa1occJ65iG4OmBioCYus3dMbFEa-UfNJQ.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/292",
+  "source_url": "https://3dnews.ru/1150303"
+}
