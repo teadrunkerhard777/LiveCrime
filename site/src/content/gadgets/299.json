@@ -1,0 +1,8 @@
+{
+  "message_id": "299",
+  "text": "🔵 1Password откроет ИИ-агентам доступ к аккаунтам пользователя, не показав ни одного пароля\n\nСервис для управления паролями 1Password представил новый инструмент, который даёт пользователям возможность разрешать агентам искусственного интеллекта входить в их учётные записи, не передавая им при этом никаких учётных данных. В основу платформы 1Password for Agents легла система взаимодействия между агентом, пользователем и менеджером паролей.\n\nКогда ИИ-агент пытается выполнить вход от имени пользователя, в 1Password отправляется уникальный цифровой ключ для подтверждения «личности» агента. Пользователь получает уведомление о попытке входа и может лично подтвердить запрос.\n\nПлатформа 1Password for Agents позволяет пользователям самостоятельно выбирать подходящего ИИ-агента — это может быть Anthropic Claude Duet; решения от OpenAI, в том числе ChatGPT…\n\n📅 23 октября 2026\n📰 3DNews: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-24T01:31:14+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/qQ4jJuWa0jaMgH__cqLi1yGzUA6XpkcIgZkQGydSmhS2OgcIbxaVVBCpieqx1sV5mk9VrPw5IVMOVXv51f2zCS6QsHYlqfJAWvqB-lMpMj2gpG4VxLouI6iC1M91s2IYhOkC2lSSJTgrJ7ruYAv_2VpMI-VIcov543LPK-Wz7rxag-iIIVELqbfVAzKPj66Hadn4TdT9LLIAbCsU064QkaIGE0JxcBShFAWnbqJDMgqF-wWbe6zkFysZm2mApCE2bDqvgQGReFQpb4VISBOBn30UFChFvX3-o3jY3h5i0NYQ57rbNpZU0HwKtW3Kw-zw5xyFVWVyPHbfBKUt10ESdg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/299",
+  "source_url": "https://3dnews.ru/1150326"
+}
