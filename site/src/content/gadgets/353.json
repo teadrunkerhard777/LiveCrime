@@ -1,0 +1,8 @@
+{
+  "message_id": "353",
+  "text": "🔵 В официальный Claude Code подсадили троян — под угрозой компьютеры вайб-кодеров на Windows, Linux и macOS\n\nВчера системы компании Anthropic были скомпрометированы. В каталоге расширений Open VSX и маркетплейсе Cursor обнаружили вредоносную версию официального расширения Claude Code для VS Code.\n\nИсточник изображений: Anthropic\n\nИсследователи безопасности из компании Phorion первыми обнаружили подозрительную активность на конечных устройствах: «Phorion выявила бэкдор в официальном расширении Claude Code для VS Code, который устанавливает постоянный SSH-бэкдор в системах macOS, Linux и Windows. […] Организациям следует незамедлительно проверить свои рабочие среды на наличие версии 2.1.313 расширения Claude Code для VS Code и, в случае её обнаружения, инициировать процедуру реагирования на инциденты».\n\nРечь в сообщении идёт о скомпрометированной…\n\n📅 30 октября 2026\n📰 3DNews: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-30T19:31:23+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/Wx20gjZ5ov0XOu6PcGutwk6jFE8nY026aikptn7-L5vZU-LfW7C6j2e7sbdNebz-uRI2WMFAJrvm4B2E1aN06iwJtcy4nmleZiLsYRGqJghEbKN4-IKEe5TedCJ2lUBhzAaURVZOZlI_dMFUcGWBMKS4RB1NYEWlH_JAHBfgQIH0GkQsxEpRd_CZqJxVJ2JgMo-Dtk7LfPNXkulyrdp-p0ijmwR-hW2ukwUGTrrA4fCeH-c_KDsyh_fuaHeDCFIVphIc7HtkdR0A6nAdrQAtALpEVaQBPlfs7xUvqs93k7EZJwbWmcj2KMM21I4Kyd3344V5y2gG1HxSKginBeo2Uw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/353",
+  "source_url": "https://3dnews.ru/1150680"
+}
