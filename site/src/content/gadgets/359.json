@@ -1,0 +1,8 @@
+{
+  "message_id": "359",
+  "text": "🔵 Захотел поиграть в игры PS5 на ПК, а получил вирус. На GitHub нашли вредоносные репозитории, имитирующие AnyPS5 и KytyPS5\n\nСпециалисты по безопасности из NordVPN обнаружили вредоносные репозитории GitHub, которые якобы являются проектами для запуска игр с PS5 на ПК. Они имитируют известные решения: AnyPS5 и KytyPS5.\n\nВредоносные репозитории предлагают пользователям загрузить ZIP-архивы, содержащие исполняемые файлы Windows. На ПК вредоносная программа добавляет правила исключения в Microsoft Defender, прежде чем расшифровать и выполнить свою полезную нагрузку.\n\nЧтобы не попасться на такой обман, нужно помнить, что AnyPS5 поддерживается пользователем boykopovar, а официальный репозиторий KytyPS5 принадлежит…\n\n📅 31 октября 2026\n📰 iXBT: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-10-31T13:31:19+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/av-t8o9wmi0NJt3ZV_uSkIMwj6iaOOc3H0fVhmRZWVlql8ETB6U5llTox7ffnKeqxr4LQ61skLgTMEXvV4W6S-M9Iq-n-ALsFPb9YaoOcWfdtvXmFgI2CIhhP8BQ5rWZEGtK3DRSYOu8Fwr77-8UFsUKTk1HLrPakH7WQ4QWJDyEJYqcWGXkV27rkljPB9w_uRd4D-DmALc5afe8wLXvdb7nydwwmaOlxuedoJe49wksaHUHvLjuNLA6Zr5dqB7PoUAMpKbRMgNIBYzMauULMKRtdlKUb80JgKXZ4QaJNVUSoWWMnJMzW1lwioYp_6PpE0jSRqvQtlctJQbdWM1vBw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/359",
+  "source_url": "https://www.ixbt.com/news/2026/10/31/zaxotel-poigrat-v-igry-ps5-na-pk-a-polucil-virus-na-github-nasli-vredonosnye-repozitorii-imitiruiushhie-anyps5-i-kytyps5.html"
+}
