@@ -1,0 +1,8 @@
+{
+  "message_id": "370",
+  "text": "🔵 Задача, не поддававшаяся 30 лет, решена: алгоритм поиска кратчайших путей стал точнее без потери скорости\n\nМаной Гупта (Manoj Gupta), доцент Индийского технологического института Гандинагара, представил улучшение алгоритма поиска кратчайших путей между всеми парами вершин в графе (All-Pairs Shortest Paths, APSP). Результат, опубликованный на симпозиуме FOCS 2025, впервые с 1996 года сдвигает границу, за которой гарантируется 2-приближение — то есть оценка расстояния не более чем вдвое превышает реальное, но теперь и для гораздо более близких друг к другу узлов сети.\n\nВ 1996 году исследователи Дор, Хальперин и Цвик (DHZ) предложили эффективный метод: использование небольшого набора выбранных точек-«ориентиров» позволяет быстро оценивать…\n\n📅 1 ноября 2026\n📰 iXBT: искусственный интеллект\n#ИИ",
+  "published_at": "2026-11-01T22:31:32+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/gAKqHfsbJNnmrK3xIkgabS_OygDlc_TvxmIplvtp14z__iFwfjDkshiQwKs7KVPVlgr4Z8HHQFQ4uD3Qm4RA7e9nEhkg1eIPW8RbvYcqegx7-6JQIF8kCGNo8d5q5RVII2iC3AbYW9XDumbpJEzqjH1WhRPTybQoXixMH21I6CJDegy2OjmsBuvaEzDrxDYouNrwLhXXrTB9ZlBeCKIzaMsruIiCKlu8dA5DmDn6CYwrm3j-kSSOHa4j17fonHZdbM5zbpExhtsJWqsSrggbCRtSG3C_0ZU7cRo6qV7hghDclflsKF6XV393IymgswUGFZ9x8A3M6opiY29W0pWCGw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/370",
+  "source_url": "https://www.ixbt.com/news/2026/11/01/zadaca-ne-poddavavsaiasia-30-let-resena-algoritm-poiska-kratcaisix-putei-stal-tocnee-bez-poteri-skorosti.html"
+}
