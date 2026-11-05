@@ -657,6 +657,69 @@ def _foreign_rape_rejection(news_item):
     return "foreign rape without a connected homicide or explicit group rape"
 
 
+# Страны, криминальная хроника из которых полностью исключается
+# (включая основные города, штаты и прилагательные).
+EXCLUDED_ASIAN_PLACE_STEMS = (
+    # Индия
+    "инди", "индийск", "дели", "нью-дели", "мумба", "бенгалур", "банголор",
+    "калькутт", "колкат", "ченна", "хайдарабад", "ахмадабад", "пун",
+    "гуджарат", "махараштр", "раджастхан", "пенджаб", "керал", "гоа",
+    "уттар-прадеш", "бихар", "харнит", "мадхья-прадеш", "тамилнад",
+    # Пакистан
+    "пакистан", "исламабад", "карачи", "лахор", "равалпинди", "фейсалабад",
+    "пешавар", "кветт", "синд", "белуджистан",
+    # Япония
+    "япон", "токио", "токийск", "осак", "иокогам", "йокогам", "наго",
+    "саппоро", "кобе", "киото", "фукуок", "кавасаки", "сайтам", "хиросим",
+    "хоккайдо", "хонсю", "окинав", "сибу", "синдзюку",
+    # Южная Корея
+    "южн\\w*\\s+коре", "республик\\w*\\s+коре", "южнокорейск",
+    "сеул", "пусан", "инчхон", "тэгу", "тэджон", "кванджу", "сувон",
+    "ульсан", "ченджу", "чеджу", "каннам",
+)
+
+
+def _is_excluded_country_event(news_item):
+    """Отсекает события, произошедшие в Индии, Пакистане, Японии и Южной Корее."""
+
+    title = str(news_item.get("title", ""))
+    body = news_item.get("article_text") or news_item.get("description", "")
+    # Проверяем только заголовок и первые 2 абзаца, чтобы не зацепить
+    # блоки «Читайте также» или случайные упоминания в конце статьи.
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", str(body)) if p.strip()]
+    lead = " ".join(paragraphs[:2])[:1600]
+
+    def place_match(text, stems):
+        places = "|".join(
+            stem if "\\" in stem else re.escape(stem) for stem in stems
+        )
+        # Ищем локативные конструкции («в Индии», «в индийском штате», «в Сеуле», «в пригороде Токио»)
+        return re.search(
+            rf"\b(?:в|на|под|около|близ)\s+"
+            rf"(?:(?:городе|столице|штате|провинции|префектуре|уезде|округе|деревне|селе|пригороде|районе|порту)\s+)?"
+            rf"(?:{places})\w*\b",
+            text,
+        )
+
+    for fragment in (
+        title.casefold().replace("ё", "е"),
+        lead.casefold().replace("ё", "е"),
+    ):
+        domestic = place_match(fragment, DOMESTIC_EVENT_PLACE_STEMS)
+        excluded = place_match(fragment, EXCLUDED_ASIAN_PLACE_STEMS)
+        if domestic or excluded:
+            # Если в том же фрагменте раньше названа российская локация
+            # (например, «В Москве гражданин Индии...»), новость оставляем.
+            first = min(
+                (match.start(), kind)
+                for match, kind in ((domestic, "domestic"), (excluded, "excluded"))
+                if match
+            )
+            return first[1] == "excluded"
+
+    return False
+
+
 def filter_by_event_policy(news_items, max_event_age_days):
     """Исключает дайджесты, animal events, покушения и старые события."""
 
@@ -702,6 +765,9 @@ def filter_by_event_policy(news_items, max_event_age_days):
         elif _contains_standalone_attempt(full_text):
             rejection = "standalone_attempt"
             reason = "attempt without a completed hard event"
+        elif _is_excluded_country_event(news_item):
+            rejection = "excluded_country"
+            reason = "event took place in an excluded country (India, Pakistan, Japan, South Korea)"
         elif (foreign_rape_reason := _foreign_rape_rejection(news_item)):
             rejection = "foreign_rape"
             reason = foreign_rape_reason
@@ -793,6 +859,7 @@ def filter_by_topics(
         has_diplomatic_reaction = _is_diplomatic_crime_reaction(news_item)
         has_military_response = _is_military_crime_response(news_item)
         has_aggregate_statement = _is_aggregate_political_violence_statement(news_item)
+        has_excluded_country = _is_excluded_country_event(news_item)
 
         # Разделение сохраняем в news_item для понятной диагностики.
         matched_strong_topics = [
@@ -873,6 +940,10 @@ def filter_by_topics(
             news_item["rejection_reason"] = (
                 "military restrictions; hard crime is background, not the news event"
             )
+        elif has_excluded_country:
+            news_item["rejection_reason"] = (
+                "event took place in an excluded country (India, Pakistan, Japan, South Korea)"
+            )
         elif not has_supported_topic and news_item["ignored_homicide_fragments"]:
             news_item["rejection_reason"] = (
                 "requested killing is not a completed homicide"
@@ -906,6 +977,7 @@ def filter_by_topics(
             and not has_diplomatic_reaction
             and not has_military_response
             and not has_aggregate_statement
+            and not has_excluded_country
         )
 
         # Никакой score не может заменить hard serious допуск.
@@ -919,6 +991,7 @@ def filter_by_topics(
             and not has_diplomatic_reaction
             and not has_military_response
             and not has_aggregate_statement
+            and not has_excluded_country
         ):
             filtered_news.append(news_item)
 
