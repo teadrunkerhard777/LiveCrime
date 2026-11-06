@@ -1,0 +1,8 @@
+{
+  "message_id": "408",
+  "text": "🔵 Paint оказался дырявым: уязвимость позволяет удалённо взламывать Windows 11 — Microsoft выпустила патч, но он не приходит\n\nВ приложении Paint для Windows 11 обнаружена уязвимость, которая позволяет злоумышленникам удалённо выполнять произвольный код на компьютере без участия пользователя. Microsoft уже подготовила исправление, однако оно пока не отображается в магазине Microsoft даже на устройствах с включённым автоматическим обновлением приложений.\n\nИсточник изображений: windowslatest.com\n\nУязвимость связана с ошибкой чтения данных за пределами выделенной области памяти (out-of-bounds read). По описанию Microsoft, злоумышленнику достаточно отправить специально сформированный сетевой пакет уязвимой службе, чтобы инициировать выполнение собственного кода на целевом компьютере.\n\nMicrosoft отнесла проблему к категории «Важные баги» (Important),…\n\n📅 6 ноября 2026\n📰 3DNews: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-11-06T19:31:18+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/DoHCwovaJTE3KlS5taT2vd0NODJE3JEXHE86scmiuwATI6cuupSVLK1Fz09_n2cpICDqxzZjLLYhJFZGGbJOaLfQr9DUKyxD10BZPibWeGBSRXe3VNhQ1lt6Zii8scUMeFxv1ui1PhM9T5nivIs8Cu0oDZ8ZM8_q-Zxbbm6i-g0f2_KqnFZqmRLIKJBn3SW7uVAymj7-_6naWytiSqP8jpQMCbk5ktm3IMufG0DbtjhhDea8Q0S2DugxqAKKCHwM5ktU2a25fPp9rh_PKKkaestUoq6w75X9chpJ0oMkAap5oMzpwQYBHMOdLawkVBV0O7JA0iFCaV8FzOMlOv7Fdw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/408",
+  "source_url": "https://3dnews.ru/1150979"
+}
