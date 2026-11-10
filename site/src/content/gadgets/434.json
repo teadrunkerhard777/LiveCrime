@@ -1,0 +1,8 @@
+{
+  "message_id": "434",
+  "text": "🔵 Anthropic выпустила Claude Fable 5.2: управление роботами и математика\n\nAnthropic представила Claude Fable 5.2 и Claude Mythos 5.2 — новые версии моделей для сложных технических задач. Компания заявляет об улучшениях в программировании, рассуждениях и работе с визуальной информацией.\n\nFable 5.2 генерирует ответы до 30% быстрее предыдущей версии. Цена API снизилась на 20%: с $10/$50 до $8 за миллион входных и $40 за миллион выходных токенов.\n\nЕсть и быстрый режим: он ускоряет генерацию токенов до 2,5 раза, но стоит вдвое дороже — $16/$80 за миллион токенов.\n\nВ бенчмарках Fable 5.2 опережает Opus 5.5 почти во всех проверенных категориях. Например, на FrontierCode 2.0 модель с High effort набрала 45,3% — практически столько же, сколько Opus 5.5 с Max effort…\n\n📅 9 ноября 2026\n📰 Habr Новости: искусственный интеллект\n#ИИ",
+  "published_at": "2026-11-10T01:31:13+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/j77qrFz0KRaSHGwv3JunY3kY_HLoclwimZXd7R2973FWtT4Tha0yt9-OfAjhkg-G6PyqH36BJEH5hhHIdsKAltcHuVG6yg-rCRyQJDlmx8BP68J41NeeievjsPfAOWdAkPXjN0tC-_C2r1TIJKxbsnCZVU789Va6kKQn6SCQdkIoKy8VjaE4GokmAz627K2HcHdTTbkl9RH19oFtt-vQAbo-dACxaTiabuO_6F1UEyJxI5qM5v1GpNU706Z8dXjGrqwuMBSBJHOK7kzfJgEn6wZD3edOt1V1ujpV_P10ZT-dLDAfAWMoPS8eNy55qXcR9LuhAn0DzaICO7L0Wrb5Qg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/434",
+  "source_url": "https://habr.com/ru/companies/bothub/articles/1105698/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1105698"
+}
