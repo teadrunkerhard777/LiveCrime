@@ -1,0 +1,8 @@
+{
+  "message_id": "467",
+  "text": "🔵 Nvidia научила роботов перенимать навыки у людей\n\nNvidia представила GR00T 2 — новую модель для управления роботами, которая учится не только выполнять действия, но и предсказывать, как окружающий мир будет меняться в результате этих действий. Благодаря этому навыки, показанные человеком или другим роботом, можно переносить на машины с совершенно иным устройством.\n\nВ основе GR00T 2 лежит архитектура World-Action Model (WAM) — модели, которая одновременно прогнозирует будущее видео и действия робота. Она получает последние кадры с камер, текстовую инструкцию и сведения о состоянии машины, после чего генерирует последовательность будущих изображений и соответствующих движений.\n\nДля предварительного обучения Nvidia использовала 402 730 часов видео от первого лица, на которых люди выполняют различные рабочие…\n\n📅 14 ноября 2026\n📰 iXBT: гаджеты\n#гаджеты",
+  "published_at": "2026-11-14T07:31:19+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/TY7kyjwEjH54JYRhQgdB_u9bKT5QBYOEUjoBLvbBMjA39pcZ80LL5gxFOnYSIHRL-7VgIzoXD2pY9VKpe-68hNgCwy8U8IO2KDbCP-OMypnZ6vz2ZdRfkc-I_LPYAHXnhva-XGLzNFmIjVJqm3gWxsE83w1kDUm9AnCAjGpBlDq8jTMY3GW48HzpJCI4aBQ4quQrTMQHzhOMkoaJEoAIEBzYy8IstpcOlaQLaQmoIMNygt-CA4rzJ9ae_r9NDNBIR_gN2Wy6yVsHmix71wz-_j_-osqkrn-rhsPJlESnY7ubFLEEQUJgjn7UBGLRRw9Bzs_HEsYXmNrWcCqEvfTbQw.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/467",
+  "source_url": "https://www.ixbt.com/news/2026/11/14/nvidia-naucila-robotov-perenimat-navyki-u-liudei.html"
+}
