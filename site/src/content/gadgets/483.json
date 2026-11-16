@@ -1,0 +1,8 @@
+{
+  "message_id": "483",
+  "text": "🔵 Opencode v2: браузер для агента, фоновые субагенты и реальная стоимость моделей\n\nЯ использую Opencode как рабочую среду: снимаю позиции, собираю дайджесты, проверяю страницы, отвечаю на комментарии. На прошлой неделе инструмент трижды обновился, и обновления затрагивают не косметику, а то, как строятся сценарии.\n\nНиже разбор трёх релизов, список моделей и цифры из моих логов: сколько стоит одна длинная сессия и почему дешёвая модель делает больше вызовов, чем дорогая.\n\nOpencode это открытый агент с четырьмя точками входа: терминал, десктоп, мобильное приложение и SDK. Моделей больше 200 через Models.dev, включая локальные через Ollama, LM Studio и vLLM.\n\nУстановка:\n\n📅 16 ноября 2026\n📰 Habr Новости: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-11-16T07:31:10+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/s7BAmcJn1TLbEabE4KyYtAy9nLotCQ4IFGY6wKzj9a2IwmBKtQUYVUYmbwmQvkGAeQ88YG45pXqg5q8mUirsaQ_v1w6OTpUJ0k5nsSdHYUKrHTl2HO6nMKYal5A4-HZ2LhV_RCD0YB9suyJjkxkV7j5yE6CNMTIwSPQBFLXkgvyHe8qEtauvxIgWZSCVwTQ2JOQ2a8H4H6B4KXDRRtV45iOMxUWZk6xgQrAB__VOYzVgDPDmx1XuZoPpUFefWOWiqQeON1XozfIOaQlqDMmsTJmDlRuH-s0mjYYDHnZ3obOLwcokZVOUL0rCRCe2ux9QDm2ZwZxboR9WMRAPgheHsA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/483",
+  "source_url": "https://habr.com/ru/articles/1108170/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1108170"
+}
