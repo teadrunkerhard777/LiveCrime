@@ -1,0 +1,8 @@
+{
+  "message_id": "505",
+  "text": "🔵 225 млн сайтов в зоне риска: в NGINX нашли способ взломать серверы без пароля\n\nВ одном из самых распространённых веб-серверов NGINX обнаружили две критические уязвимости, позволяющие удалённо выполнять произвольный код без авторизации. По оценке Wiz Research, NGINX используется более чем на 225 млн сайтов по всему миру.\n\nПроблемы получили идентификаторы CVE-2026-123007 и CVE-2026-123633. Их независимо обнаружили пять исследовательских команд: Wiz Research, Ikotas Labs, Metnir, Rapid7 и Xint.\n\nУязвимость CVE-2026-123007 связана с ошибкой в механизме управления потоком данных HTTP/2. Она может привести к повреждению памяти и выполнению кода на сервере.\n\nВторая ошибка, CVE-2026-123633, связана с преждевременным освобождением участка памяти, который ещё…\n\n📅 19 ноября 2026\n📰 iXBT: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-11-19T01:31:16+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/YPfKEo9YLAaGzKTnF0XqYWbz4PZKo0WqpYBmnMnHwCDl9AzQ5qdjl34LAZFvSLihytQfM9426amJOhZxqaFz4W6mblWr2c5AUcTzNmDBZ3laE72gmuAPoMX1PlMywHqsLyaNyVHf-LMGzYHy8wlO02e85bj9ZgOV5yFs5OPMObZ1enjI6hILFgFTpKq8CygO5-lm7pcG_etIQZaV20ZO9xOfkfR5i5iWwT5-Yxe87FxrkAgYLH8bH6xuminVaRHuD0A78GejFMuVgu_dW2IiO5k0Ox4wtckSvmV4FrlwnHtvCTv-Ou-6V3SFTgixUUcCMtGOLXOCExY5zLZypfTUgQ.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/505",
+  "source_url": "https://www.ixbt.com/news/2026/11/19/225-mln-saitov-v-zone-riska-v-nginx-nasli-sposob-vzlomat-servery-bez-parolia.html"
+}

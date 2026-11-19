@@ -1,0 +1,8 @@
+{
+  "message_id": "506",
+  "text": "🔵 Драйверы Nvidia GeForce могут «убить» SSD — они записывают на накопитель до 30 ГБ данных в час, даже если ПК простаивает\n\nПользователи видеокарт Nvidia GeForce сообщают о проблеме с драйверами: они активно записывают данные на SSD даже тогда, когда пользователь ничего не делает. Объём данных может достигать 30 ГБ в час.\n\nПредполагаемым источником проблемы стал процесс NVDisplay.Container.exe, связанный со службой Nvidia Display Container LS. Она необходима для работы панели управления Nvidia и приложения Nvidia App.\n\nПервые жалобы появились после выхода драйвера GeForce 621.14 от 4 ноября. Один из пользователей зафиксировал около 515 МБ записей за пять минут простоя компьютера.\n\nТакая активность ускоряет износ SSD. Например, накопитель…\n\n📅 19 ноября 2026\n📰 iXBT: гаджеты\n#гаджеты",
+  "published_at": "2026-11-19T04:31:15+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/nVVL-eyRpa_kvY-UUWoZQok8URe9hPjfPdSuvxRhYD42YbRxmzjd9zN55FUGqnIE9Xch0RQef9Itq7ZHI53UtwlkD8NuaH1eEk-f4B2W9sSDh4-ThwqcWgMVpl3CWhyaebIdYMpbL3dCtmRCipANXXbTSb2vWOCExiYBs3ZC3KtYvExKiJpbomkwDNNHS-7QBXIaZF5CGl55HgvOTVCK_uiS7EwxQMrJilf6ykOD-8gwpcGhD0rx7iDX5jQncOwjolSKxhDcSSwpSB1yGrY70UKz1CcqSj800Iw8GfTMEQmz9ndZrhWRa-vyB_N_VOFAVeLWEkkAAMbZhZ2jh9Sy9Q.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/506",
+  "source_url": "https://www.ixbt.com/news/2026/11/19/draivery-nvidia-geforce-mogut-ubit-ssd-oni-zapisyvaiut-na-nakopitel-do-30-gb-dannyx-v-cas-daze-esli-pk-prostaivaet.html"
+}

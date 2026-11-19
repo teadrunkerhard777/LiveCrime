@@ -1,0 +1,8 @@
+{
+  "message_id": "510",
+  "text": "🔵 SSD может потерять ресурс из-за драйвера NVIDIA: пользователи бьют тревогу\n\nПользователи видеокарт NVIDIA обнаружили, что некоторые версии драйверов GeForce могут записывать на SSD до 30 ГБ данных в час даже во время простоя компьютера. О проблеме сообщает Tom’s Hardware со ссылкой на жалобы владельцев видеокарт на официальном форуме NVIDIA.\n\nЗа повышенную активность отвечает процесс NVDisplay.Container.exe, связанный со службой NVIDIA Display Container LS. По словам пользователей, он постоянно перезаписывает файл журнала nvlog.nvlgstg, создавая лишнюю нагрузку на накопитель.\n\nПервые жалобы появились после выхода драйвера GeForce 621.14 от 4 ноября. В одном из тестов процесс за пять минут простоя записал 515 МБ данных, тогда как на предыдущей версии 621.01 показатель не превышал 2 МБ.\n\nВпрочем,…\n\n📅 19 ноября 2026\n📰 Hi-Tech Mail: гаджеты\n#гаджеты",
+  "published_at": "2026-11-19T16:31:34+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/kxZPysrsaNbGdYEoYtvGSaTzMTnnU1o704HZRVMftsensdkGRTt0K1l42xai4fxAu-ljYZncTA3TxGCR1lbuDVk4Ofjl_fir5GZYYpM-dCoBC4y2b_BXU7q5WFojf9g7bEBHFgZ8l7wLuX1KGd0FWrAB3xQITo19G0c9KWAa_qHwyFLxzvzu8CpQp9nJgZdWR1t4ZLVo2gj9PZ9nZHAlwsWGUwMFL9m31geQIxHivkrRTpb6e0Ps56aJI2JdURrFaZAzI0iQi-iWWCk7N67U9XuUubnHP4Mz9OFzOt2czADQRv3sOM-1ecc06gUSadJOvoixqytWgLTg8E0tXgkp0w.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/510",
+  "source_url": "https://hi-tech.mail.ru/news/161106-draivery-nvidia-mogut-zapisyvat-na-ssd-do-30-gb-v-chas/"
+}
