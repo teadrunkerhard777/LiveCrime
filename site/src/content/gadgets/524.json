@@ -1,0 +1,8 @@
+{
+  "message_id": "524",
+  "text": "🔵 20 ГБ и ноутбук: Thinking Machines выпустила ИИ-модель для слабого компьютера\n\nThinking Machines Lab, основанная бывшими сотрудниками OpenAI, представила Inkling 2 Mini — открытую модель искусственного интеллекта, рассчитанную на программирование, работу с инструментами и длительные многоэтапные задачи. Разработчики утверждают, что она превосходит другие открытые модели с менее чем 100 млрд параметров в ряде тестов программирования.\n\nГлавная особенность Inkling 2 Mini — архитектура looped transformer, в которой средние слои нейросети повторно обрабатывают каждый входящий токен. Модель состоит из 24 слоёв, разделённых на 4 блока по 6 слоёв.\n\nПовторная обработка позволяет модели выполнять дополнительные вычисления до того, как она сформирует ответ. В обычных…\n\n📅 21 ноября 2026\n📰 iXBT: кибербезопасность\n#кибербезопасность",
+  "published_at": "2026-11-21T10:31:28+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/H7Yxm2y_DRH7ELiryIhPuHJSFeg9NRdIHLoW1X8gDGq43u7eCl6MYPsAQBGWPJqTmNu_-8LC7BcucXR7i5Cj8KJ9lPaXCIKm_Vjjb6D31W44C73vXerbNi18TZ5-FNM46IdnlQTmEVehcKtxpwY2Hzm_Q5f9sBP88b7sayXGTGCnKVuwLnxLY8nxc7Jpg7q1WVWOplHE61VNwzut8-qh90Ovjf7eCnMN00rKu36GzgzwLLnHhJNFy4HGNHk7IuR11PNPHpcBXLbmwNMQeJJG-bx534ASK3R3CIbEsagK89h492nLMfXwpy7POnN_bR8e28GB6vqlGVnV6eLY6AY_Vg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/524",
+  "source_url": "https://www.ixbt.com/news/2026/11/21/20-gb-i-noutbuk-thinking-machines-vypustila-ii-model-dlia-slabogo-kompiutera.html"
+}

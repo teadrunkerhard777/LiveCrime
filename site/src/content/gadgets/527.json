@@ -1,0 +1,8 @@
+{
+  "message_id": "527",
+  "text": "🔵 Теперь можно объединять несколько ПК по USB4 для работы с большими ИИ-моделями. Microsoft реализовала работу RDMA новым способом\n\nКомпания Microsoft реализовала работу технологии RDMA (Remote Direct Memory Access) через USB, что позволяет объединять несколько ПК в единую систему для запуска более крупных ИИ-моделей.\n\nДля подключения нужен USB4, так как он обеспечивает намного большую скорость передачи данных. Соответственно, объединить таким образом можно будет только достаточно современные ПК.\n\nСама технология RDMA в целом позволяет передавать данные напрямую между памятью двух систем, минуя большую часть традиционного сетевого стека. Это обеспечивает низкую задержку и низкую нагрузку на CPU, поэтому RDMA является неотъемлемой…\n\n📅 21 ноября 2026\n📰 iXBT: гаджеты\n#гаджеты",
+  "published_at": "2026-11-21T19:31:31+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/IE-qSP3o4i5DiUDYWecXX5LMBEv1EGAO_IkV7e0K4bB3pbGUMhmbxvry-bkrb1MFSJ356ISiY3mNoHT0bjXDHH2c09U_WTiM-jd4iXPCOJFjEAG9pie7_wBNnjPmPBMwox5aK6nVySoTHy3q_pdMBwrEHtdEK0URBoiHOpFpMG9-7Zf_QyMnMYpJvVfsZ0c5s6qakj43No8-fS851cYmx0QyKIyvXbu-ve5yCMJaLyNwV-iuIzKLg2lE5Wy0SyNt5msd06uRbfYGeXioS17pHbByus-USfBB9HFdzj1q7XJMsw-B3Tue5-0rXPd7Lkix9T0XQDQdeTJXeF_lGS38Ow.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/527",
+  "source_url": "https://www.ixbt.com/news/2026/11/21/teper-mozno-obieediniat-neskolko-pk-po-usb4-dlia-raboty-s-bolsimi-ii-modeliami-microsoft-realizovala-rabotu-rdma-novym-sposobom.html"
+}
