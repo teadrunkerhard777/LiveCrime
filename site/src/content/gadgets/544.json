@@ -1,0 +1,8 @@
+{
+  "message_id": "544",
+  "text": "🔵 SSD продолжают страдать от драйверов Nvidia — выпущенное исправление помогло не всем\n\nНесколько дней назад компания Nvidia выпустила драйвер GeForce Hotfix 621.35 , призванный устранить проблему чрезмерной записи данных на SSD , обнаруженную в предыдущих версиях драйверов. Однако пользователи сообщают, что обновление не решает эту проблему полностью.\n\nПроблема чрезмерного использования ресурсов системного накопителя ранее была обнаружена в драйверах GeForce 621.14 и 621.24. Пользователи обратили внимание, что процесс Nvidia Display Container постоянно записывал данные в лог-файл nvlog.nvlgstg.\n\nОдин из пользователей провёл тестирование трёх версий драйверов на системе с видеокартой RTX 4090 и SSD Samsung 990 Pro ёмкостью 2 Тбайт. Поначалу казалось, что установленное исправление 621.35 сработало: за первый час работы процесс Nvidia записал лишь 90,8 Кбайт данных.…\n\n📅 23 ноября 2026\n📰 3DNews: гаджеты\n#гаджеты",
+  "published_at": "2026-11-23T22:31:20+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/bZ9yxxkdfI2HzUf_nGo7MWmNpHjTApSXKLFm3HLiFjJz7x1LTIIKXxIbVXtO-u77vrTYGmtKGCRgxwKP7gfrbk-SBUYU6RPfhizOR4wViEnArYVY5hNKRVclCkQwkzHqU9WA-v-3EoC2V4RUbDgCeqpLYojnwThMIExLLfsN5r-XgyswBYIEYYLIwKJJ-9Qp10Sbcb1JJGGqJlro0rUjbAKNoSvf3dyYQa3gzkwgoylvexe0slxe61wqYa55dhQ4LujiQR9JlqP39E2V0n597fPxt2m1HKLKfdwI9oBwmUeQDvBBInBnC65TqtksPyBjq-KipMTrPxhLlvzwiPFnEA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/544",
+  "source_url": "https://3dnews.ru/1151689"
+}
