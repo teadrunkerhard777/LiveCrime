@@ -1,0 +1,8 @@
+{
+  "message_id": "547",
+  "text": "🔵 От пилота к массовой миграции: как перевести 24 команды на новую TMS и не остановить тестирование\n\nПривет, Хабр! На связи команда тестирования группы Рунити.\n\nМы столкнулись с этим вызовом, когда решили отказаться от TestRail в пользу ТестОпс. За три месяца перевели на новую TMS 24 команды и перенесли 41 000 тест-кейсов.\n\nВ статье расскажем, почему выбрали ТестОпс, какие ограничения обнаружили у готового скрипта миграции, как организовали поэтапный переход и что изменилось в работе после переезда. Отдельно разберем ошибки, которые стоит учесть при смене TMS.\n\nНавигация по тексту\n\n📅 24 ноября 2026\n📰 Habr Новости: искусственный интеллект\n#ИИ",
+  "published_at": "2026-11-24T07:31:27+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/QlmrCWQBH-kty6UPM0acTB67NhLK6b9OYRWCiACRDXxQSh1dWe6qX2Iig3fhkhAKg6kg8jdk1YezwTFt9fuIyf1hM14U_d16_L35ZfufdSCN_AcqwzBqiZIVNpKYaThcRHuxrFuUePOmK-5xCV2Yb8D1d-CT-2S3rZJalPZ131W8Q8CF9s4FytOeXtutfmGAMF0-xS1EFXrPQFCE0_LImsES5iSfuOq2Q3L5RULN-PEEi4FcZxIAfsnLRb1h1AqGxXGm8FJ6kXA-tNZPFHo1rouekEd5dOs7kUeOYBY8dHe37NvPfkOK2DB_LikIM8_70qIxyyIdeDJbSQ3sCm-lcg.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/547",
+  "source_url": "https://habr.com/ru/companies/runity/articles/1111534/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1111534"
+}
