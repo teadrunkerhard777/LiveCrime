@@ -1,0 +1,8 @@
+{
+  "message_id": "561",
+  "text": "🔵 Расширение Adobe Acrobat для Chrome по-тихому «убивает» SSD — оно записывает по 300 ГБ данных за три дня\n\nПользователь обнаружил в Windows 11 высокую активность записи на накопитель со стороны браузера Chrome, даже когда компьютер практически не использовался. В ходе расследования выяснилось, что причина — в официальном расширении Adobe Acrobat для браузера, которым, согласно данным Chrome Web Store, пользуются более 350 млн человек.\n\nВ ходе расследования пользователь обнаружил подозрительную активность связанного с Adobe сервисного воркера (Service Worker). Тот постоянно загружал и заменял примерно 1 ГБ кэшированных данных, продолжая работать даже ночью, когда окна Chrome были закрыты.\n\nПосле удаления расширения Adobe Acrobat, отключения…\n\n📅 25 ноября 2026\n📰 iXBT: гаджеты\n#гаджеты",
+  "published_at": "2026-11-26T01:31:10+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/cGEvtQSUGyCuxG2OYsKzf8eahK2sYmIUwyk_xBlrbyla2eP4BaSHo2ehKbLykpZ4oS9bRVY3VbA3aoDv2ekbsuyY3ost7jHxmLV3e7ntnmwuvI1WtkmqzmYF4p9c6mvUP3pCBVu6ohRJ2C-z4YMhHs1of33P0CME3gKZOlN-5dUFDd5fHu7Vh2kEYmZCKg5GGg13bm2ldMOGHG3_tofPPMFdPg3-VnlTo3IUXk0haIy6WIdTFb3WtIbpKXezJfz7EhPpnEaWU2HkCBxPoEAP6zNrWmKlDWqaE6usz5E_z4XpWCjsybKT4iGVly1li6R3QVJLWnMpAbhg7_v0Y5EzgA.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/561",
+  "source_url": "https://www.ixbt.com/news/2026/11/25/rassirenie-adobe-acrobat-dlia-chrome-po-tixomu-ubivaet-ssd-ono-zapisyvaet-po-300-gb-dannyx-za-tri-dnia.html"
+}

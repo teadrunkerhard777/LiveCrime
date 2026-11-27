@@ -1,0 +1,8 @@
+{
+  "message_id": "564",
+  "text": "🔵 Вместо мощного сервера хватит обычного ноутбука: Сбер выпустил компактный GigaChat 4 37B\n\nСбер представил GigaChat 4 37B — компактную языковую модель, рассчитанную на высокую скорость работы и экономное использование вычислительных ресурсов. Новинка сохраняет возможности более крупных моделей: умеет рассуждать, выполнять задачи в агентных средах и обрабатывать контекст объёмом до 1 млн токенов.\n\nМодель разработана с нуля на архитектуре Mixture of Experts (MoE). Для обработки каждого запроса задействуется только часть её параметров, что сокращает время ответа и нагрузку на оборудование.\n\nGigaChat 4 37B поддерживает работу с файлами, кодом, поиском и внешними инструментами. Её можно подключать к агентным средам Claude Code, Codex и Multitool.\n\nПо результатам…\n\n📅 26 ноября 2026\n📰 iXBT: гаджеты\n#гаджеты",
+  "published_at": "2026-11-26T10:31:17+00:00",
+  "image_url": "https://cdn4.telesco.pe/file/cYsOD1b0KXWQhPjNeNSbMmC6pACtD8MvACqIfYq41sTv5t5edCpgRxdV_NE287FhGq_5yoOmOk8HzB8a_bYPeI_hppAREB6OshVnO8ueEhX5H_kFToXSR-z5SxvmL7Lt8J41CnJN3BSDdFteihhhOqGmW4gLyd6zA_84atzMS5Vin5AQu5MXl3x517Ux-ZEjLRzIpRH72LN6qeTqrHoUQxMgN3mKhZxrUxS4Zev2tluyKh_GjUyf574HVq1qd1oYJKHmo51oC2axkLP42TYRijv82kxSYbpFWExN4BMPyK9g6lZ4GMd7JljIkHjVStsXUFtrVY8IjI-BeyWLJHQ7dQ.jpg",
+  "telegram_url": "https://t.me/trends_brands_money/564",
+  "source_url": "https://www.ixbt.com/news/2026/11/26/vmesto-moshhnogo-servera-xvatit-obycnogo-noutbuka-sber-vypustil-kompaktnyi-gigachat-4-37b.html"
+}
